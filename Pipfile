@@ -12,7 +12,6 @@ ujson = "*"
 smart-open = "*"
 click = "*"
 python-dot-env = "*"
-puython-dotenv = "==0.10.3"
 
 [requires]
 python_version = "3.7"
