@@ -4,7 +4,5 @@
 # Licensed under the MIT License.
 #
 
-import  Exceptions
-
 class   ETLiteException( Exception ):
         pass
