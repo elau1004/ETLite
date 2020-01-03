@@ -13,13 +13,7 @@
 # ANY KIND, either express or implied. See the License for the specific
 # language governing permissions and limitations under the License.
 
-import  unittest
+import unittest
 
-from    tests.base_test import  BaseTest
-
-class TestEtlite( BaseTest ):
+class BaseTest( unittest.TestCase ):
     pass
-
-
-if "__main__" == __name__:
-    unittest.main()
