@@ -9,6 +9,7 @@ import  sys
 sys.path = [os.getcwd()] + sys.path # VS Code debugger needs it because it default cwd to {workspace}/sample.
 
 from    aiohttp import ClientResponse
+from    etlite.common.base_etl  import  BaseEtl
 from    sample.base_sample_restapi_etl  import  BaseSampleRestApiEtl
 
 class   Sam1Etl( BaseSampleRestApiEtl ):
@@ -16,6 +17,13 @@ class   Sam1Etl( BaseSampleRestApiEtl ):
 
     def __init__( self ):
         super().__init__( Sam1Etl.CODE )
+
+    # Private method section
+    #
+
+    
+    # Begin Interface implementation section
+    #
 
     # Optional step 1.
     def get_authentication_url( self ) -> str:
@@ -43,20 +51,50 @@ class   Sam1Etl( BaseSampleRestApiEtl ):
 
     # Required step 7.
     def get_next_datapage_url( self ) -> str:
-        return  None
+        return  BaseSampleRestApiEtl.STOCK_URL + "IBM"
 
     # Required step 8.
-    def put_next_datapage_url( self ,resp:ClientResponse ):
+    def put_next_datapage_resp( self ,resp:ClientResponse ):
         pass
 
-    def get_raw_filepath( self ) -> str:
+    # Properties section
+    #
+
+    def raw_filepath( self ) -> str:
         return  None
 
-    def get_latest_filepath( self ) -> str:
+    def latest_filepath( self ) -> str:
         return  None
 
-    def get_archive_filepath( self ) -> str:
+    def archive_filepath( self ) -> str:
         return  None
+
+    def output_data_header( self ) -> str:
+        return None
+
+    def transform_data( self ,record:str ,delimiter:str=BaseEtl.DELIMITER ) -> str:
+        return None
+
+    def source_table( self ) -> str:
+        pass
+
+    def source_columns( self ,columns:list ) -> list:
+        pass
+
+    def target_columns( self ,columns:list ) -> list:
+        pass
+
+    def stage_query( self ) -> str:
+        pass
+
+    def insert_query( self ) -> str:
+        pass
+
+    def update_query( self ) -> str:
+        pass
+
+    #
+    # End Interface implementation section
 
 
 if '__main__' == __name__:
@@ -66,10 +104,17 @@ if '__main__' == __name__:
     s = Sam1Etl()
 
     from etlite.common.base_etl import BaseEtl
-    if isinstance( s ,BaseEtl ):
+    from etlite.common.base_restapi_etl import BaseRestApiEtl
+    if  isinstance( s ,BaseEtl ):
         print( "It is Base ETL")
+
+        if  isinstance( s ,BaseRestApiEtl ):
+            print( "It is Base RestApi ETL")
+
+            if  isinstance( s ,BaseSampleRestApiEtl ):
+                print( "It is Base Sample RestApi ETL")
     else:
-        print( "Bummer" )
+        print( "Bummer!" )
 
     list_of_files = {}
     for( dirpath, dirnames, filenames ) in os.walk( os.getcwd() ):
