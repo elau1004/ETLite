@@ -40,7 +40,8 @@ class   BaseRestApiEtl( BaseEtl ):
 
     # Abstract interface section.
     #
-    
+    # TODO: Figure out if the ClientResponse should be passed in by the framework?
+
     # Optional step 1.
     @abstractmethod
     def get_authentication_url( self ) -> str:
@@ -64,6 +65,7 @@ class   BaseRestApiEtl( BaseEtl ):
         """
         Query the resp to determine if you are authenticated.
         Usually you need to save your auth token.
+        You should do the mininum to figure out if the request is good.
         """
         pass
 
@@ -90,6 +92,7 @@ class   BaseRestApiEtl( BaseEtl ):
         """
         Query the resp to determine if a request token/id is returned 
         to back to you for future use.
+        You should do the mininum to figure out if the request is good.
         """
         pass
 
@@ -115,6 +118,7 @@ class   BaseRestApiEtl( BaseEtl ):
     def put_request_status_resp( self ,resp:ClientResponse ):
         """
         Query the resp to determine if a request data set is ready to download.
+        You should do the mininum to figure out if the request is good.
         """
         pass
 
@@ -140,8 +144,16 @@ class   BaseRestApiEtl( BaseEtl ):
     def put_next_datapage_resp( self ,resp:ClientResponse ):
         """
         Query the resp to determine if there are more pages to download.
+        You should do the mininum to figure out if the request is good.
+        Don't read your data here.  Data should be read by the framework
+        and pass to you via the transform_data() method.
         """
+        # TODO: Figure out if the ClientResponse should be passed in by the framework?
         pass
+
+#   NOTE: The parent class have the following abstract method.
+#   @abstractmethod
+#   def transform_data( self ,record:str ,delimiter:str=DELIMITER ) -> str:
 
     # TODO: Are the following common enough to be moved into the BaseEtl class?
 
