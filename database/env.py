@@ -6,6 +6,8 @@ from sqlalchemy import pool
 from alembic import context
 from sqlalchemy import MetaData
 
+# pylint: disable=no-member
+
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
 config = context.config
