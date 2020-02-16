@@ -1,0 +1,15 @@
+Generic single-database configuration.
+
+# Create the database sub-directory of the root project folder.
+alembic init database
+
+# Edit the alembic.ini file change the genersated filename.
+
+# Generate a revision script.
+alembic revision -m "Create New Table"
+
+# Upgrade the schema.
+alembic upgrade   head
+
+# Downgrade the schema.
+alembic downgrade base

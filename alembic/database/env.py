@@ -29,11 +29,11 @@ target_metadata = None
 #       $   alembic revision -m "Create new Revision"
 #
 target_metadata = MetaData(naming_convention={
-        "ix": "%(column_0_label)s_ix",
-        "uq": "%(table_name)s_%(column_0_name)s_uk",
-        "ck": "%(table_name)s_%(constraint_name)s_ck",
-        "fk": "%(table_name)s_%(column_0_name)s_%(referred_table_name)s_fk",
-        "pk": "%(table_name)s_pk"
+        "ix": "%(column_0_label)s_IX",
+        "uq": "%(table_name)s_%(column_0_name)s_UK",
+        "ck": "%(table_name)s_%(constraint_name)s_CK",
+        "fk": "%(table_name)s_%(column_0_name)s_%(referred_table_name)s_FK",
+        "pk": "%(table_name)s_PK"
     })
 
 # other values from the config, defined by the needs of env.py,
