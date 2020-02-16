@@ -44,8 +44,9 @@ def upgrade():
         #
         ,sa.CheckConstraint(    'ID >= 1'                       ,name='ID'  )
         ,sa.CheckConstraint(    'Field_Seq BETWEEN 1 AND 255'   ,name='Field_Seq' )
-        ,sa.UniqueConstraint(   'Data_Set_ID'     , 'Field_Seq' )
-        ,sa.ForeignKeyConstraint(['Job_Run_ID']   ,['Job_Run.ID']  )
+        ,sa.UniqueConstraint(   'Data_Set_ID'   , 'Field_Seq' )
+        ,sa.ForeignKeyConstraint(['Job_Run_ID'] ,['Job_Run.ID']  )
+        ,sa.ForeignKeyConstraint(['Data_Set_ID'],['Data_Set.ID'])
         #
     )
 

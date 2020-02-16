@@ -30,19 +30,20 @@ def upgrade():
     op.create_table(
         'Job_Run_Import_File'
         ,sa.Column('ID'             ,sa.Integer     ,nullable=False ,primary_key=True   ,autoincrement=101 )
-        ,sa.Column('Job_Run_ID'     ,sa.Integer     ,nullable=True  )
-        ,sa.Column('Data_Set_ID'    ,sa.SmallInteger,nullable=True  )
+        ,sa.Column('Job_Run_ID'     ,sa.Integer     ,nullable=False )
+        ,sa.Column('Data_Set_ID'    ,sa.SmallInteger,nullable=False )
         ,sa.Column('Status_ID'      ,sa.SmallInteger,nullable=False )
-        ,sa.Column('File_Path'      ,sa.String      ,nullable=False )
-        ,sa.Column('MD5'            ,sa.Binary(16)  ,nullable=False )
+        ,sa.Column('File_URI'       ,sa.String      ,nullable=False )
+        ,sa.Column('Line_Count'     ,sa.Integer     ,nullable=True  )
+        ,sa.Column('MD5'            ,sa.Binary(16)  ,nullable=True  )
         ,dt_updated_on
         #
         ,sa.CheckConstraint( 'ID >= 1'          ,name='ID')
         ,sa.CheckConstraint( 'Length( MD5 ) =16',name='MD5')
         ,sa.UniqueConstraint('Data_Set_ID'      ,'MD5')
         ,sa.ForeignKeyConstraint(['Job_Run_ID'] ,['Job_Run.ID'])
-        ,sa.ForeignKeyConstraint(['Status_ID']  ,['Status.ID'])
         ,sa.ForeignKeyConstraint(['Data_Set_ID'],['Data_Set.ID'])
+        ,sa.ForeignKeyConstraint(['Status_ID']  ,['Status.ID'])
         #
         ,sa.Index('Job_Run_Import_File_MD5_IX'          ,'MD5'          ,unique=True  )
         ,sa.Index('Job_Run_Import_File_Job_Run_ID_IX'   ,'Job_Run_ID'   ,unique=False )
