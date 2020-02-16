@@ -48,6 +48,7 @@ def upgrade():
         ,sa.ForeignKeyConstraint(['Validation_Rule_ID'] ,['Validation_Rule.ID'])
         ,sa.ForeignKeyConstraint(['Job_Run_ID'] ,['Job_Run.ID'])
         ,sa.ForeignKeyConstraint(['Data_Set_ID'],['Data_Set.ID'])
+        ,sa.ForeignKeyConstraint(['Severity_ID'],['Severity.ID'])
         #
         ,sa.Index('Validation_Result_Job_Run_ID_UK'  ,'Job_Run_ID'   ,'Validation_Rule_ID' ,unique=True)
     )
