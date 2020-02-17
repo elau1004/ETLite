@@ -29,15 +29,14 @@ dt_updated_on = sa.Column(
 def upgrade():
     op.create_table(
         'Severity'
-        ,sa.Column('ID'         ,sa.SmallInteger,nullable=False ,comment='The Primary Key'  )
-        ,sa.Column('Name'       ,sa.String(12)  ,nullable=False ,comment='Name of the severity')
-        ,sa.Column('Description',sa.String(128) ,nullable=False ,comment='Description of the severity')
+        ,sa.Column('ID'         ,sa.SmallInteger,nullable=False ,comment='The Primary Key'  ,primary_key=True )
+        ,sa.Column('Name'       ,sa.String(12)  ,nullable=False ,comment='Name of the severity' )
+        ,sa.Column('Description',sa.String(128) ,nullable=False ,comment='Description of the severity'  )
         ,dt_updated_on
         #
-        ,sa.CheckConstraint( 'ID BETWEEN 1 AND 5',name='ID')
-        ,sa.UniqueConstraint('ID')
-        ,sa.UniqueConstraint('Name')
-        # Not creating indices for this small table.
+        ,sa.CheckConstraint( 'ID BETWEEN 1 AND 5'   ,name='ID')
+        #
+        ,sa.Index('Severity_UK1' ,'Name' ,unique=True)
     )
 
     _table = table(

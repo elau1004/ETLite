@@ -29,7 +29,7 @@ dt_updated_on = sa.Column(
 def upgrade():
     op.create_table(
         'Validation_Rule'
-        ,sa.Column('ID'                 ,sa.Integer     ,nullable=False ,autoincrement=101 ,primary_key=True)
+        ,sa.Column('ID'                 ,sa.SmallInteger,nullable=False ,primary_key=True ,autoincrement=101 ,mssql_identity_start=101 )
         ,sa.Column('Data_Set_ID'        ,sa.SmallInteger,nullable=False )
         ,sa.Column('Parent_ID'          ,sa.SmallInteger,nullable=True  )
         ,sa.Column('Code'               ,sa.String(32)  ,nullable=False )
@@ -51,14 +51,14 @@ def upgrade():
         ,sa.Column('Last_Failed_On'     ,sa.DateTime(timezone=True) ,nullable=True  )
         ,dt_updated_on
         #
-        ,sa.CheckConstraint( 'ID >= 1'  ,name='ID')
+        ,sa.CheckConstraint( 'ID >= 1'                  ,name='ID')
         ,sa.CheckConstraint( 'Length( Code ) <= 32'     ,name='Code')
-        ,sa.UniqueConstraint('Code')
         ,sa.ForeignKeyConstraint(['Data_Set_ID'],['Data_Set.ID'])
         ,sa.ForeignKeyConstraint(['Parent_ID']  ,['Validation_Rule.ID'])
         ,sa.ForeignKeyConstraint(['Status_ID']  ,['Status.ID'])
         ,sa.ForeignKeyConstraint(['Run_Frequency_ID'] ,['Frequency.ID'])
-        # Not creating indices for this small table.
+        #
+        ,sa.Index('Validatino_Rule_UK1' ,'Code' ,unique=True)
     )
 
 def downgrade():

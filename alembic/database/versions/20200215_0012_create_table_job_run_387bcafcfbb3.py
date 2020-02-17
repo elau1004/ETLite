@@ -29,7 +29,7 @@ dt_updated_on = sa.Column(
 def upgrade():
     op.create_table(
         'Job_Run'
-        ,sa.Column('ID'                 ,sa.Integer     ,nullable=False ,autoincrement=101 ,primary_key=True ,mssql_identity_start=101 )
+        ,sa.Column('ID'                 ,sa.Integer     ,nullable=False ,primary_key=True ,autoincrement=101 ,mssql_identity_start=101 )
         ,sa.Column('Run_No'             ,sa.Integer     ,nullable=False )
         ,sa.Column('Data_Set_ID'        ,sa.SmallInteger,nullable=True  )
         ,sa.Column('Status_ID'          ,sa.SmallInteger,nullable=False )
@@ -47,13 +47,12 @@ def upgrade():
         ,dt_updated_on
         #
         ,sa.CheckConstraint( 'ID BETWEEN 1 AND 32767'   ,name='ID'  )
-        ,sa.UniqueConstraint('Data_Set_ID' ,'Run_No')
         ,sa.ForeignKeyConstraint(['Status_ID']  ,['Status.ID']  )
         ,sa.ForeignKeyConstraint(['Data_Set_ID'],['Data_Set.ID'] ,ondelete='CASCADE')
         #
-        ,sa.Index('Job_Run_No_UK'               ,'Run_No'       ,'Data_Set_ID'  ,unique=True)
-        ,sa.Index('Job_Run_Data_Set_ID_UK'      ,'Data_Set_ID'  ,'Run_No'       ,unique=True)
-        ,sa.Index('Job_Run_Data_Set_Status_UK'  ,'Status_ID'    ,'Data_Set_ID'  ,'Ran_From' ,unique=True)
+        ,sa.Index('Job_Run_UK1' ,'Run_No'       ,'Data_Set_ID'              ,unique=True)
+        ,sa.Index('Job_Run_UK2' ,'Data_Set_ID'  ,'Run_No'                   ,unique=True)
+        ,sa.Index('Job_Run_UK3' ,'Status_ID'    ,'Data_Set_ID'  ,'Ran_From' ,unique=True)
         #
         ,sqlite_autoincrement=True
     )
