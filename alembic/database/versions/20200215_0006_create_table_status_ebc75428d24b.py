@@ -29,16 +29,16 @@ dt_updated_on = sa.Column(
 def upgrade():  
     op.create_table(
         'Status'
-        ,sa.Column('ID'             ,sa.SmallInteger    ,nullable=False ,comment='The Primary Key'  )
+        ,sa.Column('ID'             ,sa.SmallInteger    ,nullable=False ,comment='The Primary Key'  ,primary_key=True )
         ,sa.Column('Name'           ,sa.String(32)      ,nullable=False ,comment='Name of the severity' )
         ,sa.Column('is_Active'      ,sa.Boolean(False)  ,nullable=False ,comment='Flag to enable/disable this row' ,server_default='TRUE' )
         ,sa.Column('Display_Order'  ,sa.SmallInteger    ,nullable=True  ,comment='The order to displa in UI')
         ,dt_updated_on
         #
-        ,sa.CheckConstraint( 'ID BETWEEN 0 AND 255',name='ID')
-        ,sa.UniqueConstraint('ID')
-        ,sa.UniqueConstraint('Name')
-        # Not creating indices for this small table.
+        ,sa.CheckConstraint( 'ID BETWEEN 0 AND 255' ,name='ID')
+        ,sa.UniqueConstraint('Name'                 ,name='Status_UK1')
+        #
+        ,sa.Index('Status_UK1'  ,'Name' ,unique=True)
     )
 
     _table = table(

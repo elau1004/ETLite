@@ -29,19 +29,18 @@ dt_updated_on = sa.Column(
 def upgrade():
     op.create_table(
         'Job_Run_Metric'
-        ,sa.Column('ID'         ,sa.Integer     ,nullable=False ,autoincrement=101 ,primary_key=True)
+        ,sa.Column('ID'         ,sa.Integer     ,nullable=False ,primary_key=True ,autoincrement=101 ,mssql_identity_start=101 )
         ,sa.Column('Job_Run_ID' ,sa.Integer     ,nullable=False )
         ,sa.Column('Data_Set_ID',sa.SmallInteger,nullable=False )
         ,sa.Column('Stats'      ,sa.JSON        ,nullable=False )
         ,dt_updated_on
         #
-        ,sa.CheckConstraint(    'ID >= 1'   ,name='ID')
-        ,sa.UniqueConstraint(   'Job_Run_ID')
+        ,sa.CheckConstraint(    'ID >= 1'       ,name='ID')
         ,sa.ForeignKeyConstraint(['Job_Run_ID'] ,['Job_Run.ID'])
         ,sa.ForeignKeyConstraint(['Data_Set_ID'],['Data_Set.ID'])
         #
-        ,sa.Index('Job_Run_Metric_Job_Run_ID_UK'  ,'Job_Run_ID'   ,unique=True)
-        ,sa.Index('Job_Run_Metric_Data_Set_ID_IX' ,'Data_Set_ID'  ,unique=False)
+        ,sa.Index('Job_Run_Metric_UK1'  ,'Job_Run_ID'   ,unique=True)
+        ,sa.Index('Job_Run_Metric_K1'   ,'Data_Set_ID'  ,unique=False)
     )
 
 def downgrade():
