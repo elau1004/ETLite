@@ -29,7 +29,7 @@ dt_updated_on = sa.Column(
 def upgrade():
     op.create_table(
         'Data_Set'
-        ,sa.Column('ID'                 ,sa.Integer     ,nullable=False ,autoincrement=101 ,primary_key=True)
+        ,sa.Column('ID'                 ,sa.Integer     ,nullable=False ,primary_key=True ,autoincrement=101 ,mssql_identity_start=101 )
         ,sa.Column('Code'               ,sa.String(8)   ,nullable=False )
         ,sa.Column('Description'        ,sa.String(64)  ,nullable=False )
         ,sa.Column('Status_ID'          ,sa.SmallInteger,nullable=False ,server_default='2')    # Enabled
@@ -62,12 +62,13 @@ def upgrade():
         ,sa.CheckConstraint( 'Exec_Sequence BETWEEN 1 AND 255'  ,name='Exec_Sequence')
         ,sa.CheckConstraint( 'Length( Code ) <= 8'              ,name='Code')
         ,sa.CheckConstraint( 'Lock_Expire_After > 0'            ,name='Lock_Expire_After')
-        ,sa.UniqueConstraint('Code')
-        ,sa.ForeignKeyConstraint(['Status_ID']  ,['Status.ID'])
+        ,sa.ForeignKeyConstraint(['Status_ID']  ,['Status.ID']  )
         ,sa.ForeignKeyConstraint(['Parent_ID']  ,['Data_Set.ID'])
         ,sa.ForeignKeyConstraint(['Data_Vendor_ID']   ,['Data_Vendor.ID'] ,ondelete='CASCADE')
         ,sa.ForeignKeyConstraint(['Run_Frequency_ID'] ,['Frequency.ID'])
-        # Not creating indices for this small table.
+        #
+        ,sa.Index('Data_Set_UK1' ,'Code'    ,unique=True)
+        #
         ,sqlite_autoincrement=True
     )
 

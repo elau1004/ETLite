@@ -29,18 +29,19 @@ dt_updated_on = sa.Column(
 def upgrade():
     op.create_table(
         'Data_Vendor'
-        ,sa.Column('ID'         ,sa.Integer     ,nullable=False ,autoincrement=101 ,primary_key=True)
+        ,sa.Column('ID'         ,sa.Integer     ,nullable=False ,primary_key=True ,autoincrement=101 ,mssql_identity_start=101 )
         ,sa.Column('Code'       ,sa.String(8)   ,nullable=False )
         ,sa.Column('Name'       ,sa.String(64)  ,nullable=False )
         ,sa.Column('Status_ID'  ,sa.SmallInteger,nullable=False ,server_default='2')    # Enabled
         ,dt_updated_on
         #
-        ,sa.CheckConstraint( 'ID BETWEEN 1 AND 32767'   ,name='ID'  )
-        ,sa.CheckConstraint( 'Status_ID BETWEEN 1 AND 2',name='Status_ID'  )
+        ,sa.CheckConstraint( 'ID BETWEEN 1 AND 32767'   ,name='ID')
+        ,sa.CheckConstraint( 'Status_ID BETWEEN 1 AND 2',name='Status_ID')
         ,sa.CheckConstraint( 'Length( Code )<=8'        ,name='Code')
-        ,sa.UniqueConstraint('Code')
-        ,sa.ForeignKeyConstraint(['Status_ID']  ,['Status.ID'])
-        # Not creating indices for this small table.
+        ,sa.ForeignKeyConstraint(['Status_ID']  ,['Status.ID']  )
+        #
+        ,sa.Index('Data_Vendor_UK1' ,'Code' ,unique=True)
+        #
         ,sqlite_autoincrement=True
     )
 
