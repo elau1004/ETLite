@@ -36,19 +36,18 @@ def upgrade():
         ,sa.Column('Data_Type'      ,sa.String(32)  ,nullable=False )
         ,sa.Column('Status_ID'      ,sa.SmallInteger,nullable=False ,server_default='2' )   # Enabled
         ,sa.Column('do_Count'       ,sa.SmallInteger,nullable=False ,server_default='1' )
+        ,sa.Column('do_Blanks'      ,sa.SmallInteger,nullable=False ,server_default='1' )
         ,sa.Column('do_Distinct'    ,sa.SmallInteger,nullable=False ,server_default='1' )
-        ,sa.Column('do_Null'        ,sa.SmallInteger,nullable=False ,server_default='1' )
         ,sa.Column('do_Average'     ,sa.SmallInteger,nullable=False ,server_default='1' )
         ,sa.Column('do_Median'      ,sa.SmallInteger,nullable=False ,server_default='0' )
         ,sa.Column('do_Minimum'     ,sa.SmallInteger,nullable=False ,server_default='1' )
         ,sa.Column('do_Maximum'     ,sa.SmallInteger,nullable=False ,server_default='1' )
-        ,sa.Column('do_Length'      ,sa.SmallInteger,nullable=False ,server_default='0' )
-        ,sa.Column('do_Sum'         ,sa.SmallInteger,nullable=False ,server_default='0' )
         ,dt_updated_on
         #
         ,sa.CheckConstraint(    'ID >= 1'                       ,name='ID'  )
         ,sa.CheckConstraint(    'Field_Seq BETWEEN 1 AND 255'   ,name='Field_Seq' )
         ,sa.CheckConstraint(    'Status_ID BETWEEN 1 AND 2'     ,name='Status_ID' )
+        #
         ,sa.ForeignKeyConstraint(['Data_Set_ID']  ,['Data_Set.ID']  )
         #
         ,sa.Index('Data_Set_Profile_UK1' ,'Data_Set_ID' ,'Field_Seq'    ,unique=True)

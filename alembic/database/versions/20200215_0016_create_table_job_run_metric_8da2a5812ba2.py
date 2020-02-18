@@ -36,6 +36,7 @@ def upgrade():
         ,dt_updated_on
         #
         ,sa.CheckConstraint(    'ID >= 1'       ,name='ID')
+        #
         ,sa.ForeignKeyConstraint(['Job_Run_ID'] ,['Job_Run.ID'])
         ,sa.ForeignKeyConstraint(['Data_Set_ID'],['Data_Set.ID'])
         #
