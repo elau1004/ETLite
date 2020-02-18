@@ -29,43 +29,45 @@ dt_updated_on = sa.Column(
 def upgrade():
     op.create_table(
         'Data_Set'
-        ,sa.Column('ID'                 ,sa.Integer     ,nullable=False ,primary_key=True ,autoincrement=101 ,mssql_identity_start=101 )
-        ,sa.Column('Code'               ,sa.String(8)   ,nullable=False )
-        ,sa.Column('Description'        ,sa.String(64)  ,nullable=False )
-        ,sa.Column('Status_ID'          ,sa.SmallInteger,nullable=False ,server_default='2')    # Enabled
-        ,sa.Column('Parent_ID'          ,sa.SmallInteger,nullable=True  )
+        ,sa.Column('ID'                 ,sa.Integer     ,primary_key=True ,autoincrement=101 ,mssql_identity_start=101 )
+        ,sa.Column('Code'               ,sa.String(8)   )
+        ,sa.Column('Description'        ,sa.String(64)  )
+        ,sa.Column('Status_ID'          ,sa.SmallInteger,server_default='2')    # Enabled
+        ,sa.Column('Parent_ID'          ,sa.SmallInteger)
         ,sa.Column('Exec_Sequence'      ,sa.SmallInteger,nullable=False ,server_default='1' )
         ,sa.Column('Data_Vendor_ID'     ,sa.SmallInteger,nullable=False )
         ,sa.Column('Run_Frequency_ID'   ,sa.SmallInteger,nullable=False ,server_default='3' )   # Daily
         ,sa.Column('Run_Frequency_Value',sa.Integer     ,nullable=False ,server_default='1' )
-        ,sa.Column('Data_From'          ,sa.DateTime(timezone=True)     )
-        ,sa.Column('Data_Upto'          ,sa.DateTime(timezone=True)     )
-        ,sa.Column('Last_Ran_On'        ,sa.DateTime(timezone=True)     )
+        ,sa.Column('Data_From'          ,sa.DateTime(    timezone=True ))
+        ,sa.Column('Data_Upto'          ,sa.DateTime(    timezone=True ))
+        ,sa.Column('Last_Ran_On'        ,sa.DateTime(    timezone=True ))
         ,sa.Column('Work_in_Progress'   ,sa.SmallInteger,nullable=False ,server_default='1' )
 #       ,sa.Column('Work_in_Progress'   ,??             ,nullable=False )
-        ,sa.Column('Lock_Expire_After'  ,sa.SmallInteger,nullable=False ,server_default='120' ) # 2 hours.
-        ,sa.Column('Source_URI'         ,sa.String(128) ,nullable=True  )
-        ,sa.Column('Stage_URI'          ,sa.String(128) ,nullable=True  )
-        ,sa.Column('Stage_View'         ,sa.String(64)  ,nullable=True  )
-        ,sa.Column('Target_URI'         ,sa.String(128) ,nullable=True  )
+        ,sa.Column('Lock_Expire_After'  ,sa.SmallInteger,nullable=False ,server_default='60')   # 1 hours.
+        ,sa.Column('Source_URI'         ,sa.String(128) )
+        ,sa.Column('Stage_URI'          ,sa.String(128) )
+        ,sa.Column('Stage_View'         ,sa.String(64)  )
+        ,sa.Column('Target_URI'         ,sa.String(128) )
         ,sa.Column('Next_Run_No'        ,sa.Integer     ,nullable=False ,server_default='101' )
-        ,sa.Column('Profiled_to_Run_No' ,sa.Integer     ,nullable=True  )
-        ,sa.Column('Verified_to_Run_No' ,sa.Integer     ,nullable=True  )
-        ,sa.Column('Average_Duration'   ,sa.Integer     ,nullable=True  )
-        ,sa.Column('OnError_Contact'    ,sa.String(128) ,nullable=True  )
-        ,sa.Column('OnSuccess_Contact'  ,sa.String(128) ,nullable=True  )
-        ,sa.Column('Remark'             ,sa.String      ,nullable=True  )
+        ,sa.Column('Profiled_to_Run_No' ,sa.Integer     )
+        ,sa.Column('Verified_to_Run_No' ,sa.Integer     )
+        ,sa.Column('Average_Duration'   ,sa.Integer     )
+        ,sa.Column('OnError_Contact'    ,sa.String(128) )
+        ,sa.Column('OnSuccess_Contact'  ,sa.String(128) )
+        ,sa.Column('Remark'             ,sa.String      )
         ,dt_updated_on
         #
-        ,sa.CheckConstraint( 'ID BETWEEN 1 AND 32767'           ,name='ID')
-        ,sa.CheckConstraint( 'Status_ID BETWEEN 1 AND 2'        ,name='Status_ID'  )
-        ,sa.CheckConstraint( 'Exec_Sequence BETWEEN 1 AND 255'  ,name='Exec_Sequence')
-        ,sa.CheckConstraint( 'Length( Code ) <= 8'              ,name='Code')
-        ,sa.CheckConstraint( 'Lock_Expire_After > 0'            ,name='Lock_Expire_After')
-        ,sa.ForeignKeyConstraint(['Status_ID']  ,['Status.ID']  )
-        ,sa.ForeignKeyConstraint(['Parent_ID']  ,['Data_Set.ID'])
-        ,sa.ForeignKeyConstraint(['Data_Vendor_ID']   ,['Data_Vendor.ID'] ,ondelete='CASCADE')
-        ,sa.ForeignKeyConstraint(['Run_Frequency_ID'] ,['Frequency.ID'])
+        ,sa.CheckConstraint( 'ID BETWEEN 1 AND 32767'               ,name='ID')
+        ,sa.CheckConstraint( 'Status_ID BETWEEN 1 AND 2'            ,name='Status_ID'  )
+        ,sa.CheckConstraint( 'Exec_Sequence BETWEEN 1 AND 255'      ,name='Exec_Sequence')
+        ,sa.CheckConstraint( 'Length( Code ) <= 8'                  ,name='Code')
+        ,sa.CheckConstraint( 'Run_Frequency_Value BETWEEN 1 AND 59' ,name='Frequency_Value')
+        ,sa.CheckConstraint( 'Lock_Expire_After > 0'                ,name='Lock_Expire_After')
+        #
+        ,sa.ForeignKeyConstraint(['Status_ID']          ,['Status.ID']  )
+        ,sa.ForeignKeyConstraint(['Parent_ID']          ,['Data_Set.ID'])
+        ,sa.ForeignKeyConstraint(['Data_Vendor_ID']     ,['Data_Vendor.ID'] ,ondelete='CASCADE')
+        ,sa.ForeignKeyConstraint(['Run_Frequency_ID']   ,['Frequency.ID'])
         #
         ,sa.Index('Data_Set_UK1' ,'Code'    ,unique=True)
         #

@@ -34,21 +34,20 @@ def upgrade():
         ,sa.Column('Job_Run_ID'         ,sa.Integer     ,nullable=False )
         ,sa.Column('Data_Set_ID'        ,sa.SmallInteger,nullable=False )
         ,sa.Column('Severity_ID'        ,sa.SmallInteger,nullable=False ,server_default='4' )   # Info
-        ,sa.Column('Expect_Int'         ,sa.BigInteger  ,nullable=True  )
-        ,sa.Column('Actual_Int'         ,sa.BigInteger  ,nullable=True  )
-        ,sa.Column('Expect_Flt'         ,sa.Float       ,nullable=True  )
-        ,sa.Column('Actual_Flt'         ,sa.Float       ,nullable=True  )
-        ,sa.Column('Expect_Dtm'         ,sa.DateTime    ,nullable=True  )
-        ,sa.Column('Actual_Dtm'         ,sa.DateTime    ,nullable=True  )
-        ,sa.Column('Expect_Str'         ,sa.String      ,nullable=True  )
-        ,sa.Column('Actual_Str'         ,sa.String      ,nullable=True  )
+        ,sa.Column('Expect_Int'         ,sa.BigInteger  )
+        ,sa.Column('Actual_Int'         ,sa.BigInteger  )
+        ,sa.Column('Expect_Flt'         ,sa.Float       )
+        ,sa.Column('Actual_Flt'         ,sa.Float       )
+        ,sa.Column('Expect_Dtm'         ,sa.DateTime    )
+        ,sa.Column('Actual_Dtm'         ,sa.DateTime    )
         ,dt_updated_on
         #
-        ,sa.CheckConstraint(    'ID >= 1' ,name='ID')
+        ,sa.CheckConstraint( 'ID >= 1'  ,name='ID' )
+        #
         ,sa.ForeignKeyConstraint(['Validation_Rule_ID'] ,['Validation_Rule.ID'])
-        ,sa.ForeignKeyConstraint(['Job_Run_ID'] ,['Job_Run.ID'])
-        ,sa.ForeignKeyConstraint(['Data_Set_ID'],['Data_Set.ID'])
-        ,sa.ForeignKeyConstraint(['Severity_ID'],['Severity.ID'])
+        ,sa.ForeignKeyConstraint(['Job_Run_ID']         ,['Job_Run.ID'] )
+        ,sa.ForeignKeyConstraint(['Data_Set_ID']        ,['Data_Set.ID'])
+        ,sa.ForeignKeyConstraint(['Severity_ID']        ,['Severity.ID'])
         #
         ,sa.Index('Validation_Result_UK1' ,'Job_Run_ID' ,'Validation_Rule_ID'   ,unique=True)
     )

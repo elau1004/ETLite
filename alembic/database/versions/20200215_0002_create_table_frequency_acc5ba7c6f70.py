@@ -33,6 +33,7 @@ def upgrade():
         ,sa.Column('Name'   ,sa.String(8)   ,nullable=False ,comment='Name of the frequency')
         ,sa.Column('Minutes',sa.Integer     ,nullable=False ,comment='The number of minutes for this frequency')
         ,dt_updated_on
+        #
         ,sa.CheckConstraint( 'ID BETWEEN 0 AND 8'   ,name='ID')
         ,sa.UniqueConstraint('Name'                 ,name='Frequency_UK1')
         #

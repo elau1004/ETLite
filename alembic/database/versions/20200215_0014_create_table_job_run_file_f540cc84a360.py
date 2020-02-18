@@ -34,12 +34,13 @@ def upgrade():
         ,sa.Column('Data_Set_ID'    ,sa.SmallInteger,nullable=False )
         ,sa.Column('Status_ID'      ,sa.SmallInteger,nullable=False )
         ,sa.Column('File_URI'       ,sa.String      ,nullable=False )
-        ,sa.Column('Line_Count'     ,sa.Integer     ,nullable=True  )
-        ,sa.Column('MD5'            ,sa.Binary(16)  ,nullable=True  )
+        ,sa.Column('Line_Count'     ,sa.Integer     )
+        ,sa.Column('MD5'            ,sa.Binary(16)  )
         ,dt_updated_on
         #
         ,sa.CheckConstraint( 'ID >= 1'              ,name='ID')
-        ,sa.CheckConstraint( 'Length( MD5 ) =16'    ,name='MD5')
+        ,sa.CheckConstraint( 'Length( MD5 ) = 16'   ,name='MD5')
+        #
         ,sa.ForeignKeyConstraint(['Job_Run_ID'] ,['Job_Run.ID'])
         ,sa.ForeignKeyConstraint(['Data_Set_ID'],['Data_Set.ID'])
         ,sa.ForeignKeyConstraint(['Status_ID']  ,['Status.ID'])
