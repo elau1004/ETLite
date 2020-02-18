@@ -34,9 +34,9 @@ def upgrade():
         ,sa.Column('Data_Set_ID'    ,sa.SmallInteger,nullable=False )
         ,sa.Column('Field_Seq'      ,sa.SmallInteger,nullable=False ,server_default='1' )
 #       ,sa.Column('Aggregate_Type' ,sa.String(64)  ,nullable=False )
-        ,sa.Column('Counts'         ,sa.BigInteger  ,nullable=False )
-        ,sa.Column('Blanks'         ,sa.BigInteger  ,nullable=False )
-        ,sa.Column('Distincts'      ,sa.BigInteger  ,nullable=False )
+        ,sa.Column('Record_Count'   ,sa.BigInteger  ,nullable=False )
+        ,sa.Column('Blank_Count'    ,sa.BigInteger  ,nullable=False )
+        ,sa.Column('Distinct_Count' ,sa.BigInteger  ,nullable=False )
         #
         ,sa.Column('Average_IntType',sa.BigInteger  )
         ,sa.Column('Median_IntType' ,sa.BigInteger  )
