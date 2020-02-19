@@ -41,8 +41,7 @@ def upgrade():
         ,sa.Column('Data_From'          ,sa.DateTime(    timezone=True ))
         ,sa.Column('Data_Upto'          ,sa.DateTime(    timezone=True ))
         ,sa.Column('Last_Ran_On'        ,sa.DateTime(    timezone=True ))
-        ,sa.Column('Work_in_Progress'   ,sa.SmallInteger,nullable=False ,server_default='1' )
-#       ,sa.Column('Work_in_Progress'   ,??             ,nullable=False )
+        ,sa.Column('Work_in_Progress'   ,sa.Boolean(name='Work_in_Progress') ,nullable=False, server_default='0' )
         ,sa.Column('Lock_Expire_After'  ,sa.SmallInteger,nullable=False ,server_default='60')   # 1 hours.
         ,sa.Column('Source_URI'         ,sa.String(128) )
         ,sa.Column('Stage_URI'          ,sa.String(128) )
