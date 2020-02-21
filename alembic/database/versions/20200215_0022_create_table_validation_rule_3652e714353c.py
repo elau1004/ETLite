@@ -29,15 +29,15 @@ dt_updated_on = sa.Column(
 def upgrade():
     op.create_table(
         'Validation_Rule'
-        ,sa.Column('ID'                 ,sa.SmallInteger,nullable=False ,primary_key=True ,autoincrement=101 ,mssql_identity_start=101 )
-        ,sa.Column('Data_Set_ID'        ,sa.SmallInteger,nullable=False )
-        ,sa.Column('Parent_ID'          ,sa.SmallInteger,nullable=True  )
+        ,sa.Column('ID'                 ,sa.Integer     ,nullable=False ,primary_key=True ,autoincrement=101 ,mssql_identity_start=101 )
+        ,sa.Column('Data_Set_ID'        ,sa.SmallInteger,nullable=False ,comment='Denormalized column for querying.')
+        ,sa.Column('Parent_ID'          ,sa.SmallInteger,nullable=True  ,comment='The parent rule that is tpo be inherited down to this row.')
         ,sa.Column('Code'               ,sa.String(64)  ,nullable=False )
         ,sa.Column('Description'        ,sa.String(128) ,nullable=False )
         ,sa.Column('Status_ID'          ,sa.SmallInteger,nullable=False ,server_default= '2'    )   # Enabled
         ,sa.Column('Assert_Order'       ,sa.SmallInteger,nullable=False ,server_default= '1'    )   # Enabled
-        ,sa.Column('Run_Frequency_ID'   ,sa.SmallInteger,server_default= '3'    )   # Daily
-        ,sa.Column('Run_Frequency_Value',sa.Integer     ,server_default= '1'    )
+        ,sa.Column('Run_Frequency_ID'   ,sa.SmallInteger,nullable=False ,server_default='3'     ,comment='The frequency to validate this data set.')   # Daily
+        ,sa.Column('Frequency_Interval' ,sa.Integer     ,nullable=False ,server_default='1'     ,comment='The frequency interval to validate this data set.' )
         ,sa.Column('Threshold_Type'     ,sa.String(1)   ,server_default= 'P'    )   # A=Absolute ,S=Stadard Deviation ,P=Percentage
         ,sa.Column('Warn_Top_Limit'     ,sa.Float       ,server_default= '0.02' )
         ,sa.Column('Warn_Bot_Limit'     ,sa.Float       ,server_default='-0.02' )
@@ -51,9 +51,9 @@ def upgrade():
         ,sa.Column('Last_Failed_On'     ,sa.DateTime(    timezone=True ))
         ,dt_updated_on
         #
-        ,sa.CheckConstraint( 'ID >= 1'                              ,name='ID'              )
+        ,sa.CheckConstraint( 'ID BETWEEN 1 AND 32767'               ,name='ID')
         ,sa.CheckConstraint( 'Assert_Order >= 1'                    ,name='Assert_Order'    )
-        ,sa.CheckConstraint( 'Run_Frequency_Value BETWEEN 1 AND 59' ,name='Frequency_Value' )
+        ,sa.CheckConstraint( 'Frequency_Interval BETWEEN 1 AND 59'  ,name='Frequency_Value' )
         ,sa.CheckConstraint( "Threshold_Type IN(NULL,'A','S','P')"  ,name='Threshold_Type'  )
         ,sa.CheckConstraint ('Warn_Top_Limit  >= 0'                 ,name='Warn_Top_Limit'  )
         ,sa.CheckConstraint ('Warn_Bot_Limit  <= 0'                 ,name='Warn_Bot_Limit'  )
@@ -67,7 +67,9 @@ def upgrade():
         ,sa.ForeignKeyConstraint(['Status_ID']  ,['Status.ID'])
         ,sa.ForeignKeyConstraint(['Run_Frequency_ID'] ,['Frequency.ID'])
         #
-        ,sa.Index('Validatino_Rule_UK1' ,'Code' ,unique=True)
+        ,sa.Index('Validation_Rule_UK1' ,'Code' ,unique=True)
+        #
+        ,sqlite_autoincrement=True
     )
 
 def downgrade():

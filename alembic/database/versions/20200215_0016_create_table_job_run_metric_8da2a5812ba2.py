@@ -30,9 +30,9 @@ def upgrade():
     op.create_table(
         'Job_Run_Metric'
         ,sa.Column('ID'         ,sa.Integer     ,nullable=False ,primary_key=True ,autoincrement=101 ,mssql_identity_start=101 )
-        ,sa.Column('Job_Run_ID' ,sa.Integer     ,nullable=False )
-        ,sa.Column('Data_Set_ID',sa.SmallInteger,nullable=False )
-        ,sa.Column('Stats'      ,sa.JSON        ,nullable=False )
+        ,sa.Column('Job_Run_ID' ,sa.Integer     ,nullable=False ,comment='Foreign key to the Job Run table..')
+        ,sa.Column('Data_Set_ID',sa.SmallInteger,nullable=False ,comment='Denormalized column for querying.')
+        ,sa.Column('Stats'      ,sa.JSON        ,nullable=False ,comment='A generic json to capture addition metrics.')
         ,dt_updated_on
         #
         ,sa.CheckConstraint(    'ID >= 1'       ,name='ID')

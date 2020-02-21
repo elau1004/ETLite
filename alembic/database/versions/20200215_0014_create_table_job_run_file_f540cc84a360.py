@@ -31,11 +31,11 @@ def upgrade():
         'Job_Run_Import_File'
         ,sa.Column('ID'             ,sa.Integer     ,nullable=False ,primary_key=True ,autoincrement=101 ,mssql_identity_start=101 )
         ,sa.Column('Job_Run_ID'     ,sa.Integer     ,nullable=False )
-        ,sa.Column('Data_Set_ID'    ,sa.SmallInteger,nullable=False )
-        ,sa.Column('Status_ID'      ,sa.SmallInteger,nullable=False )
-        ,sa.Column('File_URI'       ,sa.String      ,nullable=False )
-        ,sa.Column('Line_Count'     ,sa.Integer     )
-        ,sa.Column('MD5'            ,sa.Binary(16)  )
+        ,sa.Column('Data_Set_ID'    ,sa.SmallInteger,nullable=False ,comment='Denormalized column for querying.')
+#       ,sa.Column('Status_ID'      ,sa.SmallInteger,nullable=False )
+        ,sa.Column('File_URI'       ,sa.String      ,nullable=False ,comment='The file to ingest the data set from.')
+        ,sa.Column('Line_Count'     ,sa.Integer                     ,comment='The number of lines in this file akin to "wc -l"')
+        ,sa.Column('MD5'            ,sa.Binary(16)                  ,comment='The file MD5 checksum to detact doplicated content.')
         ,dt_updated_on
         #
         ,sa.CheckConstraint( 'ID >= 1'              ,name='ID')
@@ -43,11 +43,11 @@ def upgrade():
         #
         ,sa.ForeignKeyConstraint(['Job_Run_ID'] ,['Job_Run.ID'])
         ,sa.ForeignKeyConstraint(['Data_Set_ID'],['Data_Set.ID'])
-        ,sa.ForeignKeyConstraint(['Status_ID']  ,['Status.ID'])
+#       ,sa.ForeignKeyConstraint(['Status_ID']  ,['Status.ID'])
         #
         ,sa.Index('Job_Run_Import_File_UK1' ,'MD5'          ,unique=True  )
         ,sa.Index('Job_Run_Import_File_K1'  ,'Job_Run_ID'   ,unique=False )
-        ,sa.Index('Job_Run_Import_File_K2'  ,'Data_Set_ID'  ,unique=False )
+#       ,sa.Index('Job_Run_Import_File_K2'  ,'Data_Set_ID'  ,unique=False )
         #
         ,sqlite_autoincrement=True
     )
