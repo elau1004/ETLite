@@ -29,38 +29,33 @@ dt_updated_on = sa.Column(
 def upgrade():
     op.create_table(
         'Data_Set_Profile_Result'
-        ,sa.Column('ID'             ,sa.Integer     ,nullable=False ,primary_key=True ,autoincrement=101 ,mssql_identity_start=101 )
-        ,sa.Column('Job_Run_ID'     ,sa.Integer     ,nullable=False )
-        ,sa.Column('Data_Set_ID'    ,sa.SmallInteger,nullable=False )
-        ,sa.Column('Field_Seq'      ,sa.SmallInteger,nullable=False ,server_default='1' )
-#       ,sa.Column('Aggregate_Type' ,sa.String(64)  ,nullable=False )
-        ,sa.Column('Record_Count'   ,sa.BigInteger  ,nullable=False )
-        ,sa.Column('Blank_Count'    ,sa.BigInteger  ,nullable=False )
-        ,sa.Column('Distinct_Count' ,sa.BigInteger  ,nullable=False )
+        ,sa.Column('ID'                 ,sa.Integer     ,nullable=False ,primary_key=True ,autoincrement=101 ,mssql_identity_start=101 )
+        ,sa.Column('Job_Run_ID'         ,sa.Integer     ,nullable=False ,comment='Foreign Key to Job_Run table.')
+        ,sa.Column('Data_Set_Profile_ID',sa.SmallInteger,nullable=False ,comment='Foreign Key to Data_Set_Profile table.')
+        ,sa.Column('Data_Set_ID'        ,sa.SmallInteger,nullable=False ,comment='Denormalized column for querying.')
+        ,sa.Column('Field_Seq'          ,sa.SmallInteger,nullable=False ,comment='Denormalized column for querying.')
+        ,sa.Column('Record_Count'       ,sa.BigInteger  ,nullable=False ,comment='Total raw count for this field in the data set for this job run.')
+        ,sa.Column('Blank_Count'        ,sa.BigInteger  ,nullable=False ,comment='Total null values for this field in the data set for this job run.')
+        ,sa.Column('Distinct_Count'     ,sa.BigInteger  ,nullable=False ,comment='Total distinct values for this field in the data set for this job run.')
         #
-        ,sa.Column('Average_IntType',sa.BigInteger  )
-        ,sa.Column('Median_IntType' ,sa.BigInteger  )
-        ,sa.Column('Minimum_IntType',sa.BigInteger  )
-        ,sa.Column('Maximum_IntType',sa.BigInteger  )
-        ,sa.Column('Average_FltType',sa.Float       )
-        ,sa.Column('Median_FltType' ,sa.Float       )
-        ,sa.Column('Minimum_FltType',sa.Float       )
-        ,sa.Column('Maximum_FltType',sa.Float       )
-        ,sa.Column('Average_DtmType',sa.DateTime    )
-        ,sa.Column('Median_DtmType' ,sa.DateTime    )
-        ,sa.Column('Minimum_DtmType',sa.DateTime    )
-        ,sa.Column('Maximum_DtmType',sa.DateTime    )
+        ,sa.Column('Average_NumValue'   ,sa.Float( 53 ) )   # SQL-Server to use 8 bytes.
+        ,sa.Column('Median_NumValue'    ,sa.Float( 53 ) )   # SQL-Server to use 8 bytes.
+        ,sa.Column('Minimum_NumValue'   ,sa.Float( 53 ) )   # SQL-Server to use 8 bytes.
+        ,sa.Column('Maximum_NumValue'   ,sa.Float( 53 ) )   # SQL-Server to use 8 bytes.
+        #
+        ,sa.Column('Average_DtmValue'   ,sa.DateTime    )   # SEE: https://www.bennadel.com/blog/175-ask-ben-averaging-date-time-stamps-in-sql.htm
+        ,sa.Column('Median_DtmValue'    ,sa.DateTime    )   # SEE: https://www.bennadel.com/blog/175-ask-ben-averaging-date-time-stamps-in-sql.htm
+        ,sa.Column('Minimum_DtmValue'   ,sa.DateTime    )
+        ,sa.Column('Maximum_DtmValue'   ,sa.DateTime    )
         ,dt_updated_on
         #
-        ,sa.CheckConstraint(    'ID >= 1'                       ,name='ID'  )
-        ,sa.CheckConstraint(    'Field_Seq BETWEEN 1 AND 255'   ,name='Field_Seq' )
+        ,sa.CheckConstraint( 'ID >= 1'  ,name='ID' )
         #
-        ,sa.ForeignKeyConstraint(['Job_Run_ID'] ,['Job_Run.ID']  )
+        ,sa.ForeignKeyConstraint(['Job_Run_ID'] ,['Job_Run.ID'] )
         ,sa.ForeignKeyConstraint(['Data_Set_ID'],['Data_Set.ID'])
-        ,sa.ForeignKeyConstraint(['Data_Set_ID'                 ,'Field_Seq']
-                                ,['Data_Set_Profile.Data_Set_ID','Data_Set_Profile.Field_Seq'])
+        ,sa.ForeignKeyConstraint(['Data_Set_Profile_ID'] ,['Data_Set_Profile.ID'] )
         #
-        ,sa.Index('Data_Set_Profile_Result_UK1' ,'Data_Set_ID' ,'Field_Seq' ,unique=True)
+        ,sqlite_autoincrement=True
     )
 
 def downgrade():

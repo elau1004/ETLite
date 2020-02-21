@@ -30,14 +30,14 @@ def upgrade():
     op.create_table(
         'Validation_Result'
         ,sa.Column('ID'                 ,sa.Integer     ,nullable=False ,primary_key=True ,autoincrement=101 ,mssql_identity_start=101 )
-        ,sa.Column('Validation_Rule_ID' ,sa.SmallInteger,nullable=False )
-        ,sa.Column('Job_Run_ID'         ,sa.Integer     ,nullable=False )
-        ,sa.Column('Data_Set_ID'        ,sa.SmallInteger,nullable=False )
+        ,sa.Column('Validation_Rule_ID' ,sa.SmallInteger,nullable=False ,comment='Foreign Key to the Validation Rule table.')
+        ,sa.Column('Job_Run_ID'         ,sa.Integer     ,nullable=False ,comment='Foreign key to the Job Run table.')
+        ,sa.Column('Data_Set_ID'        ,sa.SmallInteger,nullable=False ,comment='Denormalized column for querying.')
         ,sa.Column('Severity_ID'        ,sa.SmallInteger,nullable=False ,server_default='4' )   # Info
         ,sa.Column('Expect_Int'         ,sa.BigInteger  )
         ,sa.Column('Actual_Int'         ,sa.BigInteger  )
-        ,sa.Column('Expect_Flt'         ,sa.Float       )
-        ,sa.Column('Actual_Flt'         ,sa.Float       )
+        ,sa.Column('Expect_Flt'         ,sa.Float( 53 ) )
+        ,sa.Column('Actual_Flt'         ,sa.Float( 53 ) )
         ,sa.Column('Expect_Dtm'         ,sa.DateTime    )
         ,sa.Column('Actual_Dtm'         ,sa.DateTime    )
         ,dt_updated_on
@@ -50,6 +50,8 @@ def upgrade():
         ,sa.ForeignKeyConstraint(['Severity_ID']        ,['Severity.ID'])
         #
         ,sa.Index('Validation_Result_UK1' ,'Job_Run_ID' ,'Validation_Rule_ID'   ,unique=True)
+        #
+        ,sqlite_autoincrement=True
     )
 
 def downgrade():

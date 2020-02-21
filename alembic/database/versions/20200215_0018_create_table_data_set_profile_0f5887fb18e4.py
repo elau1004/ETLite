@@ -30,23 +30,25 @@ def upgrade():
     op.create_table(
         'Data_Set_Profile'
         ,sa.Column('ID'             ,sa.Integer     ,nullable=False ,primary_key=True ,autoincrement=101 ,mssql_identity_start=101 )
-        ,sa.Column('Data_Set_ID'    ,sa.SmallInteger,nullable=False )
-        ,sa.Column('Field_Seq'      ,sa.SmallInteger,nullable=False ,server_default='1' )
-        ,sa.Column('Field_Name'     ,sa.String(64)  ,nullable=False )
-        ,sa.Column('Data_Type'      ,sa.String(32)  ,nullable=False )
+        ,sa.Column('Data_Set_ID'    ,sa.SmallInteger,nullable=False ,comment='Denormalized column for querying.')
+        ,sa.Column('Field_Seq'      ,sa.SmallInteger,nullable=False ,server_default='1' ,comment='The order of the field in the file/table.')
+        ,sa.Column('Field_Name'     ,sa.String(64)  ,nullable=False ,comment='The name of the field.')
+        ,sa.Column('Data_Type'      ,sa.String(8)   ,nullable=False ,comment='D\The data type pof the field.')
         ,sa.Column('Status_ID'      ,sa.SmallInteger,nullable=False ,server_default='2' )   # Enabled
-        ,sa.Column('do_Count'       ,sa.SmallInteger,nullable=False ,server_default='1' )
-        ,sa.Column('do_Blanks'      ,sa.SmallInteger,nullable=False ,server_default='1' )
-        ,sa.Column('do_Distinct'    ,sa.SmallInteger,nullable=False ,server_default='1' )
-        ,sa.Column('do_Average'     ,sa.SmallInteger,nullable=False ,server_default='1' )
-        ,sa.Column('do_Median'      ,sa.SmallInteger,nullable=False ,server_default='0' )
-        ,sa.Column('do_Minimum'     ,sa.SmallInteger,nullable=False ,server_default='1' )
-        ,sa.Column('do_Maximum'     ,sa.SmallInteger,nullable=False ,server_default='1' )
+        ,sa.Column('do_Count'       ,sa.Boolean(name='do_Count')    ,nullable=False ,server_default='1' )
+        ,sa.Column('do_Blank'       ,sa.Boolean(name='do_Blank')    ,nullable=False ,server_default='1' )
+        ,sa.Column('do_Distinct'    ,sa.Boolean(name='do_Distinct') ,nullable=False ,server_default='1' )
+        ,sa.Column('do_Average'     ,sa.Boolean(name='do_Average')  ,nullable=False ,server_default='1' )
+        ,sa.Column('do_Median'      ,sa.Boolean(name='do_Median')   ,nullable=False ,server_default='0' )
+        ,sa.Column('do_Minimum'     ,sa.Boolean(name='do_Minimum')  ,nullable=False ,server_default='1' )
+        ,sa.Column('do_Maximum'     ,sa.Boolean(name='do_Maximum')  ,nullable=False ,server_default='1' )
         ,dt_updated_on
         #
-        ,sa.CheckConstraint(    'ID >= 1'                       ,name='ID'  )
-        ,sa.CheckConstraint(    'Field_Seq BETWEEN 1 AND 255'   ,name='Field_Seq' )
-        ,sa.CheckConstraint(    'Status_ID BETWEEN 1 AND 2'     ,name='Status_ID' )
+        ,sa.CheckConstraint( 'ID BETWEEN 1 AND 32767'       ,name='ID')
+        ,sa.CheckConstraint( 'Field_Seq BETWEEN 1 AND 255'  ,name='Field_Seq' )
+        ,sa.CheckConstraint( "Upper(Data_Type) IN('INTEGER' ,'REAL' ,'DATETIME' ,'DATE' ,'TIME')"
+                                                            ,name='Data_Type')
+        ,sa.CheckConstraint( 'Status_ID BETWEEN 1 AND 2'    ,name='Status_ID' )
         #
         ,sa.ForeignKeyConstraint(['Data_Set_ID']  ,['Data_Set.ID']  )
         #
