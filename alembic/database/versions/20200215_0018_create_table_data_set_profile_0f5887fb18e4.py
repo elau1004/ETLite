@@ -40,7 +40,7 @@ def upgrade():
         ,sa.Column('Status_ID'      ,sa.SmallInteger,nullable=False ,server_default='2' )   # Enabled
         ,sa.Column('Field_Seq'      ,sa.SmallInteger,nullable=False ,server_default='1' ,comment='The order of the field in the file/table.')
         ,sa.Column('Field_Name'     ,sa.String(64)  ,nullable=False ,comment='The name of the field.')
-        ,sa.Column('Data_Type'      ,sa.String(8)   ,nullable=False ,comment='D\The data type pof the field.')
+        ,sa.Column('Data_Type'      ,sa.String(8)   ,nullable=False ,comment='The data type pof the field.')
         ,sa.Column('do_Count'       ,sa.Boolean(name='do_Count')    ,nullable=False ,server_default='1' )
         ,sa.Column('do_Blank'       ,sa.Boolean(name='do_Blank')    ,nullable=False ,server_default='1' )
         ,sa.Column('do_Distinct'    ,sa.Boolean(name='do_Distinct') ,nullable=False ,server_default='1' )
