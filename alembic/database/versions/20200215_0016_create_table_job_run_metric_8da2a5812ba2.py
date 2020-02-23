@@ -6,8 +6,10 @@ Create Date: 2020-02-15 15:40:45.962656
 """
 # pylint: disable=maybe-no-member
 
+from   alembic import context
 from   alembic import op
 from   sqlalchemy.sql import table, column, func
+from   sqlalchemy     import create_engine
 import sqlalchemy  as sa
 
 
@@ -17,6 +19,9 @@ down_revision = 'f540cc84a360'
 branch_labels = None
 depends_on = None
 
+
+config = context.config
+engine = create_engine( config.get_main_option("sqlalchemy.url") )
 
 dt_updated_on = sa.Column(
                     'Updated_On'
@@ -44,5 +49,24 @@ def upgrade():
         ,sa.Index('Job_Run_Metric_K1'   ,'Data_Set_ID'  ,unique=False)
     )
 
+    sql_view  = """
+CREATE  VIEW    Job_Run_Metric_View
+AS
+SELECT  rm.ID
+       ,rm.Job_Run_ID
+       ,rm.Data_Set_ID
+       ,ds.Code             AS  Data_Set_Code
+       ,rm.Stats
+       ,rm.Updated_On
+FROM    Job_Run_Metric      AS  rm
+JOIN    Data_Set            As  ds  ON  ds.ID   =   rm.Data_Set_ID
+"""
+    with engine.connect() as conn:
+        conn.execute( sql_view )
+
+
 def downgrade():
+    with engine.connect() as conn:
+        conn.execute( "DROP  VIEW  Job_Run_Metric_View" )
+
     op.drop_table('Job_Run_Metric')
