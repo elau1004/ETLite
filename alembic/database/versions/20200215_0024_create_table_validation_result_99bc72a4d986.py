@@ -6,8 +6,10 @@ Create Date: 2020-02-15 15:40:49.517711
 """
 # pylint: disable=maybe-no-member
 
+from   alembic import context
 from   alembic import op
 from   sqlalchemy.sql import table, column, func
+from   sqlalchemy     import create_engine
 import sqlalchemy  as sa
 
 
@@ -17,6 +19,9 @@ down_revision = '3652e714353c'
 branch_labels = None
 depends_on = None
 
+
+config = context.config
+engine = create_engine( config.get_main_option("sqlalchemy.url") )
 
 dt_updated_on = sa.Column(
                     'Updated_On'
@@ -54,5 +59,37 @@ def upgrade():
         ,sqlite_autoincrement=True
     )
 
+    sql_view  = """
+CREATE  VIEW    Validation_Result_View
+AS
+SELECT  vs.ID
+       ,vs.Validation_Rule_ID
+       ,vr.Code             AS  Validation_Rule_Code
+       ,vs.Job_Run_ID
+       ,jr.Run_No           AS  Job_Run_No
+       ,vs.Data_Set_ID
+       ,ds.Code             AS  Data_Set_Code
+       ,vs.Severity_ID
+       ,sv.Name             AS  Severity_Name
+       ,vs.Expect_Int
+       ,vs.Actual_Int
+       ,vs.Expect_Flt
+       ,vs.Actual_Flt
+       ,vs.Expect_Dtm
+       ,vs.Actual_Dtm
+       ,vs.Updated_On
+FROM    Validation_Result   AS  vs
+JOIN    Data_Set            AS  ds  ON  ds.ID   =   vs.Data_Set_ID
+JOIN    Job_Run             AS  jr  ON  jr.ID   =   vs.Job_Run_ID
+JOIN    Severity            AS  sv  ON  sv.ID   =   vs.Severity_ID
+JOIN    Validation_Rule     AS  vr  ON  vr.ID   =   vs.Validation_Rule_ID
+"""
+    with engine.connect() as conn:
+        conn.execute( sql_view )
+
+
 def downgrade():
+    with engine.connect() as conn:
+        conn.execute( "DROP  VIEW  Validation_Result_View" )
+
     op.drop_table('Validation_Result')

@@ -6,9 +6,11 @@ Create Date: ${create_date}
 """
 # pylint: disable=maybe-no-member
 
+from   alembic import context
 from   alembic import op
 from   sqlalchemy.sql import table, column, func
-import sqlalchemy  as sa
+from   sqlalchemy     import create_engine
+import sqlalchemy as  sa
 ${imports if imports else ""}
 
 # revision identifiers, used by Alembic.
@@ -17,6 +19,9 @@ down_revision = ${repr(down_revision)}
 branch_labels = ${repr(branch_labels)}
 depends_on = ${repr(depends_on)}
 
+
+config = context.config
+engine = create_engine( config.get_main_option("sqlalchemy.url") )
 
 dt_updated_on = sa.Column(
                     'Updated_On'
