@@ -31,8 +31,8 @@ def upgrade():
         'Data_Vendor'
         ,sa.Column('ID'         ,sa.Integer     ,nullable=False ,primary_key=True ,autoincrement=101 ,mssql_identity_start=101 )
         ,sa.Column('Code'       ,sa.String(8)   ,nullable=False )
-        ,sa.Column('Name'       ,sa.String(64)  ,nullable=False )
         ,sa.Column('Status_ID'  ,sa.SmallInteger,nullable=False ,server_default='2')    # Enabled
+        ,sa.Column('Name'       ,sa.String(128) ,nullable=False )
         ,dt_updated_on
         #
         ,sa.CheckConstraint( 'ID BETWEEN 1 AND 32767'   ,name='ID')
