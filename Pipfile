@@ -13,6 +13,7 @@ smart-open = "*"
 click = "*"
 aiohttp = "*"
 alembic = "*"
+pyodbc = "*"
 
 [requires]
 python_version = "3.7"
