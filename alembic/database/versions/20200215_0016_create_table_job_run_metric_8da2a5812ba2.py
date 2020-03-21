@@ -6,11 +6,14 @@ Create Date: 2020-02-15 15:40:45.962656
 """
 # pylint: disable=maybe-no-member
 
-from   alembic import context
-from   alembic import op
-from   sqlalchemy.sql import table, column, func
-from   sqlalchemy     import create_engine
-import sqlalchemy  as sa
+from    alembic import context
+from    alembic import op
+from    importlib.machinery import SourceFileLoader
+import  os
+import  pathlib
+import  sqlalchemy  as sa
+from    sqlalchemy     import create_engine
+from    sqlalchemy.sql import table, column, func
 
 
 # revision identifiers, used by Alembic.
@@ -20,36 +23,47 @@ branch_labels = None
 depends_on = None
 
 
-config = context.config
-engine = create_engine( config.get_main_option("sqlalchemy.url") )
+# NOTE: Need more precise control over the physical cross DB table design.
+config  = context.config
+db:str  = context.get_context().dialect.name
+url:str = config.get_main_option("sqlalchemy.url")
+engine  = create_engine( url )
 
-dt_updated_on = sa.Column(
-                    'Updated_On'
-                    ,sa.DateTime(timezone=True)
-                    ,nullable=False
-                    ,server_default=func.current_timestamp()
-                    ,comment='The audit timestamp when this row was last updated'
-                )
+# Dynamically load config module and assign ETLite Cross DB mapping to a locxal variable.
+_path2cfg = str(sorted(pathlib.Path(os.getcwd()).glob( '**/xdb_config.py' )).pop())
+# pylint: disable=no-value-for-parameter
+xdb = SourceFileLoader( 'xdb_config' ,_path2cfg ).load_module().xdb_map[db]
 
 def upgrade():
-    op.create_table(
-        'Job_Run_Metric'
-        ,sa.Column('ID'         ,sa.Integer     ,nullable=False ,primary_key=True ,autoincrement=101 ,mssql_identity_start=101 )
-        ,sa.Column('Job_Run_ID' ,sa.Integer     ,nullable=False ,comment='Foreign key to the Job Run table..')
-        ,sa.Column('Data_Set_ID',sa.SmallInteger,nullable=False ,comment='Denormalized column for querying.')
-        ,sa.Column('Stats'      ,sa.JSON        ,nullable=False ,comment='A generic json to capture addition metrics.')
-        ,dt_updated_on
-        #
-        ,sa.CheckConstraint(    'ID >= 1'       ,name='ID')
-        #
-        ,sa.ForeignKeyConstraint(['Job_Run_ID'] ,['Job_Run.ID'])
-        ,sa.ForeignKeyConstraint(['Data_Set_ID'],['Data_Set.ID'])
-        #
-        ,sa.Index('Job_Run_Metric_UK1'  ,'Job_Run_ID'   ,unique=True)
-        ,sa.Index('Job_Run_Metric_K1'   ,'Data_Set_ID'  ,unique=False)
-    )
+    sql_text  = f"""
+CREATE  TABLE   Job_Run_Metric (
+         ID                 {xdb['int32'] :15} NOT NULL  CONSTRAINT Job_Run_Metric_PK PRIMARY KEY {xdb['autoinc']}   {xdb['comment']} 'The Primary Key'   
+        --
+        ,Job_Run_ID         {xdb['int32'] :15} NOT NULL  {xdb['comment']} 'A grouping/batch number assigned to this job run.'
+        ,Data_Set_ID        {xdb['int16'] :15} NOT NULL  {xdb['comment']} 'Denormalized column for querying.'
+        ,Stats              {xdb['json']  :15} NOT NULL  {xdb['comment']} 'A generic json to capture addition metrics.'
+        --
+        ,Updated_On         {xdb['utcupd']:52} {xdb['comment']} 'The audit timestamp when this row was last updated'
+        --
+        ,CONSTRAINT Job_Run_Metric_ID_CK           CHECK(  ID > 0 )
+        --
+        ,CONSTRAINT Job_Run_Metric_Job_Run_FK      FOREIGN KEY( Job_Run_ID  ) REFERENCES Job_Run( ID )
+        ,CONSTRAINT Job_Run_Metric_Data_Set_FK     FOREIGN KEY( Data_Set_ID ) REFERENCES Data_Set( ID )
+)
+"""
+    context.execute( sql_text )
 
-    sql_view  = """
+    sql_text = f"""
+CREATE UNIQUE INDEX Job_Run_Metric_UK1      ON  Job_Run_Metric( Job_Run_ID )    --  1:1
+"""
+    context.execute( sql_text )
+
+    sql_text = f"""
+CREATE        INDEX Job_Run_Metric_UK2      ON  Job_Run_Metric( Data_Set_ID )
+"""
+    context.execute( sql_text )
+
+    sql_text  = f"""
 CREATE  VIEW    Job_Run_Metric_View
 AS
 SELECT  rm.ID
@@ -61,12 +75,8 @@ SELECT  rm.ID
 FROM    Job_Run_Metric      AS  rm
 JOIN    Data_Set            As  ds  ON  ds.ID   =   rm.Data_Set_ID
 """
-    with engine.connect() as conn:
-        conn.execute( sql_view )
-
+    context.execute( sql_text )
 
 def downgrade():
-    with engine.connect() as conn:
-        conn.execute( "DROP  VIEW  Job_Run_Metric_View" )
-
-    op.drop_table('Job_Run_Metric')
+    context.execute( "DROP  VIEW  Job_Run_Metric_View" )
+    context.execute( "DROP  TABLE Job_Run_Metric" )
