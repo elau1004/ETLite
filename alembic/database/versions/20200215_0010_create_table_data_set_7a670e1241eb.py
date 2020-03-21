@@ -6,12 +6,14 @@ Create Date: 2020-02-15 15:40:43.684121
 """
 # pylint: disable=maybe-no-member
 
-from   alembic import context
-from   alembic import op
-from   sqlalchemy.sql import table, column, func
-from   sqlalchemy     import create_engine
-import sqlalchemy  as sa
-
+from    alembic import context
+from    alembic import op
+from    importlib.machinery import SourceFileLoader
+import  os
+import  pathlib
+import  sqlalchemy  as sa
+from    sqlalchemy     import create_engine
+from    sqlalchemy.sql import table, column, func
 
 # revision identifiers, used by Alembic.
 revision = '7a670e1241eb'
@@ -20,67 +22,71 @@ branch_labels = None
 depends_on = None
 
 
-config = context.config
-engine = create_engine( config.get_main_option("sqlalchemy.url") )
+# NOTE: Need more precise control over the physical cross DB table design.
+config  = context.config
+db:str  = context.get_context().dialect.name
+url:str = config.get_main_option("sqlalchemy.url")
+engine  = create_engine( url )
 
-dt_updated_on = sa.Column(
-                    'Updated_On'
-                    ,sa.DateTime(timezone=True)
-                    ,nullable=False
-                    ,server_default=func.current_timestamp()
-                    ,comment='The audit timestamp when this row was last updated'
-                )
+# Dynamically load config module and assign ETLite Cross DB mapping to a locxal variable.
+_path2cfg = str(sorted(pathlib.Path(os.getcwd()).glob( '**/xdb_config.py' )).pop())
+# pylint: disable=no-value-for-parameter
+xdb = SourceFileLoader( 'xdb_config' ,_path2cfg ).load_module().xdb_map[db]
+
 
 def upgrade():
-    op.create_table(
-        'Data_Set'
-        ,sa.Column('ID'                 ,sa.Integer     ,primary_key=True ,autoincrement=101 ,mssql_identity_start=101 )
-        ,sa.Column('Code'               ,sa.String(8)                                           ,comment='An unique nmemonic to identify a row.')
-        ,sa.Column('Parent_ID'          ,sa.SmallInteger                                        ,comment='The parent container that this row is grouped under.')
-        ,sa.Column('Status_ID'          ,sa.SmallInteger,server_default='2')    # Enabled
-        ,sa.Column('Data_Vendor_ID'     ,sa.SmallInteger,nullable=False )
-        ,sa.Column('Description'        ,sa.String(128)                                         ,comment='A descriptive explaination of the data set.')
-        ,sa.Column('Exec_Sequence'      ,sa.SmallInteger,nullable=False ,server_default='1'     ,comment='The order to execute the ETL job for this data set.')
-        ,sa.Column('Run_Frequency_ID'   ,sa.SmallInteger,nullable=False ,server_default='3'     ,comment='The frequency to process this data set.')   # Daily
-        ,sa.Column('Frequency_Interval' ,sa.Integer     ,nullable=False ,server_default='1'     ,comment='The frequency interval to process this data set.' )
-        ,sa.Column('Data_From'          ,sa.DateTime(    timezone=True )                        ,comment='The incremental starting date/time for the last successful ETL execution.')
-        ,sa.Column('Data_Upto'          ,sa.DateTime(    timezone=True )                        ,comment='The incremental ending date/time (not inclusive) the last successful ETL execution.')
-        ,sa.Column('Last_Ran_From'      ,sa.DateTime(    timezone=True )                        ,comment='The UTC datetime the ETL job last started on.')
-        ,sa.Column('Last_Ran_Upto'      ,sa.DateTime(    timezone=True )                        ,comment='The UTC datetime the ETL job last ended on')
-        ,sa.Column('Work_in_Progress'   ,sa.Boolean(name='Work_in_Progress') ,nullable=False    ,server_default='0'
-                                                                                                ,comment='A falg to indicate is a job for this data set is currently executing.')
-        ,sa.Column('Lock_Expire_After'  ,sa.SmallInteger,nullable=False ,server_default='60'    ,comment='A time out duration to expire a lock job.')   # 1 hours.
-        ,sa.Column('Source_URI'         ,sa.String(128)                                         ,comment='The source of the dataset to extract from.')
-        ,sa.Column('Stage_URI'          ,sa.String(128)                                         ,comment='The temporary staging area/file for the extracted dataset.')
-        ,sa.Column('Stage_View'         ,sa.String(64)                                          ,comment='The view to query the data from the staging area to be persisted into the target destination.')
-        ,sa.Column('Target_URI'         ,sa.String(128)                                         ,comment='The target destination for the transformed data from the source.')
-        ,sa.Column('Next_Run_No'        ,sa.Integer     ,nullable=False ,server_default='101'   ,comment='A grouping/batch number to group all the records together for the next job run.')
-        ,sa.Column('Profiled_to_Run_No' ,sa.Integer                                             ,comment='An optimization hint to profile the data set from this point onwards.')
-        ,sa.Column('Verified_to_Run_No' ,sa.Integer                                             ,comment='An optimization hint to verify  the data set from this point onwards.')
-        ,sa.Column('Average_Duration'   ,sa.Integer                                             ,comment='An average duration for quick reference without re-aggregating it.')
-        ,sa.Column('OnError_Contact'    ,sa.String(128)                                         ,comment='Notify this list if job failed.')
-        ,sa.Column('OnSuccess_Contact'  ,sa.String(128)                                         ,comment='Notify this list if job completed succussfully.')
-        ,sa.Column('Remark'             ,sa.String                                              ,comment='General remark.')
-        ,dt_updated_on
-        #
-        ,sa.CheckConstraint( 'ID BETWEEN 1 AND 32767'               ,name='ID')
-        ,sa.CheckConstraint( 'Status_ID BETWEEN 1 AND 2'            ,name='Status_ID'  )
-        ,sa.CheckConstraint( 'Exec_Sequence BETWEEN 1 AND 255'      ,name='Exec_Sequence')
-        ,sa.CheckConstraint( 'Length( Code ) <= 8'                  ,name='Code')
-        ,sa.CheckConstraint( 'Frequency_Interval BETWEEN 1 AND 59'  ,name='Frequency_Value')
-        ,sa.CheckConstraint( 'Lock_Expire_After > 0'                ,name='Lock_Expire_After')
-        #
-        ,sa.ForeignKeyConstraint(['Status_ID']          ,['Status.ID']  )
-        ,sa.ForeignKeyConstraint(['Parent_ID']          ,['Data_Set.ID'])
-        ,sa.ForeignKeyConstraint(['Data_Vendor_ID']     ,['Data_Vendor.ID'] ,ondelete='CASCADE')
-        ,sa.ForeignKeyConstraint(['Run_Frequency_ID']   ,['Frequency.ID'])
-        #
-        ,sa.Index('Data_Set_UK1' ,'Code'    ,unique=True)
-        #
-        ,sqlite_autoincrement=True
-    )
+    sql_text = f"""
+CREATE  TABLE   Data_Set (
+         ID                 {xdb['int16'] :15} NOT NULL  CONSTRAINT Data_Set_PK PRIMARY KEY {xdb['autoinc']}   {xdb['comment']} 'The Primary Key'   
+        --
+        ,Code               {xdb['txt08'] :15} NOT NULL             {xdb['comment']} 'An unique nmemonic to identify a row.'
+        ,Parent_ID          {xdb['int16'] :15} NOT NULL             {xdb['comment']} 'The parent data set that this row is grouped under.'
+        ,Status_ID          {xdb['int08'] :15} NOT NULL  DEFAULT 2  {xdb['comment']} 'Foreign key to the status.  Default to enabled.'
+        ,Data_Vendor_ID     {xdb['int16'] :15} NOT NULL             {xdb['comment']} 'Foreign key to the Data Vendor.'
+        ,Description        {xdb['txt128']:15} NOT NULL             {xdb['comment']} 'A descriptive explaination of the data set.'
+        ,Exec_Sequence      {xdb['int08'] :15} NOT NULL  DEFAULT 1  {xdb['comment']} 'The order to execute the ETL job for this data set.'
+        ,Run_Frequency_ID   {xdb['int08'] :15} NOT NULL  DEFAULT 3  {xdb['comment']} 'The frequency to process this data set.  Default to Daily.'
+        ,Frequency_Interval {xdb['int16'] :15} NOT NULL  DEFAULT 1  {xdb['comment']} 'The frequency interval to process this data set.'
+        ,Data_From          {xdb['utcdtm']:15}     NULL             {xdb['comment']} 'The incremental starting date/time for the last successful ETL execution.'
+        ,Data_Upto          {xdb['utcdtm']:15}     NULL             {xdb['comment']} 'The incremental ending date/time (not inclusive) the last successful ETL execution.'
+        ,Last_Ran_From      {xdb['utcdtm']:15}     NULL             {xdb['comment']} 'The UTC datetime the ETL job last started on.'
+        ,Last_Ran_Upto      {xdb['utcdtm']:15}     NULL             {xdb['comment']} 'The UTC datetime the ETL job last ended on.'
+        ,Work_in_Progress   {xdb['bit0']                       :34} {xdb['comment']} 'A flag to indicate if a job for this data set is currently executing.'
+        ,Lock_Expire_After  {xdb['int16'] :15} NOT NULL  DEFAULT 60 {xdb['comment']} 'A time out duration to expire a lock job.  Default to 1 hour.'
+        ,Source_URI         {xdb['txt128']:15}     NULL             {xdb['comment']} 'The source of the dataset to extract from.'
+        ,Stage_URI          {xdb['txt128']:15}     NULL             {xdb['comment']} 'The temporary staging area/file for the extracted dataset.'
+        ,Stage_View         {xdb['txt64'] :15}     NULL             {xdb['comment']} 'The view to query the data from the staging area to be persisted into the target destination.'
+        ,Target_URI         {xdb['txt128']:15}     NULL             {xdb['comment']} 'The target destination for the transformed data from the source.'
+        ,Next_Run_No        {xdb['int32'] :15} NOT NULL  DEFAULT 10 {xdb['comment']} 'A grouping/batch number to group all the records together for the next job run.'
+        ,Profiled_to_Run_No {xdb['int32'] :15}     NULL             {xdb['comment']} 'An optimization hint to profile the data set from this point onwards.'
+        ,Verified_to_Run_No {xdb['int32'] :15}     NULL             {xdb['comment']} 'An optimization hint to verify  the data set from this point onwards.'
+        ,Average_Duration   {xdb['int32'] :15}     NULL             {xdb['comment']} 'An average duration for quick reference without re-aggregating it.'
+        ,OnError_Contact    {xdb['txt64'] :15}     NULL             {xdb['comment']} 'Notify this list if job failed.'
+        ,OnSuccess_Contact  {xdb['txt64'] :15}     NULL             {xdb['comment']} 'Notify this list if job completed succussfully.'
+        ,Remark             {xdb['txt128']:15}     NULL             {xdb['comment']} 'General remark.'
+        --
+        ,Updated_On         {xdb['utcupd']                     :52} {xdb['comment']} 'The audit timestamp when this row was last updated'
+        --
+        ,CONSTRAINT Data_Set_ID_CK          CHECK(  ID BETWEEN 1 AND 2048 )
+        ,CONSTRAINT Data_Set_Status_CK      CHECK(  Status_ID BETWEEN 1 AND 2 )
+        ,CONSTRAINT Data_Set_Exec_Seq_CK    CHECK(  Exec_Sequence BETWEEN 1 AND 255 )
+        ,CONSTRAINT Data_Set_Interval_CK    CHECK(  Frequency_Interval BETWEEN 1 AND 59 )
+        ,CONSTRAINT Data_Set_Lock_Expire_CK CHECK(  Lock_Expire_After > 0 )
+        --
+        ,CONSTRAINT Data_Set_Parent_FK      FOREIGN KEY( Parent_ID ) REFERENCES Data_Set( ID )
+        ,CONSTRAINT Data_Set_Status_FK      FOREIGN KEY( Status_ID ) REFERENCES Status( ID )
+        ,CONSTRAINT Data_Set_Vendor_FK      FOREIGN KEY( Data_Vendor_ID ) REFERENCES Data_Vendor( ID )
+        ,CONSTRAINT Data_Set_Frequency_FK   FOREIGN KEY( Run_Frequency_ID ) REFERENCES Frequency( ID )
+)
+"""
+    context.execute( sql_text )
 
-    sql_view  = """
+    sql_text = f"""
+CREATE UNIQUE INDEX Data_Set_Code_UK1       ON  Data_Set( Code )
+"""
+    context.execute( sql_text )
+
+    sql_text = """
 CREATE  VIEW    Data_Set_View
 AS
 SELECT  ds.ID
@@ -117,16 +123,13 @@ SELECT  ds.ID
        ,ds.Updated_On
 FROM    Data_Set    AS  ds
 LEFT    OUTER
-JOIN    Data_Set    AS  pr  ON  pr.ID   =   ds.Parent_ID
+JOIN    Data_Set    AS  pr  ON  pr.ID   =   ds.Parent_ID    --  Only 2 levels!
 JOIN    Data_Vendor AS  dv  ON  dv.ID   =   ds.Data_Vendor_ID
 JOIN    Frequency   AS  hz  ON  hz.ID   =   ds.Run_Frequency_ID
 JOIN    Status      AS  st  ON  st.ID   =   ds.Status_ID
 """
-    with engine.connect() as conn:
-        conn.execute( sql_view )
+    context.execute( sql_text )
 
 def downgrade():
-    with engine.connect() as conn:
-        conn.execute( "DROP  VIEW  Data_Set_View" )
-
-    op.drop_table('Data_Set')
+    context.execute( "DROP  VIEW   Data_Set_View" )
+    context.execute( "DROP  TABLE  Data_Set" )
