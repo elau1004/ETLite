@@ -41,7 +41,6 @@ target_metadata = MetaData(naming_convention={
 # my_important_option = config.get_main_option("my_important_option")
 # ... etc.
 
-
 def run_migrations_offline():
     """Run migrations in 'offline' mode.
 
