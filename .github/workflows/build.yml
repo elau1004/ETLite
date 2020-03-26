@@ -17,10 +17,11 @@ jobs:
         python-version: 3.7
 
     - name: Display some information
-      run: python -c "import sys; print(sys.version)"
-      run: python -c "import os; print(os.getcwd())"
-      run: python -c "import os; print(os.listdir())"
-      
+      run: |
+        python -c "import sys; print(sys.version)"
+        python -c "import os; print(os.getcwd())"
+        python -c "import os; print(os.listdir())"
+
     - name: Create pipenv executable
       run: |
         python -m pip install --upgrade pip
