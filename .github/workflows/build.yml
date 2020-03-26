@@ -7,7 +7,8 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [windows-latest, macos-latest]
+        os: [windows-latest]
+        #os: [windows-latest, macos-latest]
 
     steps:
     - uses: actions/checkout@v2
@@ -29,6 +30,8 @@ jobs:
     - name: Install dependencies
       run: |
         pipenv install --verbose
+        pipenv graph
+        python -c "import sys; print(sys.path)"
     - name: Lint with flake8
       run: |
         pip install flake8
