@@ -1,0 +1,50 @@
+# ETLite.yml
+
+# Global configuration.
+global:
+  logger: 
+    datefmt: "%Y-%m-%d%a %H:%M:%S,uuu"
+    format: "%(asctime)s %(levelname)s %(name)s %(message)s"
+    logdir: ./logs
+
+# Development environment.
+dev: 
+  database: 
+    etlite:
+      uri: "sqlite:///etlite.sqlite3.dev.db"
+      user: ~
+      pass: ~
+      role: ~
+    yourdb: 
+      uri: "mssql+pyodbc://@YourDWH"
+      user: dev_user
+      pass: /dev/database/yourdwh/password
+      role: ~
+
+# CICD or QA environment.
+cicd: 
+  database: 
+    etlite: 
+      uri: "sqlite:///etlite.sqlite3.cdci.db"
+      pass: ~
+      user: ~
+      role: ~
+    yourdb: 
+      uri: "mssql+pyodbc://@YourDWH"
+      user: cdci_user
+      pass: /cdci/database/yourdwh/password
+      role: ~
+
+# Production environment.
+prod: 
+  database: 
+    etlite: 
+      uri: "sqlite:///etlite.sqlite3.prod.db"
+      user: ~
+      pass: ~
+      role: ~
+    yourdb: 
+      uri: "mssql+pyodbc://@YourDWH"
+      user: prod_user
+      pass: /prod/database/yourdwh/password
+      role: ~
