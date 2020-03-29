@@ -48,7 +48,8 @@ jobs:
     - name: Test with pytest
       run: |
         pipenv install pytest
-        pytest
+        pipenv run pytest
+        #pytest
         #python -c "import sys; print(sys.prefix)"
         #python -c "import sys; print(sys.real_prefix)"
         
