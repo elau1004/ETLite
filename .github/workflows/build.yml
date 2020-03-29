@@ -23,9 +23,9 @@ jobs:
         python -c "import sys; print(sys.path)"
         python -c "import sys; print(sys.prefix)"
         python -c "import os; print(os.getcwd())"
-        python -c "import os; print(os.listdir())"
-        python -c "import os; print(os.path.exists('/.dockerenv')"
-        python -c "import os; print(os.path.exists('/.dockerinit')"
+        python -c "import os; print(os.listdir('/'))"
+        #python -c "import os; print(os.path.exists('/.dockerenv')"
+        #python -c "import os; print(os.path.exists('/.dockerinit')"
 
     - name: Create pipenv executable
       run: |
