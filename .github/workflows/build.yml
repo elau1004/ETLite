@@ -6,7 +6,8 @@ jobs:
   build:
     strategy:
       matrix:
-        os: [windows-latest, macos-latest, ubuntu-latest]
+        # os: [windows-latest, macos-latest, ubuntu-latest]
+        os: [windows-latest]
         # version 3.7 for now. python-version: [2.7, 3.6, 3.7, 3.8, pypy2, pypy3]
         python-version: [ 3.7 ]
 
