@@ -21,8 +21,11 @@ jobs:
       run: |
         python -c "import sys; print(sys.version)"
         python -c "import sys; print(sys.path)"
+        python -c "import sys; print(sys.prefix)"
         python -c "import os; print(os.getcwd())"
         python -c "import os; print(os.listdir())"
+        python -c "import os; print(os.path.exists('/.dockerenv')"
+        python -c "import os; print(os.path.exists('/.dockerinit')"
 
     - name: Create pipenv executable
       run: |
@@ -30,8 +33,8 @@ jobs:
         pip install pipenv
     - name: Install dependencies
       run: |
-        pipenv install --system
-        #pipenv install --verbose
+        #pip install -r requirements.txt
+        pipenv install -v
         pipenv graph
         
     - name: Lint with flake8
@@ -44,10 +47,7 @@ jobs:
 
     - name: Test with pytest
       run: |
-        python -c "import sys; print(sys.prefix)"
-        python -c "import os; print(os.path.exists('/.dockerenv')"
-        python -c "import os; print(os.path.exists('/.dockerinit')"
-        pip install pytest
+        pipenv install pytest
         pytest
         #python -c "import sys; print(sys.prefix)"
         #python -c "import sys; print(sys.real_prefix)"
