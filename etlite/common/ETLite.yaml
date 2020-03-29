@@ -1,49 +1,60 @@
 # ETLite.yml
 
 # Global configuration.
+# Don't delete any of the following.
 global:
   logger: 
-    datefmt: "%Y-%m-%d%a %H:%M:%S,uuu"
-    format: "%(asctime)s %(levelname)s %(name)s %(message)s"
+    dtmformat: "%Y-%m-%d%a %H:%M:%S,uuu"
+    msgformat: "%(asctime)s %(levelname)s %(name)s %(message)s"
     logdir: ./logs
+    level: INFO
+  naming:
+    fragment: '%Y%m%d%a_%H%M00'
 
 # Development environment.
-dev: 
-  database: 
+# The root node 'dev' will be removed in the config dict object.
+dev:
+  database:
+    # Don't delete this.
     etlite:
       uri: "sqlite:///etlite.sqlite3.dev.db"
       user: ~
       pass: ~
       role: ~
-    yourdb: 
+    yourdb:
       uri: "mssql+pyodbc://@YourDWH"
       user: dev_user
       pass: /dev/database/yourdwh/password
       role: ~
 
+
 # CICD or QA environment.
-cicd: 
-  database: 
-    etlite: 
+# The root node 'cicd' will be removed in the config dict object.
+cicd:
+  database:
+    # Don't delete this.
+    etlite:
       uri: "sqlite:///etlite.sqlite3.cdci.db"
       pass: ~
       user: ~
       role: ~
-    yourdb: 
+    yourdb:
       uri: "mssql+pyodbc://@YourDWH"
       user: cdci_user
       pass: /cdci/database/yourdwh/password
       role: ~
 
 # Production environment.
-prod: 
-  database: 
-    etlite: 
+# The root node 'prod' will be removed in the config dict object.
+prod:
+  database:
+    # Don't delete this.
+    etlite:
       uri: "sqlite:///etlite.sqlite3.prod.db"
       user: ~
       pass: ~
       role: ~
-    yourdb: 
+    yourdb:
       uri: "mssql+pyodbc://@YourDWH"
       user: prod_user
       pass: /prod/database/yourdwh/password
