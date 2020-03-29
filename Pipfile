@@ -7,13 +7,14 @@ verify_ssl = true
 pylint = "*"
 
 [packages]
-python-dotenv = "==0.10.3"
-ujson = "*"
-smart-open = "*"
-click = "*"
 aiohttp = "*"
 alembic = "*"
+click = "*"
 pyodbc = "*"
+pyyaml = "*"
+python-dotenv = "*"
+smart-open = "*"
+ujson = "*"
 
 [requires]
 python_version = "3.7"

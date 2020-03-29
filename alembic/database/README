@@ -9,7 +9,9 @@ alembic init database
 alembic revision -m "Create New Table"
 
 # Upgrade the schema.
-alembic upgrade   head
+alembic upgrade   head  --sql
 
 # Downgrade the schema.
 alembic downgrade base
+alembic downgrade --sql head:base
+

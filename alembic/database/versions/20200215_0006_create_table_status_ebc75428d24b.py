@@ -6,10 +6,14 @@ Create Date: 2020-02-15 15:40:42.184098
 """
 # pylint: disable=maybe-no-member
 
-from   alembic import op
-from   sqlalchemy.sql import table, column, func
-import sqlalchemy  as sa
-
+from    alembic import context
+from    alembic import op
+from    importlib.machinery import SourceFileLoader
+import  os
+import  pathlib
+import  sqlalchemy  as sa
+from    sqlalchemy     import create_engine
+from    sqlalchemy.sql import table, column, func
 
 # revision identifiers, used by Alembic.
 revision = 'ebc75428d24b'
@@ -18,42 +22,52 @@ branch_labels = None
 depends_on = None
 
 
-dt_updated_on = sa.Column(
-                    'Updated_On'
-                    ,sa.DateTime(timezone=True)
-                    ,nullable=False
-                    ,server_default=func.current_timestamp()
-                    ,comment='The audit timestamp when this row was last updated'
-                )
+# NOTE: Need more precise control over the physical cross DB table design.
+config  = context.config
+db:str  = context.get_context().dialect.name
+url:str = config.get_main_option("sqlalchemy.url")
+engine  = create_engine( url )
+
+# Dynamically load config module and assign ETLite Cross DB mapping to a locxal variable.
+_path2cfg = str(sorted(pathlib.Path(os.getcwd()).glob( '**/xdb_config.py' )).pop())
+# pylint: disable=no-value-for-parameter
+xdb = SourceFileLoader( 'xdb_config' ,_path2cfg ).load_module().xdb_map[db]
+
 
 def upgrade():  
-    op.create_table(
-        'Status'
-        ,sa.Column('ID'             ,sa.SmallInteger    ,nullable=False ,comment='The Primary Key'  ,primary_key=True )
-        ,sa.Column('Name'           ,sa.String(32)      ,nullable=False ,comment='Name of the severity' )
-        ,sa.Column('is_Active'      ,sa.Boolean(False)  ,nullable=False ,comment='Flag to enable/disable this row' ,server_default='1' )
-        ,sa.Column('is_Terminal'    ,sa.Boolean(False)  ,nullable=False ,comment='Indicate terminal state that cannot be transition out of' ,server_default='0' )
-        ,sa.Column('Display_Order'  ,sa.SmallInteger    ,nullable=True  ,comment='The order to displa in UI')
-        ,dt_updated_on
-        #
-        ,sa.CheckConstraint( 'ID BETWEEN 0 AND 255' ,name='ID')
-        ,sa.UniqueConstraint('Name'                 ,name='Status_UK1')
-        #
-        ,sa.Index('Status_UK1'  ,'Name' ,unique=True)
-    )
+    sql_text = f"""
+CREATE  TABLE   Status (
+         ID                 {xdb['int08'] :15} NOT NULL  CONSTRAINT Status_PK PRIMARY KEY {xdb['autoinc']}   {xdb['comment']} 'The Primary Key'   
+        --
+        ,Name               {xdb['txt16'] :15} NOT NULL  {xdb['comment']} 'Name of the status'
+        ,Description        {xdb['txt64'] :15}     NULL  {xdb['comment']} 'Description of the status'
+        ,is_Active          {xdb['bit1']           :15}  {xdb['comment']} 'Flag to enable/disable this row'
+        ,is_Terminal        {xdb['bit0']           :15}  {xdb['comment']} 'Indicate terminal state that cannot be transition out of'
+        ,Display_Order      {xdb['int08'] :15}     NULL  {xdb['comment']} 'The order to display in the UI'
+        --
+        ,Updated_On         {xdb['utcupd']:52} {xdb['comment']} 'The audit timestamp when this row was last updated'
+         --
+        ,CONSTRAINT Status_ID_CK            CHECK(  ID BETWEEN 0 AND 255 )
+)
+"""
+    context.execute( sql_text )
 
-    _table = table(
-        'Status'
-        ,column('ID'            ,sa.SmallInteger)
-        ,column('Name'          ,sa.String(32)  )
-        ,column('is_Active'     ,sa.Boolean     )
-        ,column('is_Terminal'   ,sa.Boolean     )
-        ,column('Display_Order' ,sa.SmallInteger)
+    sql_text = f"""
+CREATE UNIQUE INDEX Status_Name_UK1         ON  Status( Name )
+"""
+    context.execute( sql_text )
 
-    )
-
+    # Seed the table.
+    if  db == 'mssql':
+        context.execute("SET IDENTITY_INSERT Status ON" )
     op.bulk_insert(
-        _table
+        table(      'Status'
+            ,column('ID'            ,sa.SmallInteger)
+            ,column('Name'          ,sa.String(32)  )
+            ,column('is_Active'     ,sa.Boolean     )
+            ,column('is_Terminal'   ,sa.Boolean     )
+            ,column('Display_Order' ,sa.SmallInteger)
+        )
         ,[   {'ID': 0   ,'Name': 'Errored'      ,"is_Active": True ,"is_Terminal": True  ,"Display_Order": 0 }
             ,{'ID': 1   ,'Name': 'Disabled'     ,"is_Active": True ,"is_Terminal": False ,"Display_Order": 1 }
             ,{'ID': 2   ,'Name': 'Enabled'      ,"is_Active": True ,"is_Terminal": False ,"Display_Order": 2 }
@@ -90,6 +104,8 @@ def upgrade():
             ,{'ID': 44  ,'Name': 'Failed'       ,"is_Active": True ,"is_Terminal": True  ,"Display_Order": 44}
         ,]
     )
+    if  db == 'mssql':
+        context.execute("SET IDENTITY_INSERT Status OFF" )
 
 def downgrade():
-    op.drop_table('Status')
+    context.execute( "DROP  TABLE  Status" )
