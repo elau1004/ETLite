@@ -18,8 +18,8 @@ class   BaseExampleRestApiEtl( BaseRestApiEtl ):
     API_KEY = "OSxE5kQ2OgqGdUTlofGR1Aa07rrPjffca1hZPPGuxQyjVgel3FCrPKdhL0NY"
     STOCK_URL = f"https://api.worldtradingdata.com/api/v1/stock?api_token={API_KEY}&symbol="
 
-    def __init__( self ,job_code:str ,job_codes:list=None ,run_id:int=None ,from_date:datetime=None ,upto_date:datetime=None ):
-        super().__init__( job_code ,run_id ,from_date ,upto_date )
+    def __init__( self ,dataset_code:str ,dataset_codes:list=None ,run_id:int=None ,from_date:datetime=None ,upto_date:datetime=None ):
+        super().__init__( dataset_code ,dataset_codes ,run_id ,from_date ,upto_date )
 
     # Begin Interface implementation section
     #
