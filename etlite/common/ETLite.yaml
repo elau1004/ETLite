@@ -10,7 +10,6 @@ global:
     logdir: ./logs
     level: INFO
 
-
 # Development environment.
 # The root node 'dev' will be removed in the config dict object.
 dev:
