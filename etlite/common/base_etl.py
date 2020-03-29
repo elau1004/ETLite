@@ -13,35 +13,45 @@ shall be skipped.
 from abc import ABC, abstractmethod
 from datetime import datetime as datetime
 
+from etlite.common.constants    import Status
 from etlite.common.exceptions   import ETLiteException
 
 class   BaseEtl( ABC ):
     DELIMITER = '\t'
 
-    def __init__( self ,job_code:str ,job_codes:list=None ,run_id:int=None ,from_date:datetime=None ,upto_date:datetime=None ,status=None ):
-        self._job_code:str = job_code           # Unique code for this job.
-        self._job_codes:list = job_codes        # A list of codes in a Flywheel.
-        self._run_id:int = run_id               # Unique id for each run.
-        self._from_date:datetime = from_date    # Inclusive (greater and equal) to filter the source data.
-        self._upto_date:datetime = upto_date    # Not inclusive (less than) to filter the source data.
-        self._status:int = status
+    def __init__( self ,dataset_code:str ,dataset_codes:list=None ,run_id:int=None ,from_date:datetime=None ,upto_date:datetime=None ,status_id:int=None ):
+        self._dataset_code:str  = dataset_code      # Unique code for this job.
+        self._dataset_codes:list= dataset_codes     # A list of codes in a Flywheel.
+        self._run_id:int        = run_id            # Unique id for each run.
+        self._from_date:datetime= from_date         # Inclusive (greater and equal) to filter the source data.
+        self._upto_date:datetime= upto_date         # Not inclusive (less than) to filter the source data.
+        self._status_id:int     = status_id         # Current status/life-cycle of processing instance of thius dataset.
 
-        if  not  self._upto_date:
-            self._upto_date = datetime.now()
+        if  not self._status_id:
+            self._status_id = Status.PENDING
 
-        if  job_code and job_codes:
-            raise ETLiteException( "Job_code and Job_Codes MUST be mutually exclusive." )
+        if  not self._upto_date:
+            self._upto_date = datetime.utcnow()
+
+        if  dataset_code and dataset_codes:
+            raise ETLiteException( "Dataset_Code and Dataset_Codes MUST be mutually exclusively provided." )
 
     @property
-    def code( self ) -> str:
-        return  self._job_code
+    def dataset_code( self ) -> str:
+        """Return the code for the current data set.
+        """
+        return  self._dataset_code
 
     @property
-    def codes( self ) -> list:
-        return  self._job_codes
+    def dataset_codes( self ) -> list:
+        """Return the list of codes for the current data set.
+        """
+        return  self._dataset_codes
 
     @property
     def run_id( self ) -> int:
+        """Return the unique run id.
+        """
         return  self._run_id
 
     @run_id.setter
@@ -50,6 +60,8 @@ class   BaseEtl( ABC ):
 
     @property
     def from_date( self ) -> datetime:
+        """Return the starting from date to be used to filter your incremental data.
+        """
         return  self._from_date
 
     @from_date.setter
@@ -58,6 +70,8 @@ class   BaseEtl( ABC ):
 
     @property
     def upto_date( self ) -> datetime:
+        """Return the ending upto date to be used to filter your incremental data.
+        """
         return  self._upto_date
 
     @upto_date.setter
@@ -65,8 +79,10 @@ class   BaseEtl( ABC ):
         self._upto_date = upto_date
 
     @property
-    def status( self ) -> int:
-        return  self._status
+    def status_id( self ) -> int:
+        """Return the current status id of the current run of this dataset.
+        """
+        return  self._status_id
 
     @status.setter
     def status( self ,status:int ):
@@ -75,7 +91,8 @@ class   BaseEtl( ABC ):
     @property
     @abstractmethod
     def output_data_header( self ) -> str:
-        # Return the file header caption.
+        """Return the header caption for the output text file.
+        """
         pass
 
     @abstractmethod
@@ -100,7 +117,7 @@ class   BaseEtl( ABC ):
     def source_columns( self ,columns:list ) -> list:
         """
         Framework is asking you to verify/transform the default source columns.
-        Ideally source columns should nbe the same as target columns.
+        Ideally source columns should be the same as target columns.
         """
         pass
 
@@ -109,7 +126,7 @@ class   BaseEtl( ABC ):
     def target_columns( self ,columns:list ) -> list:
         """
         Framework is asking you to verify/transform the default target columns.
-        Ideally source columns should nbe the same as target columns.
+        Ideally source columns should be the same as target columns.
         """
         pass
 

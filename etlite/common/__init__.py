@@ -9,8 +9,8 @@
 """
 The common initialization for all ETLite modules.
 The following objects are made available:
-    cfg           - The global configuraiton.
-    ETLITE_ENV    - Global variable to indicate the runtime environment.  Should be 'prod' ,'cicd' ,'dev'.
+    cfg           - The global configuraiton for all to use.
+    ETLITE_ENV    - The global variable to indicate the runtime environment.  Should be 'prod' ,'cicd' ,'dev'.
     get_logger()  - The global method to return a logger for all to  use.
 """
 
@@ -19,15 +19,16 @@ import  inspect
 import  logging
 import  os
 import  sys
-import  pathlib
-import  yaml
-from    dotenv  import load_dotenv ,find_dotenv
-from    logging import Logger
 from    pathlib import Path
+from    logging import Logger
+
 
 # Common initialization section.
 #
 if 'cfg' not in globals():  # Experimenting with single initialization.
+    import  yaml
+    from    dotenv  import load_dotenv ,find_dotenv
+
     load_dotenv( find_dotenv() )
     if 'ETLITE_ENV' in os.environ:
         ETLITE_ENV  =  os.environ['ETLITE_ENV']
@@ -35,12 +36,12 @@ if 'cfg' not in globals():  # Experimenting with single initialization.
         raise KeyError( "The environment variable ETLITE_ENV is not set.  Set it to either 'dev' ,'cicd' ,'prod' ,'qa'." )
 
     # Dynamically load config module and assign ETLite Cross DB mapping to a locxal variable.
-    _path2yml = str(sorted(pathlib.Path(os.getcwd()).glob( '**/ETLite.yaml' )).pop())
+    _path2yml = str( sorted( Path( os.getcwd()).glob( '**/ETLite.yaml' )).pop())
 
     with open( _path2yml ) as fn:    
         ycfg = yaml.load( fn ,Loader=yaml.FullLoader )
         if  ETLITE_ENV  not in  ycfg:
-            raise KeyError(f"Value '{ETLITE_ENV }' in variable ETLITE_ENV is not set in  ETLite.yaml file." )
+            raise KeyError(f"Value '{ETLITE_ENV}' in variable ETLITE_ENV is not set in ETLite.yaml file." )
 
     cfg = {}
     # NOTE: Remove the obvious root 'global' node.
@@ -51,15 +52,32 @@ if 'cfg' not in globals():  # Experimenting with single initialization.
         cfg[ key ] = ycfg[ ETLITE_ENV ][ key ]
 
     # NOTE: Just trying things out.  May not be needed.
+    # Clear out the temporary variables and class objects.
     del(_path2yml )
     del( fn )
     del( key )
     del( ycfg )
+    del( yaml )
+    del( load_dotenv )
+    del( find_dotenv )
 
-# Common routine section.
+# Common routines section.
 #
 if 'get_logger' not in globals():   # Experimenting with single initialization.
     def get_logger( name:str=None ,log_pathname:str=None ,err_pathname:str=None ,log_dir:str=None ,log_group:str=None ,msg_format:str=None ,dtm_format:str=None ) -> Logger:
+        """Return a ETLite standardized logger for you to log your messages.
+        Arguments:
+            name        - Name for this logger.  Default to the name of the calling module.
+            log_pathname- Full path name to the log file.  Will default timestamp into the name.
+            err_pathname- Full path name to the err file.  Will default timestamp into the name.
+            log_dir     - The root directory for collecting the logs.  Default to 'logs' in your home direcory.
+            log_group   - The grouping sub-directory to further organize logs under.
+            msg_format  - The logger message format.
+            dtm_format  - The timestamp format to be used during logging.
+
+        Return:
+            Logger
+        """
         if  not log_dir:
             if 'logdir' in cfg['logger']:
                 log_dir =  cfg['logger']['logdir']
@@ -85,7 +103,7 @@ if 'get_logger' not in globals():   # Experimenting with single initialization.
             if  name == '__init__':
                 name =  'etlite'
 
-        dtm_fragment = datetime.datetime.utcnow().strftime( cfg['naming']['fragment'] )
+        dtm_fragment = datetime.datetime.utcnow().strftime( cfg['logger']['fragment'] )
 
         if  not log_pathname:
             log_pathname = os.path.join( log_dir ,log_group ,name +'_' +dtm_fragment +'.log' ) 
@@ -102,13 +120,16 @@ if 'get_logger' not in globals():   # Experimenting with single initialization.
             log.setLevel( os.environ['ETLITE_LOG_LEVEL'] )
         else:
             if  cfg['logger']['level']:
-                log.setLevel( { 'DEBUG'     : logging.DEBUG
-                            ,'INFO'      : logging.INFO
-                            ,'WARN'      : logging.WARN
-                            ,'WARNING'   : logging.WARNING
-                            ,'ERROR'     : logging.ERROR
-                            ,'CRITICAL'  : logging.CRITICAL
-                            }[ cfg['logger']['level'] ])
+                try:
+                    log.setLevel( {  'DEBUG'    : logging.DEBUG
+                                    ,'INFO'     : logging.INFO
+                                    ,'WARN'     : logging.WARN
+                                    ,'WARNING'  : logging.WARNING
+                                    ,'ERROR'    : logging.ERROR
+                                    ,'CRITICAL' : logging.CRITICAL
+                                }[ cfg['logger']['level'] ])
+                except  KeyError:
+                    raise KeyError(f"Log level {cfg['logger']['level']} from YMAL configuration is NOT valid!  Use the Python logging level constants." )
             else:
                 log.setLevel( logging.INFO )
 
@@ -135,17 +156,3 @@ if 'get_logger' not in globals():   # Experimenting with single initialization.
             log.addHandler( stream_handler )
 
         return log
-
-# Clean up the temporary variables.
-# NOTE: Just trying things out.  May not be needed.
-del( os )
-del( sys )
-del( Path )
-del( yaml )
-del( Logger )
-del( logging )
-del( inspect )
-del( pathlib )
-del( datetime )
-del( load_dotenv )
-del( find_dotenv )
