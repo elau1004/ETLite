@@ -1,5 +1,4 @@
 name: BuildAndTest
-#TODO: fix the error for testing: "E   ModuleNotFoundError: No module named 'aiohttp'" 
 # this workflow is triggered on pushes to the repo
 on: [push]
 
@@ -20,20 +19,15 @@ jobs:
     - name: Display some information
       run: |
         python -c "import sys; print(sys.version)"
-        python -c "import sys; print(sys.path)"
-        python -c "import sys; print(sys.prefix)"
         python -c "import os; print(os.getcwd())"
         python -c "import os; print(os.listdir('/'))"
-        #python -c "import os; print(os.path.exists('/.dockerenv')"
-        #python -c "import os; print(os.path.exists('/.dockerinit')"
-
-    - name: Create pipenv executable
+        
+      name: Create pipenv executable
       run: |
         python -m pip install --upgrade pip
         pip install pipenv
     - name: Install dependencies
       run: |
-        #pip install -r requirements.txt
         pipenv install -v
         pipenv graph
         
@@ -49,7 +43,3 @@ jobs:
       run: |
         pipenv install pytest
         pipenv run pytest
-        #pytest
-        #python -c "import sys; print(sys.prefix)"
-        #python -c "import sys; print(sys.real_prefix)"
-        
