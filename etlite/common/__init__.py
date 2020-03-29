@@ -22,7 +22,6 @@ import  sys
 from    pathlib import Path
 from    logging import Logger
 
-
 # Common initialization section.
 #
 if 'cfg' not in globals():  # Experimenting with single initialization.

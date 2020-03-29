@@ -10,7 +10,6 @@ global:
     logdir: ./logs
     level: INFO
 
-
 # Development environment.
 # The root node 'dev' will be removed in the config dict object.
 dev:
@@ -47,6 +46,7 @@ cicd:
       role: ~
     yourdb:
       uri: "mssql+pyodbc://@YourDWH"
+
       user: cicd_user
       pass: /cicd/database/yourdwh/password
       role: ~
