@@ -136,16 +136,3 @@ if 'get_logger' not in globals():   # Experimenting with single initialization.
 
         return log
 
-# Clean up the temporary variables.
-# NOTE: Just trying things out.  May not be needed.
-del( os )
-del( sys )
-del( Path )
-del( yaml )
-del( Logger )
-del( logging )
-del( inspect )
-del( pathlib )
-del( datetime )
-del( load_dotenv )
-del( find_dotenv )
