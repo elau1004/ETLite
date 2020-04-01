@@ -25,10 +25,10 @@ to be handled by the ETLite framework.  What is left for the concrete class
 to do is to transform and prepare the data to be loaded into your data warehouse.
 """
 
-from  abc       import abstractmethod
-from  aiohttp   import ClientResponse
-from  datetime  import datetime as datetime
-from  requests  import AuthBase
+from  abc           import abstractmethod
+from  aiohttp       import ClientResponse
+from  datetime      import datetime as datetime
+from  requests.auth import AuthBase
 
 from  etlite.common.base_etl    import BaseEtl
 
@@ -59,8 +59,8 @@ class   BaseRestApiEtl( BaseEtl ):
         else return None to skip.
         """
         pass
-
-    @abstractmethod
+    
+    #@abstractmethod
     def get_authentication( self ) -> AuthBase:
         """
         If the authentication requires an Auth object then return the AuthBase.
