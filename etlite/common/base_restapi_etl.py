@@ -25,16 +25,17 @@ to be handled by the ETLite framework.  What is left for the concrete class
 to do is to transform and prepare the data to be loaded into your data warehouse.
 """
 
-from abc import abstractmethod
-from aiohttp import ClientResponse
-from datetime import datetime as datetime
+from  abc           import abstractmethod
+from  aiohttp       import ClientResponse
+from  datetime      import datetime as datetime
+from  requests.auth import AuthBase
 
-from etlite.common.base_etl import BaseEtl
+from  etlite.common.base_etl    import BaseEtl
 
 class   BaseRestApiEtl( BaseEtl ):
 
-    def __init__( self ,job_code:str ,job_codes:list=None ,run_id:int=None ,from_date:datetime=None ,upto_date:datetime=None ):
-        super().__init__( job_code ,run_id ,from_date ,upto_date )
+    def __init__( self ,dataset_code:str ,dataset_codes:list=None ,run_id:int=None ,from_date:datetime=None ,upto_date:datetime=None ,status_id:int=None ):
+        super().__init__( dataset_code ,dataset_codes ,run_id ,from_date ,upto_date ,status_id )
 
         self._request_token = None
 
@@ -46,7 +47,7 @@ class   BaseRestApiEtl( BaseEtl ):
     @abstractmethod
     def get_authentication_url( self ) -> str:
         """
-        If there is a different URL to authenthicate then return the URL,
+        If there is a different URL to authenthicate at then return the URL,
         else return None to skip.
         """
         pass
@@ -56,6 +57,13 @@ class   BaseRestApiEtl( BaseEtl ):
         """
         If a HTTP message body data is needed then return the appropriate text
         else return None to skip.
+        """
+        pass
+    
+    #@abstractmethod
+    def get_authentication( self ) -> AuthBase:
+        """
+        If the authentication requires an Auth object then return the AuthBase.
         """
         pass
 

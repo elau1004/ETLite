@@ -11,7 +11,7 @@ from etlite.common.base_etl import BaseEtl
 
 class   BaseSqlApiEtl( BaseEtl ):
 
-    def __init__( self ,job_code:str ,run_id:int=0 ,from_date:datetime=None ,upto_date:datetime=None ):
-        super().__init__( job_code ,run_id ,from_date ,upto_date )
+    def __init__( self ,dataset_code:str ,dataset_codes:list=None ,run_id:int=None ,from_date:datetime=None ,upto_date:datetime=None ,status_id:int=None ):
+        super().__init__( dataset_code ,dataset_codes ,run_id ,from_date ,upto_date ,status_id )
 
 # TODO: Flesh this out.
