@@ -84,9 +84,9 @@ class   BaseEtl( ABC ):
         """
         return  self._status_id
 
-    @status.setter
-    def status( self ,status:int ):
-        self._status = status
+    @status_id.setter
+    def status_id( self ,status_id:int ):
+        self._status_id = status_id
 
     @property
     @abstractmethod
