@@ -31,8 +31,9 @@ dev:
       secretkey: /dev/storage/aws/s3/secretkey
       bucket: prod
     azure:
-      accesskey: your-access_key
-      secretkey: /dev/storage/aws/s3/secretkey
+      accountname: your-account-name
+      accountkey: /dev/storage/aws/s3/secretkey
+      container: dev
 
 # CICD or QA environment.
 # The root node 'cicd' will be removed in the config dict object.
@@ -55,8 +56,9 @@ cicd:
       secretkey: /cicd/storage/aws/s3/secretkey
       bucket: cicd
     azure:
-      accesskey: your-access_key
-      secretkey: /cicd/storage/aws/s3/secretkey
+      accountname: your-account-name
+      accountkey: /cicd/storage/aws/s3/secretkey
+      container: cicd
 
 # Production environment.
 # The root node 'prod' will be removed in the config dict object.
@@ -79,5 +81,6 @@ prod:
       secretkey: /prod/storage/aws/s3/secretkey
       bucket: prod
     azure:
-      accesskey: your-access_key
-      secretkey: /prod/storage/aws/s3/secretkey
+      accountname: your-account-name
+      accountkey: /prod/storage/aws/s3/secretkey
+      container: prod

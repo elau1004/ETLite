@@ -34,7 +34,7 @@ if 'cfg' not in globals():  # Experimenting with single initialization.
     else:
         raise KeyError( "The environment variable ETLITE_ENV is not set.  Set it to either 'dev' ,'cicd' ,'prod' ,'qa'." )
 
-    # Dynamically load config module and assign ETLite Cross DB mapping to a locxal variable.
+    # Dynamically load config module and assign ETLite Cross DB mapping to a local variable.
     _path2yml = str( sorted( Path( os.getcwd()).glob( '**/ETLite.yaml' )).pop())
 
     with open( _path2yml ) as fn:    
