@@ -60,7 +60,7 @@ class   BaseRestApiEtl( BaseEtl ):
         """
         pass
     
-    #@abstractmethod
+    @abstractmethod
     def get_authentication( self ) -> AuthBase:
         """
         If the authentication requires an Auth object then return the AuthBase.

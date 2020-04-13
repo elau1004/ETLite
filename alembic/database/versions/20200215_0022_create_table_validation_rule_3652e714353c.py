@@ -57,8 +57,8 @@ CREATE  TABLE   Validation_Rule (
         ,Fatal_Bot_Limit    {xdb['real']  :15} NOT NULL  DEFAULT -0.05  {xdb['comment']} 'Lower threshold to trigger a fatal notification.'
         ,Expect_Metric_SQL  {xdb['txtmax']:15} NOT NULL  {xdb['comment']} 'The SQL query to generate the expected metric.'
         ,Actual_Metric_SQL  {xdb['txtmax']:15} NOT NULL  {xdb['comment']} 'The SQL query to generate the actual metric.'
-        ,Last_Validated_On  {xdb['utcdtm']:15} NOT NULL  {xdb['comment']} 'Hint to where the last successfully validated job run ID.'
-        ,Last_Failed_On     {xdb['utcdtm']:15} NOT NULL  {xdb['comment']} 'Hint to where the last failed job run ID.'
+        ,Last_Validated_On  {xdb['utcdtm']:15}     NULL  {xdb['comment']} 'Hint to where the last successfully validated job run ID.'
+        ,Last_Failed_On     {xdb['utcdtm']:15}     NULL  {xdb['comment']} 'Hint to where the last failed job run ID.'
         --
         ,Updated_On         {xdb['utcupd']:52} {xdb['comment']} 'The audit timestamp when this row was last updated'
          --
