@@ -8,7 +8,8 @@ import  os
 import  sys
 sys.path = [os.getcwd()] + sys.path # VS Code debugger needs it because it default cwd to {workspace}/example.
 
-from    aiohttp import ClientResponse
+from    aiohttp import  ClientResponse
+from    etlite.common   import  cfg ,get_logger
 from    etlite.common.base_etl  import  BaseEtl
 from    example.base_example_restapi_etl  import  BaseExampleRestApiEtl
 
