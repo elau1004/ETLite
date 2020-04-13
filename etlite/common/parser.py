@@ -24,8 +24,8 @@ import  re
 import  gettext     # Ready for future internationalization.
 i18n =  gettext.gettext
 
-class   ETL_Engine():
-    """The DAG engine.
+class   DAG_Parser():
+    """The DAG parser.
     """
     # pylint: disable=W0621
     DELIMITER   = ","
@@ -37,6 +37,7 @@ class   ETL_Engine():
     MSG_TOO_FEW_BRACKET   = "Mis-match brackets!  Too few closing bracket.  Unclosed '{bracket}'."
     MSG_TOO_MANY_BRACKET  = "Mis-match brackets!  Too many opening bracket.  Encountered '{bracket}'."
     MSG_MIS_MATCH_BRACKET = "Mis-match brackets!  Expecting '{expect}' but encountered '{actual}'."
+    MSG_NON_UNIQUE_COUNT  = "Job '{job}' occured {count} times in the input DAG."
 
 
     @staticmethod
@@ -64,14 +65,14 @@ class   ETL_Engine():
             if  ch  == ',':
                 break
 
-            if  ch  not in  ETL_Engine.PUNCTUATION:
+            if  ch  not in  DAG_Parser.PUNCTUATION:
                 token   +=  ch
 
-                if  ch  in  ETL_Engine.LF_BRACKETS + ETL_Engine.RT_BRACKETS:
-                    if  strPos  +1  < strLen and dag[ strPos ] == ETL_Engine.DELIMITER:
+                if  ch  in  DAG_Parser.LF_BRACKETS + DAG_Parser.RT_BRACKETS:
+                    if  strPos  +1  < strLen and dag[ strPos ] == DAG_Parser.DELIMITER:
                         strPos  +=  1
                     break
-                if  strPos < strLen and dag[ strPos ] in ETL_Engine.LF_BRACKETS + ETL_Engine.RT_BRACKETS:
+                if  strPos < strLen and dag[ strPos ] in DAG_Parser.LF_BRACKETS + DAG_Parser.RT_BRACKETS:
                     break
 
         return  token ,strPos
@@ -109,24 +110,24 @@ class   ETL_Engine():
         graph = []
 
         while strPos < strLen:
-            token ,strPos = ETL_Engine.get_token( dag=dag ,strPos=strPos ,strLen=strLen )
-            latkn ,_      = ETL_Engine.get_token( dag=dag ,strPos=strPos ,strLen=strLen )   # NOTE: Look ahead one token.
+            token ,strPos = DAG_Parser.get_token( dag=dag ,strPos=strPos ,strLen=strLen )
+            latkn ,_      = DAG_Parser.get_token( dag=dag ,strPos=strPos ,strLen=strLen )   # NOTE: Look ahead one token.
 
-            if  token  in ETL_Engine.LF_BRACKETS:
+            if  token  in DAG_Parser.LF_BRACKETS:
                 stack.append( token )   # Shift. Push onto the stack.
-                if  latkn not in ETL_Engine.RT_BRACKETS:
-                    nested ,strPos ,delimiter = ETL_Engine.parse_dag( dag=dag ,opnBkt=stack[-1] ,strPos=strPos ,strLen=strLen )
+                if  latkn not in DAG_Parser.RT_BRACKETS:
+                    nested ,strPos ,delimiter = DAG_Parser.parse_dag( dag=dag ,opnBkt=stack[-1] ,strPos=strPos ,strLen=strLen )
 
                     if  len( stack ) == 0:
-                        raise   SyntaxError( i18n( ETL_Engine.MSG_TOO_MANY_BRACKET ).format( bracket=delimiter ))
-                    if ETL_Engine.RT_BRACKETS.index( delimiter ) != ETL_Engine.LF_BRACKETS.index( stack[-1] ):
-                        raise   SyntaxError( i18n( ETL_Engine.MSG_MIS_MATCH_BRACKET ).format( expect=stack[-1] ,actual=delimiter  ))
+                        raise   SyntaxError( i18n( DAG_Parser.MSG_TOO_MANY_BRACKET ).format( bracket=delimiter ))
+                    if DAG_Parser.RT_BRACKETS.index( delimiter ) != DAG_Parser.LF_BRACKETS.index( stack[-1] ):
+                        raise   SyntaxError( i18n( DAG_Parser.MSG_MIS_MATCH_BRACKET ).format( expect=stack[-1] ,actual=delimiter  ))
 
                     if  len( graph ) == 0:
                         graph = nested
                     else:
                         graph.append( nested )
-            elif token in ETL_Engine.RT_BRACKETS:
+            elif token in DAG_Parser.RT_BRACKETS:
                 return  graph ,strPos ,token
             else:
                 if  len( graph ) == 0:
@@ -139,10 +140,39 @@ class   ETL_Engine():
 
         # End of DAG string.
         if  len( stack ) > 1:   # NOTE: There is a leading code in the first position.
-            raise   SyntaxError( i18n( ETL_Engine.MSG_TOO_FEW_BRACKET ).format( bracket=stack[-1] ))
+            raise   SyntaxError( i18n( DAG_Parser.MSG_TOO_FEW_BRACKET ).format( bracket=stack[-1] ))
 
         return  graph ,None ,None
+
+    @staticmethod
+    def validate_dag( dag:list ):
+        """
+        Utility to validate the parsed DAG.
+
+        Args:
+            dag    - A parsed DAG represented as a nested list.
+        Return:
+            None
+        Exception:
+            ValueError
+        """
+        nodes = {}
+        for job in dag:
+            job =  job.upper()
+            if  job not in nodes:
+                nodes[ job ] = 0
+            nodes[ job ] += 1
+
+        err_msg = ''
+        for job in nodes:
+            if  nodes[ job ] > 0:
+                err_msg += i18n( DAG_Parser.MSG_NON_UNIQUE_COUNT ).format( job=job ,count=nodes[ job ] )
+                err_msg += "\n"
+
+        if  err_msg:
+            raise ValueError( err_msg )
 
 
     def __init__( self ,dag:dict ):
         self._dag = re.sub( r"\s+" ,"" ,dag ,flags=re.UNICODE )     # Remove all spaces.
+
