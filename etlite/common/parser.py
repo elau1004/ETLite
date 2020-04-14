@@ -167,7 +167,7 @@ class   DAG_Parser():
 
             DAG_Parser.validate_dag( self._dag )
         else:
-            raise ReferenceError( i18n( MSG_NON_DAG_INSTANCE ))
+            raise ReferenceError( i18n( DAG_Parser.MSG_NON_DAG_INSTANCE ))
 
     def get_parsed_dag( self ):
         """
