@@ -29,7 +29,7 @@ dev:
     awss3:
       accesskey: your-access_key
       secretkey: /dev/storage/aws/s3/secretkey
-      bucket: prod
+      bucket: dev
     azure:
       accountname: your-account-name
       accountkey: /dev/storage/aws/s3/secretkey
