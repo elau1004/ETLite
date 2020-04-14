@@ -182,3 +182,32 @@ class   DAG_Parser():
             None
         """
         return  self._dag
+
+# Unit test
+dags = [
+#   "[ a ]",
+     "abc"
+    ,"a6c"
+    ,"a!'c"
+    ,"[]"
+    ,"[ a ]"
+    ,"{ b }"
+    ,"( c )"
+    ,"[ abc ]"
+    ,"[ a ,bc ,def ,g ]"
+    ,"[ a ,{ b ,c } ,( e ,f) ]"
+    ,"[ a ,{ b ,[c,e,f] } ,( g ,{h ,i ,[j,k,l]}) ]"
+]
+for dag in dags:
+    dag = re.sub( r"\s+" ,"" ,dag ,flags=re.UNICODE )     # Remove all spaces.
+    print( f"DAG:    {dag}" )
+    strPos = 0
+    strLen = len(dag)
+#   while strPos < strLen:
+#       token ,strPos = DAG_Parser.get_token( dag ,strPos ,strLen )
+#       print( f" Tkn:{strPos:2} {token}" )
+    try:
+        graph ,_ ,_ = DAG_Parser.parse_dag( dag=dag )
+        print( graph )
+    except  SyntaxError as ex:
+        print( ex.msg )
