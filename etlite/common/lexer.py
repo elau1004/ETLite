@@ -51,7 +51,7 @@ class   DAG_Lexer():
         token = ''
         for ch  in  dag[ strPos: ]:
             strPos  +=  1
-            if  ch  == ',':
+            if  ch  == DAG_Lexer.DELIMITER:
                 break
 
             if  ch  not in  DAG_Lexer.PUNCTUATION:

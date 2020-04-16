@@ -50,7 +50,8 @@ class Test_DAG_Parser( BaseTest ):
         ]
 
         for case in cases:
-            self.assertEquals( parser.parse_dag( case['dag'] ,case['expect'] ,case['msg'] ))
+            dag ,_ ,_ = parser.parse_dag( case['dag'] )
+            self.assertEquals( dag ,case['expect'] ,case['msg'] )
 
 if "__main__" == __name__:
     unittest.main()
