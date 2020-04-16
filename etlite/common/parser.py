@@ -30,10 +30,10 @@ class   DAG_Parser():
     """The DAG Parser.
     """
     # pylint: disable=W0621
-    DELIMITER   = ","
-    LF_BRACKETS = "[{(<"
-    RT_BRACKETS = "]})>"
-    PUNCTUATION =r"'`~!@#$%^&*+=:;|\/\""
+#   DELIMITER   = ","
+#   LF_BRACKETS = "[{(<"
+#   RT_BRACKETS = "]})>"
+#   PUNCTUATION =r"'`~!@#$%^&*+=:;|\/\""
 
     # TODO: Maybe move this into its own module if it becomes un-managaeble.
     MSG_TOO_FEW_BRACKET   = "Mis-match brackets!  Too few closing bracket.  Unclosed '{bracket}'."
@@ -87,14 +87,14 @@ class   DAG_Parser():
                     if  len( stack ) == 0:
                         raise SyntaxError( i18n( DAG_Parser.MSG_TOO_MANY_BRACKET ).format( bracket=delimiter ))
 
-                    if DAG_Parser.RT_BRACKETS.index( delimiter ) != DAG_Parser.LF_BRACKETS.index( stack[-1] ):
+                    if  lexer.RT_BRACKETS.index( delimiter ) != lexer.LF_BRACKETS.index( stack[-1] ):
                         raise SyntaxError( i18n( DAG_Parser.MSG_MIS_MATCH_BRACKET ).format( expect=stack[-1] ,actual=delimiter  ))
 
                     if  len( graph ) == 0:
                         graph = nested
                     else:
                         graph.append( nested )
-            elif token in DAG_Parser.RT_BRACKETS:
+            elif token  in lexer.RT_BRACKETS:
                 return  graph ,strPos ,token
             else:
                 if  len( graph ) == 0:
@@ -134,7 +134,7 @@ class   DAG_Parser():
 
         err_msg = ''
         for job in nodes:
-            if  nodes[ job ] > 0:
+            if  nodes[ job ] > 1:
                 err_msg += i18n( DAG_Parser.MSG_NON_UNIQUE_COUNT ).format( job=job ,count=nodes[ job ] )
                 err_msg += "\n"
 
@@ -182,3 +182,4 @@ class   DAG_Parser():
             None
         """
         return  self._dag
+
