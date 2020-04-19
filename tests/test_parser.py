@@ -46,7 +46,7 @@ class Test_DAG_Parser( BaseTest ):
             ,{"msg": "Test one nesting."            ,"dag": "[a ,{b} ,c]"           ,"expect": ['[' ,'a' ,['{','b'] ,'c']   }
             ,{"msg": "Test two nesting."            ,"dag": "[a ,{b} ,(c)]"         ,"expect": ['[' ,'a' ,['{','b'] ,['(' ,'c']]    }
             ,{"msg": "Test two level nesting."      ,"dag": "[a ,{b  ,(c)}]"        ,"expect": ['[' ,'a' ,['{','b'  ,['(' ,'c']]]   }
-            ,{"msg": "Test three level nesting."    ,"dag": "{ a ,b  ,[d,(e),f]}"   ,"expect": ['{' ,'a' ,'b' ,['[' ,['(' ,e] ,f]]  }
+            ,{"msg": "Test three level nesting."    ,"dag": "{ a ,b  ,[d,(e),f]}"   ,"expect": ['{' ,'a' ,'b' ,['[' ,'d' ,['(' ,'e'] ,'f' ]] }
         ]
 
         for case in cases:
