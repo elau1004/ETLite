@@ -27,7 +27,7 @@ class   DAG_Lexer():
     DELIMITER   = ","
     LF_BRACKETS = "[{(<"
     RT_BRACKETS = "]})>"
-    PUNCTUATION =r"'`~!@#$%^&*+=:;|\/\""
+    PUNCTUATION =r" '`~!@#$%^&*+=:;|\/\""
 
     @staticmethod
     def next_token( dag:str ,strPos:int ,strLen:int ) -> (str ,int):
