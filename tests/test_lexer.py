@@ -22,7 +22,7 @@ class TestLexer( BaseTest ):
     
     def test_next_token( self ):
         cases = [
-            {"msg": "Test stripping punctuations." ,"dag": "~"                  ,"expect": []                                              }
+            {"msg": "Test stripping punctuations." ,"dag": lexer.PUNCTUATION    ,"expect": []                                              }
            ,{"msg": "Test single character."       ,"dag": "a"                  ,"expect": ['a']                                           }
            ,{"msg": "Test multi characters."       ,"dag": "abc"                ,"expect": ['abc']                                         }
            ,{"msg": "Test stripping embedded punc.","dag": "a!b@c"              ,"expect": ['abc']                                         }
