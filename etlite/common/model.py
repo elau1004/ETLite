@@ -50,9 +50,6 @@ class Status( Base ):
     display_order=Column( SmallInteger                  )
     updated_on  = Column( DateTime      ,nullable=False )
 
-    def __repr__(self):
-        return f'<Status {self.id}>'
-
 class Data_Vendor( Base ):
     """Data Vendor model.
     """
@@ -64,9 +61,6 @@ class Data_Vendor( Base ):
     status_id   = Column( SmallInteger  ,nullable=False )
     name        = Column( String(64)    ,nullable=False )
     updated_on  = Column( DateTime      ,nullable=False )
-
-    def __repr__(self):
-        return f'Data_Vendor= [ "id": {self.id} ,"code": {self.code} ,"status_id": {self.status_id} ,"name": {self.name} ,"updated_on": {self.updated_on} ]'
 
 class Data_Set( Base ):
     """Data Set model.
@@ -103,9 +97,6 @@ class Data_Set( Base ):
     remark              = Column( String(128))
     updated_on          = Column( DateTime      ,nullable=False )
 
-    def __repr__(self):
-        return f'<Data_Set {self.id}>'
-
 class Job_Run( Base ):
     """Job Run model.
     """
@@ -129,9 +120,6 @@ class Job_Run( Base ):
     remark          = Column( String(128))
     updated_on      = Column( DateTime      ,nullable=False )
 
-    def __repr__(self):
-        return f'<Job_Run {self.id}>'
-
 class Job_Run_File( Base ):
     """Job Run File model.
     """
@@ -148,9 +136,6 @@ class Job_Run_File( Base ):
     md5             = Column( Binary  )
     updated_on      = Column( DateTime      ,nullable=False )
 
-    def __repr__(self):
-        return f'<Job_Run_File {self.id}>'
-
 class Job_Run_Metric( Base ):
     """Job Run Metric model.
     """
@@ -162,9 +147,6 @@ class Job_Run_Metric( Base ):
     data_set_id     = Column( SmallInteger  ,nullable=False )
     stats           = Column( JSON )
     updated_on      = Column( DateTime      ,nullable=False )
-
-    def __repr__(self):
-        return f'<Job_Run_Metric {self.id}>'
 
 class Data_Set_Profile( Base ):
     """Data Set Profile model.
@@ -187,9 +169,6 @@ class Data_Set_Profile( Base ):
     do_Minimum      = Column( Boolean )
     do_Maximum      = Column( Boolean )
     updated_on      = Column( DateTime      ,nullable=False )
-
-    def __repr__(self):
-        return f'<Data_Set_Profile {self.id}>'
 
 class Job_Run_Profile_Result( Base ):
     """Job Run Profile Result model.
@@ -215,36 +194,49 @@ class Job_Run_Profile_Result( Base ):
     maximum_dtmvalue= Column( DateTime )
     updated_on      = Column( DateTime      ,nullable=False )
 
-    def __repr__(self):
-        return f'<Job_Run_Profile_Result {self.id}>'
-
-class Job_Run_Profile_Result( Base ):
-    """Job Run Profile Result model.
+class Validation_Rule( Base ):
+    """Validation Rule model.
     """
-    __tablename__   = "Job_Run_Profile_Result"
+    __tablename__   = "Validation_Rule"
     __table_args__  = {"schema": "etlite"}
 
-    id                  = Column( SmallInteger  ,nullable=False ,primary_key=True )
-    code                = Column( String(64)    ,nullable=False )
-    parent_id           = Column( SmallInteger  )
-    data_set_id         = Column( SmallInteger  ,nullable=False )
-    status_id           = Column( SmallInteger  ,nullable=False )
-    description         = Column( String(128)   ,nullable=False )
-    assert_order        = Column( SmallInteger  ,nullable=False )
-    run_frequency_id    = Column( SmallInteger  ,nullable=False )
-    frequency_interval  = Column( Integer       ,nullable=False )
-    threshold_type      = Column( String( 1)    ,nullable=False )
-    warn_top_limit      = Column( Float         ,nullable=False )   
-    warn_bot_limit      = Column( Float         ,nullable=False )   
-    error_top_limit     = Column( Float         ,nullable=False )   
-    error_bot_limit     = Column( Float         ,nullable=False )   
-    fatal_top_limit     = Column( Float         ,nullable=False )   
-    fatal_bot_limit     = Column( Float         ,nullable=False )   
-    expect_metric_sql   = Column( Text          ,nullable=False )   
-    actual_metric_sql   = Column( Text          ,nullable=False )   
-    last_validated_on   = Column( DateTime )
-    last_failed_on      = Column( DateTime )
-    updated_on          = Column( DateTime      ,nullable=False )
+    id              = Column( SmallInteger  ,nullable=False ,primary_key=True )
+    code            = Column( String(64)    ,nullable=False )
+    parent_id       = Column( SmallInteger  )
+    data_set_id     = Column( SmallInteger  ,nullable=False )
+    status_id       = Column( SmallInteger  ,nullable=False )
+    description     = Column( String(128)   ,nullable=False )
+    assert_order    = Column( SmallInteger  ,nullable=False )
+    run_frequency_id= Column( SmallInteger  ,nullable=False )
+    frequency_interval=Column(Integer       ,nullable=False )
+    threshold_type  = Column( String( 1)    ,nullable=False )
+    warn_top_limit  = Column( Float         ,nullable=False )   
+    warn_bot_limit  = Column( Float         ,nullable=False )   
+    error_top_limit = Column( Float         ,nullable=False )   
+    error_bot_limit = Column( Float         ,nullable=False )   
+    fatal_top_limit = Column( Float         ,nullable=False )   
+    fatal_bot_limit = Column( Float         ,nullable=False )   
+    expect_metric_sql=Column( Text          ,nullable=False )   
+    actual_metric_sql=Column( Text          ,nullable=False )   
+    last_validated_on=Column( DateTime )
+    last_failed_on  = Column( DateTime )
+    updated_on      = Column( DateTime      ,nullable=False )
 
-    def __repr__(self):
-        return f'<Job_Run_Profile_Result {self.id}>'
+class Validation_Result( Base ):
+    """Validation Result model.
+    """
+    __tablename__   = "Validation_Result"
+    __table_args__  = {"schema": "etlite"}
+
+    id              = Column( Integer       ,nullable=False ,primary_key=True )
+    validation_rule_id=Column(SmallInteger  ,nullable=False )
+    job_run_id      = Column( Integer       ,nullable=False )
+    data_set_id     = Column( SmallInteger  ,nullable=False )
+    severity_id     = Column( SmallInteger  ,nullable=False )
+    expect_int      = Column( BigInteger    )
+    actual_int      = Column( BigInteger    )
+    expect_flt      = Column( Float         )
+    actual_flt      = Column( Float         )
+    expect_dtm      = Column( DateTime      )
+    actual_dtm      = Column( DateTime      )
+    updated_on      = Column( DateTime      ,nullable=False )
