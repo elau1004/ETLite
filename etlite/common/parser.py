@@ -126,6 +126,7 @@ class   DAG_Parser():
             ValueError
         """
         nodes = {}
+        # TODO: Make sure it recurse down into each sub-collection.
         for job in dag:
             job =  job.upper()
             if  job not in nodes:

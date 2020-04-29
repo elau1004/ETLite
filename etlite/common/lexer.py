@@ -38,9 +38,9 @@ class   DAG_Lexer():
         Args:
             dag    - A string representation of a DAG.
             strPos - Starting position to begin scanning for token.
-            strLen - Lenght of the input string.
+            strLen - Length of the input string.
         Return:
-            token  - A parsed token.  In out DAG language it shall be:
+            token  - A parsed token.  In our DAG language it shall be:
                        - Left  brackets.
                        - Right brackets.
                        - Literal.
@@ -48,7 +48,8 @@ class   DAG_Lexer():
         Exception:
             None
         """
-        token = ''
+        BRACKETS=   DAG_Lexer.LF_BRACKETS + DAG_Lexer.RT_BRACKETS
+        token   =   ''
         for ch  in  dag[ strPos: ]:
             strPos  +=  1
             if  ch  == DAG_Lexer.DELIMITER:
@@ -57,11 +58,11 @@ class   DAG_Lexer():
             if  ch  not in  DAG_Lexer.PUNCTUATION:
                 token   +=  ch
 
-                if  ch  in  DAG_Lexer.LF_BRACKETS + DAG_Lexer.RT_BRACKETS:
+                if  ch  in  BRACKETS:
                     if  strPos  +1  < strLen and dag[ strPos ] == DAG_Lexer.DELIMITER:
                         strPos  +=  1
                     break
-                if  strPos < strLen and dag[ strPos ] in DAG_Lexer.LF_BRACKETS + DAG_Lexer.RT_BRACKETS:
+                if  strPos < strLen and dag[ strPos ] in BRACKETS:
                     break
 
         return  token ,strPos
