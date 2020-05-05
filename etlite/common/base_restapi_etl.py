@@ -155,7 +155,7 @@ class   BaseRestApiEtl( BaseEtl ):
 
     # Required step 7.
     @abstractmethod
-    def get_next_datapage_url( self ) -> list((str,dict,str,dict)):
+    def get_datapage_urls( self ) -> list((str,dict,str,dict)):
         """ If you determine that more data pages are needed then return the list of tuples.
         else return None to skip/terminate.
 
@@ -170,7 +170,7 @@ class   BaseRestApiEtl( BaseEtl ):
 
     # Required step 8.
     @abstractmethod
-    def put_next_datapage_resp( self ,ctx:RestApiContext ,content ) -> list((str ,int ,str)):
+    def put_datapage_resp( self ,ctx:RestApiContext ,content ) -> list((str ,int ,str)):
         """ The response for the previous get_next_datapage_url() call is put to you.
         Query the content to determine if there are more pages to download.
         You should do the mininum to figure out if the request is good.
