@@ -21,14 +21,46 @@ import  os
 import  pathlib
 import  sys
 
-#from    etlite.common.base_etl          import BaseEtl
-#from    etlite.common.base_restapi_etl  import BaseRestApiEtl
-#from    etlite.common.base_sqlapi_etl   import BaseSqlApiEtl
+import  gettext     # Ready for future internationalization.
+i18n =  gettext.gettext
+
+# work around for VS Code not importing the following classes
+sys.path = [os.getcwd()] + sys.path # VS Code debugger needs it because it default cwd to {workspace}/example.
+
+from    etlite.common.base_etl              import BaseEtl
+from    etlite.common.base_restapi_etl      import BaseRestApiEtl
+from    etlite.common.base_sqlapi_etl       import BaseSqlApiEtl
+from    example.base_example_restapi_etl    import  BaseExampleRestApiEtl
 
 from    importlib.machinery import SourceFileLoader
 
 class   Loader():
+
+    MSG_MODULES_NOT_FOUND   = "Modules not found from directory '{dir}'"
+    MSG_IMPORT_ERROR        = "Unable to import module '{mod}', ImportError='{err}'"
+    MSG_JOB_EXISTS          = "Job exists for dataset_code '{jobcode}'"
+    MSG_INSTANTIATE_ERR     = "Unable to intantiate object '{err}'"
+    MSG_INIT_ERROR          = "Error encountered during Initializing !"
+
     def __init__( self ,cwd:str=None ):
+        """
+        Loader initialization by instantiating subclasses of BaseETL, and 
+        saving the instances in internal data structure as cache
+
+        Args:
+            cwd         - (Optional). Default is the current working directory.
+                          The directory is used as base directory to find modules
+                          which contains the classes that need to be instantiated.
+        Return:
+            None
+        Exceptions:
+            Exception   - Modules not found from the base directory
+            ImportError - When unable to import modules
+            Exception   - Error creating instances from the discovered classes 
+            Exception   - Unable to initialize the internal data structure
+        """
+        # A dictionary to store all created instances
+        # using jobcode in upper case as key, object itself as value
         self._jobs = {}
         # Unit test Loader stuff
         self._top_level_dir = None
@@ -38,21 +70,71 @@ class   Loader():
             cwd = os.getcwd()
         print( f"Current Working Directory: {cwd}" )
         
+        mod_names = []
         file_list = pathlib.Path( cwd ).glob( f'**/*etl*.py' )
         for filename in file_list:
             package = str( filename ).replace( cwd + os.sep ,'' ).replace( os.sep ,'.' )[:-3]
             if  os.path.basename( filename ) != '__init__.py' and not package.startswith( 'etlite' ):
                 print( package )
+                mod_names.append(package)
 
+        if not mod_names:
+            raise Exception( i18n( Loader.MSG_MODULES_NOT_FOUND ).format(dir=cwd) )
+        
+        # trying to import all discovered modules
+        for mod_name in mod_names:
+            module = None
+            try:
+                __import__(mod_name)
+            except ImportError as ie:
+                raise ImportError(i18n( Loader.MSG_INIT_ERROR ).format(mod=mod_name, err=ie) )
+            # import succeed
+            module = sys.modules[mod_name]
+            names = dir(module)
+            # attribute names
+            for name in names:
+                obj = getattr(module, name)
+                if isinstance(obj, type) and not inspect.isabstract(obj) and issubclass(obj, BaseEtl):
+                    # class found ! creating instance...
+                    try:
+                        instance = obj()
+                    except Exception as ex:
+                        raise Exception( i18n( Loader.MSG_INSTANTIATE_ERR ).format(err=ex) )
+                    if instance:
+                        code = instance.dataset_code.upper()
+                        if not code in self._jobs:
+                            self._jobs[code] = instance
+                        else:
+                            # job with same code exists ! log the message ?
+                            print( i18n( Loader.MSG_JOB_EXISTS ).format(jobcode=code) )
+                        
+        # if the dictionary is still empty, something's got to be wrong here !
+        if not self._jobs:
+            raise Exception( i18n( Loader.MSG_INIT_ERROR ) )
         # pylint: disable=no-value-for-parameter
         #xdb = SourceFileLoader( 'xdb_config' ,_path2cfg ).load_package().xdb_map[db]
 
     def get_jobs( self ) -> dict:
         return  self._jobs
 
-#    def get_job( self ,code:str ) -> BaseEtl:
-#        return  self._jobs[ code.upper() ]
-#
+    def get_job( self ,code:str ) -> BaseEtl:
+        return  self._jobs[ code.upper() ]
+
+if __name__ == "__main__":
+    loader = Loader()
+    jobs = loader.get_jobs()
+    print(jobs)
+    if jobs:
+        job = loader.get_job('EXAMPLE1')
+        if  isinstance( job ,BaseEtl ):
+            print( f"Job '{job.dataset_code}' is Base ETL")
+
+            if  isinstance( job ,BaseRestApiEtl ):
+                print( f"Job '{job.dataset_code}' is Base RestApi ETL")
+
+                if  isinstance( job ,BaseExampleRestApiEtl ):
+                    print( f"Job '{job.dataset_code}' is Base Example RestApi ETL")
+
 
 ###########################
 
