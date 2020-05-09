@@ -4,10 +4,11 @@
 # Licensed under the MIT License.
 #
 
-from abc      import ABC, abstractmethod
-from datetime import datetime as datetime
+from  abc       import ABC, abstractmethod
+from  datetime  import datetime as datetime
 
-from etlite.common.base_restapi_etl import BaseRestApiEtl
+from  etlite.common.base_restapi_etl    import BaseRestApiEtl
+from  etlite.common.context             import RestApiContext
 
 class   BaseNetsuiteEtl( BaseRestApiEtl ):
     """ The base Netsuite REST ETL Job object.
