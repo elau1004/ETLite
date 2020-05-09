@@ -30,6 +30,7 @@ from  aiohttp       import ClientResponse
 from  datetime      import datetime as datetime
 from  requests.auth import AuthBase
 
+from  etlite.common.context     import RestApiContext
 from  etlite.common.base_etl    import BaseEtl
 
 class   BaseRestApiEtl( BaseEtl ):
@@ -38,7 +39,7 @@ class   BaseRestApiEtl( BaseEtl ):
     """
     CLIENT_TIMEOUT = 300    # Default to 5 minutes before timing out.
 
-    def __init__( self ,dataset_code:str ,run_id:int ,from_date:datetime ,upto_date:datetime ):
+    def __init__( self ,dataset_code:str ,run_id:int=None ,from_date:datetime=None ,upto_date:datetime=None ):
         super().__init__( dataset_code=dataset_code ,run_id=run_id ,from_date=from_date ,upto_date=upto_date )
 
         self._auth_token:str      = None
@@ -159,6 +160,8 @@ class   BaseRestApiEtl( BaseEtl ):
         """ If you determine that more data pages are needed then return the list of tuples.
         else return None to skip/terminate.
 
+        This method shall be called multiple times for a list of URLs until you return None to terminate.
+
         Return:
             A list of tuple of:
                 str - URL.  The authentication end point.
@@ -171,10 +174,13 @@ class   BaseRestApiEtl( BaseEtl ):
     # Required step 8.
     @abstractmethod
     def put_datapage_resp( self ,ctx:RestApiContext ,content ) -> list((str ,int ,str)):
-        """ The response for the previous get_next_datapage_url() call is put to you.
+        """ The response for the previous get_datapage_urls() call is put to you.
         Query the content to determine if there are more pages to download.
         You should do the mininum to figure out if the request is good.
         This is may be the main method where you process the requested data.
+
+        This method shall be called multiple times depending on the number of the entries
+        in the list returned from get_datapage_urls().
 
         Args:
             RestApiContext - The REST API context.
@@ -185,7 +191,8 @@ class   BaseRestApiEtl( BaseEtl ):
                 int - The return code to communicate the status of the processing.
                         0 - successful
                         1 - encountered issue with the data. Retry again.
-                str - The name of a output stream to direct this record into.  This is usually the name of a file URI.
+                str - The name of a output stream to direct this record into.
+                      This is usually the name of a file URI.
         """
         pass
 
@@ -239,4 +246,3 @@ class   BaseRestApiEtl( BaseEtl ):
     @request_timeout.setter
     def request_timeout( self ,value:int ):
         self._request_timeout =value
-

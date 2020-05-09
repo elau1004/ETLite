@@ -20,9 +20,9 @@ class   BaseExampleRestApiEtl( BaseRestApiEtl ):
         All common sharable Example stuff should be placed in here.
     """
     API_KEY = "OSxE5kQ2OgqGdUTlofGR1Aa07rrPjffca1hZPPGuxQyjVgel3FCrPKdhL0NY"    # Fake secret.
-    STOCK_URL = f"https://api.worldtradingdata.com/api/v1/stock?api_token={API_KEY}&symbol="
+    STOCK_URL = f"https://api.worldtradingdata.com/api/v1/stock?api_token={API_KEY}"
 
-    def __init__( self ,dataset_code:str ,run_id:int ,filter_on:str ,from_date:datetime  ,upto_date:datetime ,*args ,**kwargs ):
+    def __init__( self ,dataset_code:str=None ,run_id:int=None ,filter_on:str=None ,from_date:datetime=None ,upto_date:datetime=None ):
         super().__init__( dataset_code=dataset_code  ,run_id=run_id ,from_date=from_date ,upto_date=upto_date )
 
 
@@ -101,3 +101,6 @@ class   BaseExampleRestApiEtl( BaseRestApiEtl ):
 
     # Extended example properties section.
     #
+
+if  __name__ == "__main__":
+    pass    

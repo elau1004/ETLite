@@ -24,12 +24,14 @@ import  os
 import  pathlib
 import  sys
 
-from    etlite.common           import get_logger
+from    etlite.common import    get_logger
 from    etlite.common.base_etl  import BaseEtl
+from    etlite.common.base_restapi_etl import BaseRestApiEtl
 
 class   Loader():
     MSG_MODULES_NOT_FOUND = "No ETL Job modules are found from root directory '{dir}'."
     MSG_MODULE_IMPORT_ERR = "Unable to import module '{mod}', ImportError='{err}'."
+    MSG_MODULE_SYNTAX_ERR = "Unable to compile module '{mod}', ImportError='{err}'."
     MSG_DUPLICATE_ETL_JOB = "Duplicate Job '{jobcode}' detected in module '{mod}'."
     MSG_INSTANTIATION_ERR = "Unable to intantiate job module '{mod}' due to: '{err}'."
     MSG_INITIALIZATION_ERR= "No ETL Job object discovered during loader initialization from root directory '{dir}'."
@@ -43,6 +45,7 @@ class   Loader():
             cwd         - (Optional). Default is the current working directory.
                           The directory is used as base directory to find modules
                           which contains the classes that need to be instantiated.
+            logger      - Reuse the caller's logger.
         Return:
             None
         Exceptions:
@@ -69,8 +72,7 @@ class   Loader():
         file_list = pathlib.Path( cwd ).glob( f'**/*etl*.py' )
         for filename in file_list:
             package = str( filename ).replace( cwd + os.sep ,'' ).replace( os.sep ,'.' )[:-3]
-            if      os.path.basename( filename ) != '__init__.py' \
-            and not os.path.basename( filename ).find( 'test' ) >= 0 \
+            if  not os.path.basename( filename ).find( 'test' ) >= 0 \
             and not package.startswith( 'etlite' ):
                 logger.debug( f"Package: {package}" )
                 mod_names.append( package )
@@ -83,29 +85,38 @@ class   Loader():
         for mod_name in mod_names:
             module = None
             try:
-                __import__( mod_name )
+                __import__( mod_name )  # NOTE: Dynamically import the module.
 
-                # Import succeesful, resume.
+                # Import successful, resume.
                 module= sys.modules[ mod_name ]
-                names = dir( module )
-                # Check each non-dunder attribute for a class property.
-#               for name in list(filter( lambda attribute: not attribute.startswith('__') ,names )):
-                for name in names:
+                # Get ONLY the ETL specific attributes from the module.
+                names = list( filter( lambda attr: attr.lower().find('etl') > 0 ,dir( module )))
+                for name  in  names:
                     obj = getattr( module ,name )
-                    if  isinstance( obj ,type   ) and issubclass( obj ,BaseEtl ) and not inspect.isabstract( obj ):
+                    if  isinstance( obj ,type ) and issubclass( obj ,BaseEtl ) and not inspect.isabstract( obj ):
                         try:
-                            instance = obj()    # Job class found, creating an instance of it.
-                        except Exception as ex:
-                            print( type(ex))    # NotImplementedError
+                            if  issubclass( obj ,BaseRestApiEtl ):
+                                instance = obj() # dataset_code=None  ,run_id=None ,from_date=None ,upto_date=None )    # Job class found, creating an instance of it.
+                            else:
+                                raise   NotImplementedError("Framework have NOT implemented your new Transport Type.  Try subclassing from BaseRestApiEtl.")
+                        except TypeError as ex:
                             # NOTE: May be legit work in progress, so don't raise an exception.
-                            logger.warning( i18n( Loader.MSG_INSTANTIATION_ERR.format( mod=mod_name ,err=ex )))
+                            logger.warning( i18n( Loader.MSG_INSTANTIATION_ERR ).format( mod=mod_name ,err=ex ))
+                            raise
+                        except Exception as ex:
+                            # NOTE: May be legit work in progress, so don't raise an exception.
+                            logger.warning( i18n( Loader.MSG_INSTANTIATION_ERR ).format( mod=mod_name ,err=ex ))
 
                         if  instance:
-                            code = instance.dataset_code.upper()
+                            code = instance.dataset_code.upper()    # Make it case insensitive.
                             if  code not in self._jobs:
                                 self._jobs[ code ] = instance
                             else:
-                                logger.warning( i18n( Loader.MSG_DUPLICATE_ETL_JOB.format( jobcode=code ,mod=mod_name )))
+                                # NOTE: May be legit work in progress, so don't raise an exception.
+                                logger.warning( i18n( Loader.MSG_DUPLICATE_ETL_JOB ).format( jobcode=code ,mod=mod_name ))
+
+            except SyntaxError as ex:
+                logger.warning( i18n( Loader.MSG_MODULE_SYNTAX_ERR ).format( mod=mod_name, err=ex ))
 
             except ImportError as ex:
                 # NOTE: May be legit work in progress, so don't raise an exception.
@@ -113,7 +124,7 @@ class   Loader():
 
         # If the dictionary is still empty, something's got to be wrong here!
         if  not self._jobs:
-            logger.error( i18n( Loader.MSG_INITIALIZATION_ERR.format( dir=cwd )))
+            logger.error( i18n( Loader.MSG_INITIALIZATION_ERR ).format( dir=cwd ))
             raise NotImplementedError( i18n( Loader.MSG_INITIALIZATION_ERR ))
 
     # Public methods.
@@ -126,11 +137,15 @@ class   Loader():
         return  self._jobs[ code.upper() ]
 
 
-if __name__ == "__main__":
+# TODO: Move the following into a unit test.
+if  __name__ == "__main__":
     loader = Loader()
-    jobs = loader.get_jobs()
-    print(jobs)
-    if jobs:
+    jobs   = loader.get_jobs()
+
+    if  jobs:
         job = loader.get_job('EXAMPLE1')
         if  isinstance( job ,BaseEtl ):
-            print( f"Job '{job.dataset_code}' is Base ETL")
+            print( f"Job '{job.dataset_code}' is BaseEtl")
+            if  isinstance( job ,BaseRestApiEtl ):
+                print( f"Job '{job.dataset_code}' is BaseRestApiEtl")
+                # TODO: Add 'BaseExampleRestApiEtl' class test.

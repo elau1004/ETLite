@@ -23,11 +23,11 @@ class   BaseEtl( ABC ):
     DELIMITER = '\t'
     LOOPBACK  = { 'task': 'Not filled in!' ,'ordinal': 0 }
 
-    def __init__( self ,dataset_code:str ,run_id:int ,from_date:datetime ,upto_date:datetime ):
-        self._dataset_code:str  = dataset_code  # Unique code for this job.
-        self._run_id:int        = run_id        # Unique id for each run.
-        self._from_date:datetime= from_date     # Inclusive (greater and equal) to filter the source data.
-        self._upto_date:datetime= upto_date     # Not inclusive (less than) to filter the source data.
+    def __init__( self ,dataset_code:str ,run_id:int=None ,from_date:datetime=None ,upto_date:datetime=None ):
+        self._dataset_code:str  = dataset_code  # Required unique code for this job.
+        self._run_id:int        = run_id        # Optional unique id for each run.
+        self._from_date:datetime= from_date     # Optional inclusive (greater and equal) to filter the source data.
+        self._upto_date:datetime= upto_date     # Optional not inclusive (less than) to filter the source data.
         self._status_id:int     = None          # The current status/lifecycle this job is in.
 
         if  not self._upto_date:
@@ -84,7 +84,8 @@ class   BaseEtl( ABC ):
     @property
     @abstractmethod
     def init_date( self ) -> datetime:
-        """ Return the very first initial date/time to start your incremental extraction.
+        """ Return the very first initial date/time to start your incremental extraction from.
+        Generally, to be implemented in the specific Job concrete class.
         """
         pass
 
@@ -92,6 +93,7 @@ class   BaseEtl( ABC ):
     @abstractmethod
     def output_data_header( self ) -> str:
         """ Return the header caption for the output text file.
+        Generally, to be implemented in the specific Job concrete class.
         """
         pass
 
@@ -101,4 +103,4 @@ class   BaseEtl( ABC ):
     def get_loopback( self ) -> dict:
         """ Return a default loop back dictionary for sub-objects to fill.
         """
-        return  LOOPBACK.copy()
+        return  BaseEtl.LOOPBACK.copy()
