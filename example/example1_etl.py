@@ -4,6 +4,7 @@
 # Licensed under the MIT License.
 #
 
+import  datetime
 import  os
 import  sys
 sys.path = [os.getcwd()] + sys.path # VS Code debugger needs it because it default cwd to {workspace}/example.
@@ -11,116 +12,61 @@ sys.path = [os.getcwd()] + sys.path # VS Code debugger needs it because it defau
 from    aiohttp import  ClientResponse
 from    etlite.common   import  cfg ,get_logger
 from    etlite.common.base_etl  import  BaseEtl
+from    etlite.common.context   import  RestApiContext
 from    example.base_example_restapi_etl  import  BaseExampleRestApiEtl
 
 class   Example1Etl( BaseExampleRestApiEtl ):
-    CODE = "EXAMPLE1"
+    """ An example implementation of an ETL job.
+    Our example here is to download 30 stocks data.
+    """
+    CODE = "Example1"
+    DOW30= ['AAPL','AXP','BA','CAT','CSCO','CVX','DIS','DOW','GS','HD','IBM','INTC','JNJ','JPM','KO','MCD','MMM','MRK','MSFT','NKE','PFE','PG','RTX','TRV','UNH','V','VZ','WBA','WMT','XOM' ]
 
-    def __init__( self ):
-        super().__init__( Example1Etl.CODE )
+    def __init__( self ,run_id:int=None ,filter_on:str=None ,from_date:datetime=None ,upto_date:datetime=None ):
+        super().__init__( dataset_code=Example1Etl.CODE ,run_id=run_id ,filter_on='symbol' ,from_date=from_date ,upto_date=upto_date )
+        self._is_Done = False
 
     # Private method section
     #
 
-    
     # Begin Interface implementation section
     #
 
-    # Optional step 1.
-    def get_authentication_url( self ) -> str:
-        return  None
-
-    # Optional step 2.
-    def put_authentication_resp( self ,resp:ClientResponse ):
-        pass
-
-    # Optional step 3.
-    def get_data_request_url( self ) -> str:
-        return  None
-
-    # Optional step 4.
-    def put_data_request_resp( self ,resp:ClientResponse ):
-        pass
-
-    # Optional step 5.
-    def get_request_status_url( self ):
-        return  None
-
-    # Optional step 6.
-    def put_request_status_resp( self ,resp:ClientResponse ):
-        pass
-
     # Required step 7.
-    def get_next_datapage_url( self ) -> str:
-        return  BaseExampleRestApiEtl.STOCK_URL + "IBM"
+    def get_datapage_urls( self ) -> list((str,dict,str,dict)):
+        """ SEE: BaseRestApiEtl.get_datapage_urls()
+        """
+        rest_reqs = None
+        if  not self._is_Done:
+            rest_reqs = []
+            for symbol  in Example1Etl.DOW30:
+                params  =  {'symbol': symbol}
+                loopback=  self.get_loopback()  # NOTE: In BaseEtl.py
+                loopback['task'] = symbol       # NOTE: Fill in something unique that make sense to you.
+                rest_reqs.append( (BaseExampleRestApiEtl.STOCK_URL ,params ,None ,loopback) )
+            
+            self._is_Done = True    # NOTE: Only do it once.
+
+        return  rest_reqs
 
     # Required step 8.
-    def put_next_datapage_resp( self ,resp:ClientResponse ):
-        pass
+    def put_datapage_resp( self ,ctx:RestApiContext ,content ) -> list((str ,int ,str)):
+        """ SEE: BaseRestApiEtl.put_datapage_resp()
+        """
+        return  None
 
-    # Properties section
+    # Concrete properties section.
     #
 
-    def raw_filepath( self ) -> str:
-        return  None
-
-    def latest_filepath( self ) -> str:
-        return  None
-
-    def archive_filepath( self ) -> str:
-        return  None
-
+    @property
     def output_data_header( self ) -> str:
-        return None
-
-    def transform_data( self ,record:str ,delimiter:str=BaseEtl.DELIMITER ) -> str:
-        return None
-
-    def source_table( self ) -> str:
-        pass
-
-    def source_columns( self ,columns:list ) -> list:
-        pass
-
-    def target_columns( self ,columns:list ) -> list:
-        pass
-
-    def stage_query( self ) -> str:
-        pass
-
-    def insert_query( self ) -> str:
-        pass
-
-    def update_query( self ) -> str:
-        pass
+        """ SEE: BaseEtl.output_data_header()
+        """
+        return  BaseEtl.DELIMITER.join( ['Symbol','Open','Close','High','Low','Volume'] )
 
     #
     # End Interface implementation section
 
 
-if '__main__' == __name__:
-    import os
-    print( os.getcwd() )
-
-    s = Example1Etl()
-
-    from etlite.common.base_etl import BaseEtl
-    from etlite.common.base_restapi_etl import BaseRestApiEtl
-    if  isinstance( s ,BaseEtl ):
-        print( "It is Base ETL")
-
-        if  isinstance( s ,BaseRestApiEtl ):
-            print( "It is Base RestApi ETL")
-
-            if  isinstance( s ,BaseExampleRestApiEtl ):
-                print( "It is Base Example RestApi ETL")
-    else:
-        print( "Bummer!" )
-
-    list_of_files = {}
-    for( dirpath, dirnames, filenames ) in os.walk( os.getcwd() ):
-        for filename in filenames:
-            if filename.endswith('_etl.py') and not filename.startswith('test'):
-                list_of_files[filename] = os.sep.join([dirpath, filename])
-                #if issubclass(fish_class, AnimalBaseClass):
-    print( list_of_files )
+if  __name__ == "__main__":
+    e = Example1Etl()
