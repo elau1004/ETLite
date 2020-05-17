@@ -1,8 +1,8 @@
 import unittest
 
-from    etlite.common.lexer     import  DAG_Lexer   as  lexer
-from    etlite.common.parser    import  DAG_Parser  as  parser
-from    tests.base_test         import  BaseTest
+from    etlite.lexer    import  DAG_Lexer   as  lexer
+from    etlite.parser   import  DAG_Parser  as  parser
+from    tests.base_test import  BaseTest
 
 
 class TestLexer( BaseTest ):

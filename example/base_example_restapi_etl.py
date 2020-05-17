@@ -7,7 +7,7 @@
 from abc import ABC, abstractmethod
 from datetime import datetime as datetime
 
-from etlite.common.context import RestApiContext
+from etlite.context  import RestApiContext
 from etlite.common.base_restapi_etl import BaseRestApiEtl
 
 """
@@ -22,7 +22,7 @@ class   BaseExampleRestApiEtl( BaseRestApiEtl ):
     API_KEY = "OSxE5kQ2OgqGdUTlofGR1Aa07rrPjffca1hZPPGuxQyjVgel3FCrPKdhL0NY"    # Fake secret.
     STOCK_URL = f"https://api.worldtradingdata.com/api/v1/stock?api_token={API_KEY}"
 
-    def __init__( self ,dataset_code:str=None ,run_id:int=None ,filter_on:str=None ,from_date:datetime=None ,upto_date:datetime=None ):
+    def __init__( self ,dataset_code:str=None ,run_id:int=None ,from_date:datetime=None ,upto_date:datetime=None ):
         super().__init__( dataset_code=dataset_code  ,run_id=run_id ,from_date=from_date ,upto_date=upto_date )
 
 
@@ -35,7 +35,7 @@ class   BaseExampleRestApiEtl( BaseRestApiEtl ):
         """
         return  None
 
-    def get_authenticator( self ) -> object:
+    def get_authentication_obj( self ) -> object:
         """ SEE: BaseRestApiEtl.get_authenticator()
         Not supported by Example.
         """
@@ -101,6 +101,7 @@ class   BaseExampleRestApiEtl( BaseRestApiEtl ):
 
     # Extended example properties section.
     #
+
 
 if  __name__ == "__main__":
     pass    

@@ -24,7 +24,7 @@ import  re
 import  gettext     # Ready for future internationalization.
 i18n =  gettext.gettext
 
-from    etlite.common.lexer import  DAG_Lexer as    lexer
+from    etlite.lexer import  DAG_Lexer as    lexer
 
 class   DAG_Parser():
     """The DAG Parser.
