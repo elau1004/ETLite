@@ -163,7 +163,7 @@ class   BaseNetsuiteEtl( BaseRestApiEtl ):
             if  loopback:
                 ctxback = loopback.copy()
             else:
-                ctxback = self.get_loopback()
+                ctxback = self.get_loopback()   # NOTE: Does make a copy.
             ctxback['from_page'] = param['from_page']
             ctxback['upto_page'] = param['upto_page']
             ctxback['ordinal'  ] = page_from // step
