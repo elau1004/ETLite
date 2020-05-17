@@ -25,6 +25,8 @@ to be handled by the ETLite framework.  What is left for the concrete class
 to do is to transform and prepare the data to be loaded into your data warehouse.
 """
 
+import  collections
+
 from  abc           import abstractmethod
 from  aiohttp       import ClientResponse
 from  datetime      import datetime as datetime
@@ -32,6 +34,7 @@ from  requests.auth import AuthBase
 
 from  etlite.common.context     import RestApiContext
 from  etlite.common.base_etl    import BaseEtl
+from  etlite.common.constants   import HTTP_GET ,HTTP_POST
 
 class   BaseRestApiEtl( BaseEtl ):
     """ The base abstract REST ETL Job object.
@@ -45,6 +48,59 @@ class   BaseRestApiEtl( BaseEtl ):
         self._auth_token:str      = None
         self._request_token:str   = None
         self._request_timeout:int = BaseRestApiEtl.CLIENT_TIMEOUT
+
+    # Static utility section.
+    #
+    @staticmethod
+    def check_url_tuple( url_tuple:tuple ) -> collections.namedtuple:   #(str,str,dict,str,dict):
+        """ Validate that the URL request tuple conform to the expected types and values.
+        """
+        if  url_tuple:
+            if  not ( url_tuple[0] and isinstance( url_tuple[0] ,str )):
+                raise TypeError()
+            else:
+                if  not ( url_tuple[0] in { HTTP_GET ,HTTP_POST } ):
+                    raise ValueError()
+
+            if  not ( url_tuple[1] and isinstance( url_tuple[1] ,str )):
+                raise TypeError()
+            else:
+                if  not ( str(url_tuple[1]).startswith('http') >= 0 ):
+                    raise ValueError()
+
+            if  not ( url_tuple[2] and isinstance( url_tuple[2] ,dict )):
+                raise TypeError()
+
+            if  not ( url_tuple[3] and isinstance( url_tuple[3] ,str )):
+                raise TypeError()
+
+            if  not ( url_tuple[4] and isinstance( url_tuple[4] ,dict )):
+                raise TypeError()
+            else:
+                if  not ('task' in url_tuple[4] or 'ordinal' in url_tuple[4]):
+                    raise ValueError()
+
+        return  url_tuple
+
+    @staticmethod
+    def check_url_tuples( url_tuples:list ) -> list(str,dict,str,dict):
+        """ Validate that the list of URL tuples conform to the expected types.
+        """
+        url_reqs = []
+        for url_tuple in url_tuples:
+            url_reqs.append( BaseRestApiEtl.check_url_tuple( url_tuple ))
+        return  url_reqs
+
+    @staticmethod
+    def check_authentication_obj( auth_obj:object ) -> AuthBase:
+        """ Validate that the authentication object conform to the expected subclass of AuthBase.
+        """
+        if  auth_obj:
+            if  not isinstance( auth_obj ,AuthBase ):
+                raise   TypeError()
+
+        return  auth_obj
+
 
     # Abstract interface section.
     #
@@ -66,7 +122,7 @@ class   BaseRestApiEtl( BaseEtl ):
 
     # Optional step 1b.
     @abstractmethod
-    def get_authenticator( self ) -> AuthBase:
+    def get_authentication_obj( self ) -> AuthBase:
         """ If the authentication requires an Auth object then return the AuthBase,
         else return None to skip.
 
@@ -156,7 +212,7 @@ class   BaseRestApiEtl( BaseEtl ):
 
     # Required step 7.
     @abstractmethod
-    def get_datapage_urls( self ) -> list((str,dict,str,dict)):
+    def get_datapage_urls( self ) -> list((str,str,dict,str,dict)):
         """ If you determine that more data pages are needed then return the list of tuples.
         else return None to skip/terminate.
 
@@ -164,6 +220,7 @@ class   BaseRestApiEtl( BaseEtl ):
 
         Return:
             A list of tuple of:
+                str - HTTP Method. Either 'GET' or 'POST'.
                 str - URL.  The authentication end point.
                 dict- Parameters.  The URL parameters to be converted into a query string.
                 str - Message body.  The text to be accompanied in the HTTP request  body.
@@ -208,12 +265,12 @@ class   BaseRestApiEtl( BaseEtl ):
         """
         return { "content-type": "application/json; charset=utf-8" }
 
-    @property
-    def request_body_mesage( self ) -> str:
-        """ If your request require a message body data, you MUST over write this method
-        to provide your implmentation.
-        """
-        return  None
+#   @property
+#   def request_body_mesage( self ) -> str:
+#       """ If your request require a message body data, you MUST over write this method
+#       to provide your implmentation.
+#       """
+#       return  None
 
     @property
     def auth_token( self ) -> str:
