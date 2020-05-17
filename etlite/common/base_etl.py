@@ -21,10 +21,10 @@ class   BaseEtl( ABC ):
         It holds some basic metadata properties to track the life-cycle of a job.
     """
     DELIMITER = '\t'
-    LOOPBACK  = { 'task': 'Not filled in!' ,'ordinal': 0 }
+    LOOPBACK  = { 'task': 'Not filled in!' ,'ordinal': 0 }  # Zero based ordinal.
 
     def __init__( self ,dataset_code:str ,run_id:int=None ,from_date:datetime=None ,upto_date:datetime=None ):
-        self._dataset_code:str  = dataset_code  # Required unique code for this job.
+        self._dataset_code:str  = dataset_code  # Required unique code for this job in your code base.
         self._run_id:int        = run_id        # Optional unique id for each run.
         self._from_date:datetime= from_date     # Optional inclusive (greater and equal) to filter the source data.
         self._upto_date:datetime= upto_date     # Optional not inclusive (less than) to filter the source data.

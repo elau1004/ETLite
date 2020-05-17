@@ -20,129 +20,121 @@ Example:
 # pylint: disable=line-too-long
 # pylint: disable=C0103,C0326,C0330
 
-import  re
 import  gettext     # Ready for future internationalization.
 i18n =  gettext.gettext
 
-class   ETL_Engine():
-    """The DAG engine.
+from    requests.auth import AuthBase
+
+from    etlite.common.context  import  RestApiContext
+from    etlite.common.exceptions    import  ETLiteException
+from    etlite.common.base_restapi_etl  import  BaseRestApiEtl
+
+class   RestApiRequestor():
     """
-    # pylint: disable=W0621
-    DELIMITER   = ","
-    LF_BRACKETS = "[{(<"
-    RT_BRACKETS = "]})>"
-    PUNCTUATION =r"'`~!@#$%^&*+=:;|\/\""
-
-    # TODO: Maybe move this into its own module if it becomes un-managaeble.
-    MSG_TOO_FEW_BRACKET   = "Mis-match brackets!  Too few closing bracket.  Unclosed '{bracket}'."
-    MSG_TOO_MANY_BRACKET  = "Mis-match brackets!  Too many opening bracket.  Encountered '{bracket}'."
-    MSG_MIS_MATCH_BRACKET = "Mis-match brackets!  Expecting '{expect}' but encountered '{actual}'."
-
-
-    @staticmethod
-    def get_token( dag:str ,strPos:int ,strLen:int ) -> (str ,int):
+    """
+    def __init__( self ,ctx:RestApiContext ,header:dict ,auth_obj:AuthBase ,callback ):
         """
-        Utility lexer to return a parsed token from the input string.
-        You do not need to pass in sub-string but instead the starting position to continue parsing from.
-
-        Args:
-            dag    - A string representation of a DAG.
-            strPos - Strating position to begin scanning for token.
-            strLen - Lengh of the inpiut string.
-        Return:
-            token  - A parsed token.  In out DAG language it shall be:
-                       - Left  brackets.
-                       - Right brackets.
-                       - Literal.
-            strPos - Scanned up this position in the input string.
-        Exception:
-            None
         """
-        token = ''
-        for ch  in  dag[ strPos: ]:
-            strPos  +=  1
-            if  ch  == ',':
+        self._ctx     = ctx
+        self._header  = header     # The HTTP authorization header.
+        self._auth_obj= auth_obj   
+        self._callback= callback
+        self._outputs = {}
+
+    @property
+    def context( self ) -> RestApiContext:
+        """ The request context.
+        """
+        return  self._ctx
+
+    @property
+    def header( self ) -> dict:
+        """ Return the Authorization HTTP header for the REST API.
+        """
+        return  self._header
+
+    @property
+    def auth_obj( self ) -> AuthBase:
+        """ The authetication object.
+        """
+        return  self._auth_obj
+
+    def run( self ) -> bool:
+        """
+        """
+        # TODO: Make the async request using the info in the context object.
+        #       Fill in the ctx with the response info.
+        #       Extract out the content for the callback method.
+        result = self._callback( ctx=self._ctx ,content=None )
+
+        if  isinstance( result ,bool ):
+            return  result
+        else:
+            if  isinstance( result ,tuple ):
+                if  result[2] not in self._outputs:
+                    self._outputs[ result[2]] = []
+                self._outputs[ result[2] ].append( result[0] )
+
+        return  True
+
+class   BaseExecutor():
+    pass
+
+class   RestWorkflowExecutor( BaseExecutor ):
+    """
+    """ 
+    def __init__( self ,job:BaseRestApiEtl ):
+        """
+        """
+        self._job = job
+
+    def run( self ):
+        """
+        """
+        header  = self._job.request_http_header
+        auth_obj= self._job.get_authentication_obj
+
+        # 1. Authentication step.
+        self._auth_url = None
+        self._auth_obj = None
+        self._auth_req = BaseRestApiEtl.check_url_tuple( self._job.get_authentication_url() )
+        if  self._auth_req.url:
+            self._auth_obj = BaseRestApiEtl.check_authentication_obj( self._job.get_authentication_obj() )
+
+            ctx = RestApiContext( ordinal=0 ,url=self._auth_req[0] ,params=self._auth_req[1] ,body=self._auth_req[2] ,loopback=self._auth_req[3] )
+            req = RestApiRequestor( ctx=ctx ,header=header ,auth_obj=auth_obj ,callback=self._job.put_authentication_resp )
+            if  not req.run():
+                raise RuntimeError()
+
+        # 2. Offline batch data request step.
+        self._queue_req = BaseRestApiEtl.check_url_tuple( self._job.get_data_request_url() )
+        if  self._queue_req.url:
+            ctx = RestApiContext( ordinal=0 ,url=self._queue_req[0] ,params=self._queue_req[3] ,body=self._queue_req[2] ,loopback=self._queue_req[3] )
+            req = RestApiRequestor( ctx=ctx ,header=header ,auth_obj=auth_obj ,callback=self._job.put_data_request_resp )
+            if  not req.run():
+                raise RuntimeError()
+
+        # 3. Offline batch data status check step.
+        self._status_req = BaseRestApiEtl.check_url_tuple( self._job.get_request_status_url() )
+        if  self._status_req.url:
+            ctx = RestApiContext( ordinal=0 ,url=self._status_req[0] ,params=self._status_req[1] ,body=self._status_req[2],loopback=self._status_req[3] )
+            req = RestApiRequestor( ctx=ctx ,header=header ,auth_obj=auth_obj ,callback=self._job.put_request_status_resp )
+            if  not req.run():
+                raise RuntimeError()
+
+        # 4. Retrieve data step.
+        while True:
+            self._data_reqs:list = BaseRestApiEtl.check_url_tuples( self._job.get_datapage_urls() )
+            if  self._data_reqs:
+                reqs = []
+                for i, data_req in enumerate( self._data_reqs ,start=0 ):
+                    ctx = RestApiContext( ordinal=i ,url=data_req[0] ,params=data_req[1] ,body=data_req[2] ,loopback=data_req[3] )
+                    reqs.append( RestApiRequestor( ctx=ctx ,header=header ,auth_obj=auth_obj ,callback=self._job.put_datapage_resp ))
+
+                # TODO: Parallel request the list.
+            else: # None value terminate this loop.
                 break
 
-            if  ch  not in  ETL_Engine.PUNCTUATION:
-                token   +=  ch
 
-                if  ch  in  ETL_Engine.LF_BRACKETS + ETL_Engine.RT_BRACKETS:
-                    if  strPos  +1  < strLen and dag[ strPos ] == ETL_Engine.DELIMITER:
-                        strPos  +=  1
-                    break
-                if  strPos < strLen and dag[ strPos ] in ETL_Engine.LF_BRACKETS + ETL_Engine.RT_BRACKETS:
-                    break
-
-        return  token ,strPos
-
-    @staticmethod
-    def parse_dag( dag:str ,opnBkt:str=None ,strPos:int=0 ,strLen:int=None ) -> (list ,int ,str):
-        """
-        Utility parser to parse a DAG notated string and return a Python collection that represents it.
-        The first entry of each list qualify the action to be taken by the exeution engine.  The values
-        are:
-            '[' - sequential execution on a single CPU core.
-            '{' - parallel   execution on a single CPU core.
-            '(' - parallel   execution on separate CPU core.
-            '<' - sequential execution on separate CPU core.  Not a normal case and not implmented.
-
-        See:
-            https://en.wikipedia.org/wiki/LALR_parser
-        Args:
-            dag    - A string representation of a DAG.
-            opnBkt - The opening bracket to be used to match the future closing bracket.
-            strPos - Strating position to begin scanning for token.
-            strLen - Lengh of the inpiut string.
-        Return:
-            list   - The DAG reprented in a nested list to be used by the execution engine.
-            strPos - Scanned up this position in the input string.
-            delimiter   - The encountered delimiter that terminated this iteration of parsing out the collection..
-        Exception:
-            SyntaxError - When it doesn't conform to our DAG syntax.
-        """
-        # pylint: disable=R0912
-        if  not strLen:
-            strLen = len( dag )
-
-        stack = [ opnBkt ] if opnBkt else []
-        graph = []
-
-        while strPos < strLen:
-            token ,strPos = ETL_Engine.get_token( dag=dag ,strPos=strPos ,strLen=strLen )
-            latkn ,_      = ETL_Engine.get_token( dag=dag ,strPos=strPos ,strLen=strLen )   # NOTE: Look ahead one token.
-
-            if  token  in ETL_Engine.LF_BRACKETS:
-                stack.append( token )   # Shift. Push onto the stack.
-                if  latkn not in ETL_Engine.RT_BRACKETS:
-                    nested ,strPos ,delimiter = ETL_Engine.parse_dag( dag=dag ,opnBkt=stack[-1] ,strPos=strPos ,strLen=strLen )
-
-                    if  len( stack ) == 0:
-                        raise   SyntaxError( i18n( ETL_Engine.MSG_TOO_MANY_BRACKET ).format( bracket=delimiter ))
-                    if ETL_Engine.RT_BRACKETS.index( delimiter ) != ETL_Engine.LF_BRACKETS.index( stack[-1] ):
-                        raise   SyntaxError( i18n( ETL_Engine.MSG_MIS_MATCH_BRACKET ).format( expect=stack[-1] ,actual=delimiter  ))
-
-                    if  len( graph ) == 0:
-                        graph = nested
-                    else:
-                        graph.append( nested )
-            elif token in ETL_Engine.RT_BRACKETS:
-                return  graph ,strPos ,token
-            else:
-                if  len( graph ) == 0:
-                    if  opnBkt:
-                        graph.append( opnBkt )
-                    else:
-                        graph.append( '[' ) # Default to sequential execution.
-
-                graph.append( token )
-
-        # End of DAG string.
-        if  len( stack ) > 1:   # NOTE: There is a leading code in the first position.
-            raise   SyntaxError( i18n( ETL_Engine.MSG_TOO_FEW_BRACKET ).format( bracket=stack[-1] ))
-
-        return  graph ,None ,None
-
-
-    def __init__( self ,dag:dict ):
-        self._dag = re.sub( r"\s+" ,"" ,dag ,flags=re.UNICODE )     # Remove all spaces.
+if  __name__ == "__main__":
+    pass
