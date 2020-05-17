@@ -25,7 +25,7 @@ i18n =  gettext.gettext
 
 from    requests.auth import AuthBase
 
-from    etlite.common.context  import  RestApiContext
+from    etlite.context  import  RestApiContext
 from    etlite.common.exceptions    import  ETLiteException
 from    etlite.common.base_restapi_etl  import  BaseRestApiEtl
 

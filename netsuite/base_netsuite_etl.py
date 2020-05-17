@@ -4,11 +4,11 @@
 # Licensed under the MIT License.
 #
 
-from  abc       import ABC, abstractmethod
-from  datetime  import datetime as datetime
+from  abc       import  ABC, abstractmethod
+from  datetime  import  datetime as datetime
 
+from  etlite.context    import  RestApiContext
 from  etlite.common.base_restapi_etl    import BaseRestApiEtl
-from  etlite.common.context             import RestApiContext
 
 class   BaseNetsuiteEtl( BaseRestApiEtl ):
     """ The base Netsuite REST ETL Job object.
@@ -17,6 +17,7 @@ class   BaseNetsuiteEtl( BaseRestApiEtl ):
     """
     BASE_API_URI   = "https://{acct_number}.restlets.api.netsuite.com/app/site/hosting/restlet.nl"
     BASE_URI_PARAM = { "script": 862 ,"deploy": 1 ,"searchid": 0 ,"frompage": 1 ,"topage": 20 }     # Generic Netsuite request parameters.  You need to add more to it.
+    PAGE_SIZE      = 20
     CLIENT_TIMEOUT = 330    # Netsuite has a 5 minutes server timeout.  We are going to use a 5'30" client timeout.
 
     def __init__( self ,dataset_code:str ,run_id:int ,filter_on:str ,from_date:datetime  ,upto_date:datetime ,*args ,**kwargs ):
@@ -45,7 +46,7 @@ class   BaseNetsuiteEtl( BaseRestApiEtl ):
         """
         return  None
 
-    def get_authenticator( self ) -> object:
+    def get_authentication_obj( self ) -> object:
         """ SEE: BaseRestApiEtl.get_authenticator()
         Not supported by Netsuite.
         """
@@ -118,7 +119,7 @@ class   BaseNetsuiteEtl( BaseRestApiEtl ):
         """
         return  BaseNetsuiteEtl.BASE_URI_PARAM.copy()
 
-    def get_requests( self ,searchid:int ,from_page:int=1 ,upto_page:int=20 ,step=20 ,loopback:dict=None ) -> list((str,dict,str,dict)):
+    def get_requests( self ,search_id:int ,filter_on:str ,from_date:datetime ,upto_date:datetime ,from_page:int=1 ,upto_page:int=20 ,step=20 ,loopback:dict=None ) -> list((str,dict,str,dict)):
         """ Return a list of REST requests for the framework to execute.
 
         Return:
@@ -133,7 +134,7 @@ class   BaseNetsuiteEtl( BaseRestApiEtl ):
         """
         reqs    = []
         params  = self.request_params
-        params[ 'searchid' ] = searchid
+        params[ 'searchid' ] = search_id
         f = 0
         if  self._internal_ids:
             f += 1
@@ -141,17 +142,17 @@ class   BaseNetsuiteEtl( BaseRestApiEtl ):
             params[ f'operator{f}'] = 'anyof'
             params[ f'field{f}a'  ] = self._internal_ids
 
-        if  self._filter_on:
+        if  filter_on:
             f += 1
 #           params[ f'join{f}'    ] = self._join_to
-            params[ f'field{f}'   ] = self._filter_on
+            params[ f'field{f}'   ] = filter_on
             params[ f'operator{f}'] = 'onorafter'
-            params[ f'field{f}a'  ] = self.from_date.strftime("%m/%d/%Y %I:%M %p"), # Date format is NOT negotiable!  Value is ib parent object.
+            params[ f'field{f}a'  ] = from_date.strftime("%m/%d/%Y %I:%M %p"), # Date format is NOT negotiable!  Value is ib parent object.
             f += 1
 #           params[ f'join{f}'    ] = self._join_to
-            params[ f'field{f}'   ] = self._filter_on
+            params[ f'field{f}'   ] = filter_on
             params[ f'operator{f}'] = 'before'
-            params[ f'field{f}a'  ] = self.upto_date.strftime("%m/%d/%Y %I:%M %p"), # Date format is NOT negotiable!  Value is ib parent object.
+            params[ f'field{f}a'  ] = upto_date.strftime("%m/%d/%Y %I:%M %p"), # Date format is NOT negotiable!  Value is ib parent object.
 
         for page_from in range( from_page ,upto_page ,step ):
             params[ 'from_page'] = page_from
