@@ -52,7 +52,7 @@ class   BaseRestApiEtl( BaseEtl ):
     # Static utility section.
     #
     @staticmethod
-    def check_url_tuple( url_tuple:tuple ) -> collections.namedtuple:   #(str,str,dict,str,dict):
+    def check_url_tuple( url_tuple:tuple ) -> (str,str,dict,str,dict):
         """ Validate that the URL request tuple conform to the expected types and values.
         """
         if  url_tuple:

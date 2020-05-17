@@ -101,7 +101,7 @@ class   RestWorkflowExecutor( BaseExecutor ):
         if  self._auth_req.url:
             self._auth_obj = BaseRestApiEtl.check_authentication_obj( self._job.get_authentication_obj() )
 
-            ctx = RestApiContext( ordinal=0 ,url=self._auth_req[0] ,params=self._auth_req[1] ,body=self._auth_req[2] ,loopback=self._auth_req[3] )
+            ctx = RestApiContext( method=self._auth_req[0] ,url=self._auth_req[1] ,params=self._auth_req[2] ,body=self._auth_req[3] ,loopback=self._auth_req[4] )
             req = RestApiRequestor( ctx=ctx ,header=header ,auth_obj=auth_obj ,callback=self._job.put_authentication_resp )
             if  not req.run():
                 raise RuntimeError()
@@ -109,7 +109,7 @@ class   RestWorkflowExecutor( BaseExecutor ):
         # 2. Offline batch data request step.
         self._queue_req = BaseRestApiEtl.check_url_tuple( self._job.get_data_request_url() )
         if  self._queue_req.url:
-            ctx = RestApiContext( ordinal=0 ,url=self._queue_req[0] ,params=self._queue_req[3] ,body=self._queue_req[2] ,loopback=self._queue_req[3] )
+            ctx = RestApiContext( method=self._queue_req[0] ,url=self._queue_req[1] ,params=self._queue_req[2] ,body=self._queue_req[3] ,loopback=self._queue_req[4] )
             req = RestApiRequestor( ctx=ctx ,header=header ,auth_obj=auth_obj ,callback=self._job.put_data_request_resp )
             if  not req.run():
                 raise RuntimeError()
@@ -117,7 +117,7 @@ class   RestWorkflowExecutor( BaseExecutor ):
         # 3. Offline batch data status check step.
         self._status_req = BaseRestApiEtl.check_url_tuple( self._job.get_request_status_url() )
         if  self._status_req.url:
-            ctx = RestApiContext( ordinal=0 ,url=self._status_req[0] ,params=self._status_req[1] ,body=self._status_req[2],loopback=self._status_req[3] )
+            ctx = RestApiContext( method=self._status_req[0] ,url=self._status_req[1] ,params=self._status_req[2] ,body=self._status_req[3],loopback=self._status_req[4] )
             req = RestApiRequestor( ctx=ctx ,header=header ,auth_obj=auth_obj ,callback=self._job.put_request_status_resp )
             if  not req.run():
                 raise RuntimeError()
@@ -128,7 +128,7 @@ class   RestWorkflowExecutor( BaseExecutor ):
             if  self._data_reqs:
                 reqs = []
                 for i, data_req in enumerate( self._data_reqs ,start=0 ):
-                    ctx = RestApiContext( ordinal=i ,url=data_req[0] ,params=data_req[1] ,body=data_req[2] ,loopback=data_req[3] )
+                    ctx = RestApiContext( ordinal=i ,method=data_req[0] ,url=data_req[1] ,params=data_req[2] ,body=data_req[3] ,loopback=data_req[4] )
                     reqs.append( RestApiRequestor( ctx=ctx ,header=header ,auth_obj=auth_obj ,callback=self._job.put_datapage_resp ))
 
                 # TODO: Parallel request the list.
