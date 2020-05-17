@@ -41,7 +41,7 @@ class   Example1Etl( BaseExampleRestApiEtl ):
     #
 
     # Required step 7.
-    def get_datapage_urls( self ) -> list((str,dict,str,dict)):
+    def get_datapage_urls( self ) -> list((str,str,dict,str,dict)):
         """ SEE: BaseRestApiEtl.get_datapage_urls()
         This method will be called many times until you return empty list or None value to terminate the loop.
         """

@@ -3,6 +3,7 @@
 # Copyright (C) 2019 Edward Lau <elau1004@netscape.net>
 # Licensed under the MIT License.
 #
+<<<<<<< HEAD
 import  dateutil.rrule  as  rrule
 
 from    abc      import ABC, abstractmethod
@@ -15,6 +16,13 @@ from    etlite.common.base_etl          import  BaseEtl
 from    etlite.common.base_restapi_etl  import  BaseRestApiEtl
 
 from    netsuite.base_netsuite_etl      import  BaseNetsuiteEtl
+=======
+
+from abc      import ABC, abstractmethod
+from datetime import datetime as datetime
+
+from etlite.common.base_restapi_etl import BaseRestApiEtl
+>>>>>>> master
 
 class   MasterKeyJob( BaseNetsuiteEtl ):
     """ The specific Netsuite REST ETL Job (MASTERKEY).
@@ -48,6 +56,7 @@ class   MasterKeyJob( BaseNetsuiteEtl ):
                   join_to:str=None,
                   logger:Logger=None ):
 
+<<<<<<< HEAD
         super().__init__( MasterKeyJob.CODE ,run_id=run_id ,filter_on=filter_on ,from_date=from_date ,upto_date=upto_date )
 
         self._header_caption= None
@@ -69,17 +78,48 @@ class   MasterKeyJob( BaseNetsuiteEtl ):
                 "filter_on"   : "created"
             }
         ]
+=======
+        super().__init__( NetsuiteObjectKeyJob.CODE ,run_id=run_id ,filter_on=filter_on ,from_date=from_date ,upto_date=upto_date )
+
+        self._header_caption = None
+        self.tasks = {
+            "Sale Order Detail": {
+                "search_id"   : 4659,
+                "table_code"  : "dd_so_lns",
+                "filter_on"   : "datecreated",
+                "ttl_pages"   : None,
+                "ttl_records" : None
+            },
+            "Purchase Order Detail": {
+                "search_id"   : 4658,
+                "table_code"  : "dd_po_lns",
+                "filter_on"   : "datecreated",
+                "ttl_pages"   : None,
+                "ttl_records" : None
+            },
+            "Purchase Order Approval Routes": {
+                "search_id"   : 4660,
+                "table_code"  : "dd_po_apr",
+                "filter_on"   : "created",
+                "ttl_pages"   : None,
+                "ttl_records" : None
+            }
+        }
+>>>>>>> master
         if  logger:
             self.logger = logger
         else:
             self.logger = get_logger
 
+<<<<<<< HEAD
         # Initialize the date ranges.
         self._date_ranges = list(rrule.rrule( dtstart=from_date ,until=upto_date ,freq=rrule.MONTHLY ,interval=4 ))
         if  upto_date > self._date_ranges[-1]:
             self._date_ranges.append( upto_date )
 
         self._dates_stack  = self._date_ranges.copy()
+=======
+>>>>>>> master
 
     # Begin Interface implementation section
     #
@@ -88,6 +128,7 @@ class   MasterKeyJob( BaseNetsuiteEtl ):
     def get_datapage_urls( self ) -> list((str,dict,str,dict)):
         """ SEE: BaseRestApiEtl.get_datapage_urls()
         """
+<<<<<<< HEAD
         # We cannot use a loop in this method.  Each iteration need to return a list of request.
         # Iteration shall be implemented as stack.  When the stack is empty we are done.
         reqs = None
@@ -129,6 +170,21 @@ class   MasterKeyJob( BaseNetsuiteEtl ):
 
     # Required step 8.
     def put_datapage_resp( self ,ctx:RestApiContext ,content:dict ) -> list((str ,int ,str)):
+=======
+        from_page = 1
+        upto_page = 20
+        # TODO: Need to iterate through the tasks.
+        if  self.tasks['Sale Order Detail']['ttl_pages']:
+            from_page = 21
+            upto_page = self.tasks['Sale Order Detail']['ttl_pages']
+
+        loopback = self.get_loopback()
+        loopback['task'] = 'Sales Order Detail'
+        return  self.get_requests( from_page=from_page ,upto_page=upto_page ,step=20 ,loopback=loopback )
+
+    # Required step 8.
+    def put_datapage_resp( self ,ctx:RestApiContext ,content:dict ) -> list((str ,int ,str))
+>>>>>>> master
         """ SEE: BaseRestApiEtl.put_datapage_resp()
         """
         output_line = None
@@ -140,7 +196,11 @@ class   MasterKeyJob( BaseNetsuiteEtl ):
             # First entry of the returned JSON is:
             # {'StatusCompleted': 'NO' ,'No of Pages Requested': '1-10 of 212' ,'No of Results Obtained': 10000 ,'Total No of Results': 211358}
             # {"StatusCompleted":"YES" ,"No of Pages Requested": "1-1 of 0"    ,"No of Results Obtained": 0     ,"Total No of Results": 0}
+<<<<<<< HEAD
             self._total_pages = content['No of Pages Requested'].split(' ')[2]
+=======
+            self.tasks['Sale Order Detail']['ttl_pages'] = content['No of Pages Requested'].split(' ')[2]    # TODO: Flesh this out!
+>>>>>>> master
         elif 'error' in content and 'code' in content['error'] and 'message' in content['error']:
             # First entry of the returned JSON if the endpoint time-out is:
             # {"error" : {"code" : "SSS_REQUEST_LIMIT_EXCEEDED" ,"message" : "Request Limit Exceeded!"}}
@@ -153,7 +213,10 @@ class   MasterKeyJob( BaseNetsuiteEtl ):
 
         return  [ (output_line ,0 ,None) ]
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> master
     # Concrete properties section.
     #
 
@@ -163,14 +226,23 @@ class   MasterKeyJob( BaseNetsuiteEtl ):
         """
         # Prepare the first header line.
         if  not self._header_caption:
+<<<<<<< HEAD
             tokens = [ MasterKeyJob.JSON_TO_DB_MAPPING[ key ] for key in MasterKeyJob.JSON_TO_DB_MAPPING ]
+=======
+            tokens = [ NetsuiteObjectKeyJob.JSON_TO_DB_MAPPING[ key ] for key in JSON_TO_DB_MAPPING ]
+>>>>>>> master
             self._header_caption = BaseEtl.DELIMITER.join( tokens )
 
         return  self._header_caption
 
 ######################
 
+<<<<<<< HEAD
 jb = MasterKeyJob( 123 )
 print( jb.get_datapage_urls() )
+=======
+jb = NetsuiteObjectKeyJob( 123 )
+print( jb.get_next_datapage_url() )
+>>>>>>> master
 
 ######################

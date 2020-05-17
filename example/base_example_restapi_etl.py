@@ -102,6 +102,5 @@ class   BaseExampleRestApiEtl( BaseRestApiEtl ):
     # Extended example properties section.
     #
 
-
 if  __name__ == "__main__":
     pass    

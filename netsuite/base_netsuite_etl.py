@@ -9,6 +9,7 @@ from  datetime  import  datetime as datetime
 
 from  etlite.context    import  RestApiContext
 from  etlite.common.base_restapi_etl    import BaseRestApiEtl
+from  etlite.common.constants           import HTTP_GET
 
 class   BaseNetsuiteEtl( BaseRestApiEtl ):
     """ The base Netsuite REST ETL Job object.
@@ -124,6 +125,7 @@ class   BaseNetsuiteEtl( BaseRestApiEtl ):
 
         Return:
             A list of tuples of:
+                str - HTTP Method. Either 'GET' or 'POST'.
                 str - URL.  The authentication end point.
                 dict- Parameters.  The URL parameters to be converted into a query string.
                 str - Message body.  The text to be accompanied in the HTTP request  body.
@@ -145,7 +147,6 @@ class   BaseNetsuiteEtl( BaseRestApiEtl ):
         if  filter_on:
             f += 1
 #           params[ f'join{f}'    ] = self._join_to
-            params[ f'field{f}'   ] = filter_on
             params[ f'operator{f}'] = 'onorafter'
             params[ f'field{f}a'  ] = from_date.strftime("%m/%d/%Y %I:%M %p"), # Date format is NOT negotiable!  Value is ib parent object.
             f += 1
@@ -155,18 +156,19 @@ class   BaseNetsuiteEtl( BaseRestApiEtl ):
             params[ f'field{f}a'  ] = upto_date.strftime("%m/%d/%Y %I:%M %p"), # Date format is NOT negotiable!  Value is ib parent object.
 
         for page_from in range( from_page ,upto_page ,step ):
-            params[ 'from_page'] = page_from
-            params[ 'upto_page'] = page_from + step
+            param = params.copy()
+            param[ 'from_page'] = page_from
+            param[ 'upto_page'] = page_from + step
 
             if  loopback:
                 ctxback = loopback.copy()
             else:
                 ctxback = self.get_loopback()
-            ctxback['from_page'] = params['from_page']
-            ctxback['upto_page'] = params['upto_page']
+            ctxback['from_page'] = param['from_page']
+            ctxback['upto_page'] = param['upto_page']
             ctxback['ordinal'  ] = page_from // step
 
-            reqs.append( (self._request_url ,params ,None ,ctxback) )
+            reqs.append( (HTTP_GET ,self._request_url ,param ,None ,ctxback) )
 
         return reqs
 
