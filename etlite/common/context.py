@@ -29,14 +29,21 @@ class   RestApiContext( Context ):
     """ The REST API workflow response context object.
         It holds more REST specific contextual properties to convey back to the Job by the framework.
     """
-    def __init__( self ,url:str ,params:dict={} ,body:str=None ,ordinal:int=0 ,loopback:dict={} ):
+    def __init__( self ,method:str ,url:str ,params:dict={} ,body:str=None ,ordinal:int=0 ,loopback:dict={} ):
         super().__init__( self ,ordinal=ordinal ,loopback=loopback )
 
+        self._method:str  = method  # HTTP method.
         self._url:str     = url     # The REST endpoint.
         self._params:dict = params  # Query strin parametes to be appended to the URL.
         self._body:str    = None    # The message to be POSTed in the request body .
         self._status:int  = None    # The returned response HTTP status.
         self._reason:str  = None    # The returned response failure reason/message.
+
+    @property
+    def method( self ) -> str:
+        """ Return the HTTP method for the REST API.
+        """
+        return  self._method
 
     @property
     def url( self ) -> str:

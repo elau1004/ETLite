@@ -4,8 +4,8 @@
 # Licensed under the MIT License.
 #
 
-HTTP_GET = 'get'
-HTTP_POST= 'post'
+HTTP_GET = 'GET'
+HTTP_POST= 'POST'
 
 from enum import Enum, unique
 
