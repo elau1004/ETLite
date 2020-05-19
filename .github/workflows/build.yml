@@ -13,8 +13,10 @@ jobs:
 
     runs-on: ${{ matrix.os }}
     steps:
-    - name: set environment variable
-      run: echo ::set-env name=ETLITE_ENV::dev
+    - name: Set environment variable
+      run: |
+        echo "::set-env name=ETLITE_ENV::dev"
+        echo "ETLITE_ENV = " $ETLITE_ENV
       
     - uses: actions/checkout@v2
     - name: Set up Python
