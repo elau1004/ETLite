@@ -40,7 +40,7 @@ jobs:
     - name: Lint with Pylint
       run: |
         pip install pylint
-        pylint **/*.py
+        pylint --disable=C0103,C0326,C0330, **/*.py
 
     - name: Test with pytest
       run: |
