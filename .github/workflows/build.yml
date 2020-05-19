@@ -53,14 +53,17 @@ jobs:
     # E0401: Unable to import 'click' (import-error)
     
     # R0201: Method could be a function (no-self-use)
+    # R0801: Similar lines in 2 files
     # W0404: Reimport 'os' (imported line 7) (reimported)
     # W0107: Unnecessary pass statement (unnecessary-pass)
     # W0236: Method 'raw_filepath' was expected to be 'property', found it instead as 'method' (invalid-overridden-method)
     # W0611: Unused ABC imported from abc (unused-import)
+    # line 65, disabling all Conventions, Refactoring, Warning
     - name: Lint with Pylint
       run: |
         pip install pylint
-        pylint --disable=C0103,CO301,C0326,C0330,C0114,C0115,C0116,C0122,C0305,C0412,C0413,C0414,E0401 **/*.py
+        pylint --disable=C,R,W
+        #pylint --disable=C0103,C0301,C0303,C0326,C0330,C0114,C0115,C0116,C0122,C0305,C0412,C0413,C0414  **/*.py
 
     - name: Test with pytest
       run: |
