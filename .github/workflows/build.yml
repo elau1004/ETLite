@@ -39,7 +39,7 @@ jobs:
 
     - name: Lint with Pylint
       run: |
-        pipenv install pylint
+        pip install pylint
         pylint **/*.py
 
     - name: Test with pytest
