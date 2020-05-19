@@ -6,8 +6,8 @@ jobs:
   build:
     strategy:
       matrix:
-        #os: [windows-latest, macos-latest, ubuntu-latest]
-        os: [ubuntu-latest]
+        os: [windows-latest, macos-latest, ubuntu-latest]
+        # os: [ubuntu-latest]
         # version 3.7 for now. python-version: [3.7, 3.8, pypy2, pypy3]
         python-version: [ 3.7 ]
 
@@ -36,6 +36,8 @@ jobs:
       run: |
         pipenv install -v
         pipenv graph
+
+    # So far we have the following warnings: 
     # C0103:invalid name
     # C0114: Missing module docstring (missing-module-docstring)
     # C0115: Missing class docstring (missing-class-docstring)
