@@ -63,14 +63,17 @@ jobs:
     # C0414: Import alias does not rename original package (useless-import-alias)
 
     # E0401: Unable to import 'click' (import-error)
+    # E1121: Too many positional arguments for method call
+    # E1124: Argument 'ordinal' passed by position and keyword in method call
     
     # R0201: Method could be a function (no-self-use)
     # R0801: Similar lines in 2 files
+
     # W0404: Reimport 'os' (imported line 7) (reimported)
     # W0107: Unnecessary pass statement (unnecessary-pass)
     # W0236: Method 'raw_filepath' was expected to be 'property', found it instead as 'method' (invalid-overridden-method)
     # W0611: Unused ABC imported from abc (unused-import)
-    # line 65, disabling all Conventions, Refactoring, Warning
+    # line 80, disabling all Conventions, Refactoring, Warning
     - name: Lint with Pylint
       run: |
         pip install pylint
