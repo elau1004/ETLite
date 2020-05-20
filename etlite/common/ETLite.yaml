@@ -4,12 +4,11 @@
 # Don't delete any of the following.
 global:
   logger: 
+    fragment: "%Y%m%d%a_%H%M%S"
     dtmformat: "%Y-%m-%d%a %H:%M:%S,uuu"
     msgformat: "%(asctime)s %(levelname)s %(name)s %(message)s"
     logdir: ./logs
     level: INFO
-  naming:
-    fragment: '%Y%m%d%a_%H%M00'
 
 # Development environment.
 # The root node 'dev' will be removed in the config dict object.
@@ -26,7 +25,15 @@ dev:
       user: dev_user
       pass: /dev/database/yourdwh/password
       role: ~
-
+  storage:
+    awss3:
+      accesskey: your-access_key
+      secretkey: /dev/storage/aws/s3/secretkey
+      bucket: dev
+    azure:
+      accountname: your-account-name
+      accountkey: /dev/storage/aws/s3/secretkey
+      container: dev
 
 # CICD or QA environment.
 # The root node 'cicd' will be removed in the config dict object.
@@ -40,9 +47,18 @@ cicd:
       role: ~
     yourdb:
       uri: "mssql+pyodbc://@YourDWH"
-      user: cdci_user
-      pass: /cdci/database/yourdwh/password
+      user: cicd_user
+      pass: /cicd/database/yourdwh/password
       role: ~
+  storage:
+    awss3:
+      accesskey: your-access_key
+      secretkey: /cicd/storage/aws/s3/secretkey
+      bucket: cicd
+    azure:
+      accountname: your-account-name
+      accountkey: /cicd/storage/aws/s3/secretkey
+      container: cicd
 
 # Production environment.
 # The root node 'prod' will be removed in the config dict object.
@@ -59,3 +75,12 @@ prod:
       user: prod_user
       pass: /prod/database/yourdwh/password
       role: ~
+  storage:
+    awss3:
+      accesskey: your-access_key
+      secretkey: /prod/storage/aws/s3/secretkey
+      bucket: prod
+    azure:
+      accountname: your-account-name
+      accountkey: /prod/storage/aws/s3/secretkey
+      container: prod

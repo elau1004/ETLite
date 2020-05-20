@@ -44,6 +44,7 @@ CREATE  TABLE   Data_Set_Profile (
         ,Field_Seq          {xdb['int08'] :15} NOT NULL  {xdb['comment']} 'The order of the field in the file/table.'
         ,Field_Name         {xdb['txt64'] :15} NOT NULL  {xdb['comment']} 'The name of the field.'
         ,Data_Type          {xdb['txt08'] :15} NOT NULL  {xdb['comment']} 'The data type of the field. DATE, DATETIME, INTEGER, FLOAT, STRING ,TIME'
+        ,Skip_it            {xdb['bit0']  :15} {xdb['comment']} 'Boolean flag to mark this field to be skipped/ignored.'
         ,do_Count           {xdb['bit1']  :15} {xdb['comment']} 'Boolean flag to enable/disable Count    aggregation.'
         ,do_Blank           {xdb['bit1']  :15} {xdb['comment']} 'Boolean flag to enable/disable Blank    aggregation.'
         ,do_Distinct        {xdb['bit1']  :15} {xdb['comment']} 'Boolean flag to enable/disable Distinct aggregation.'

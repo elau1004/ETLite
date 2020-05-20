@@ -13,132 +13,94 @@ shall be skipped.
 from abc import ABC, abstractmethod
 from datetime import datetime as datetime
 
+from etlite.common.constants    import Status
 from etlite.common.exceptions   import ETLiteException
 
 class   BaseEtl( ABC ):
+    """ The base abstract ETL Job object.
+        It holds some basic metadata properties to track the life-cycle of a job.
+    """
     DELIMITER = '\t'
+    LOOPBACK  = { 'task': 'Not filled in!' ,'ordinal': 0 }  # Zero based ordinal.
 
-    def __init__( self ,job_code:str ,job_codes:list=None ,run_id:int=None ,from_date:datetime=None ,upto_date:datetime=None ,status=None ):
-        self._job_code:str = job_code           # Unique code for this job.
-        self._job_codes:list = job_codes        # A list of codes in a Flywheel.
-        self._run_id:int = run_id               # Unique id for each run.
-        self._from_date:datetime = from_date    # Inclusive (greater and equal) to filter the source data.
-        self._upto_date:datetime = upto_date    # Not inclusive (less than) to filter the source data.
-        self._status:int = status
+    def __init__( self ,dataset_code:str ,run_id:int=None ,from_date:datetime=None ,upto_date:datetime=None ):
+        self._dataset_code:str  = dataset_code  # Required unique code for this job in your code base.
+        self._run_id:int        = run_id        # Optional unique id for each run.
+        self._from_date:datetime= from_date     # Optional inclusive (greater and equal) to filter the source data.
+        self._upto_date:datetime= upto_date     # Optional not inclusive (less than) to filter the source data.
+        self._status_id:int     = None          # The current status/lifecycle this job is in.
 
-        if  not  self._upto_date:
-            self._upto_date = datetime.now()
-
-        if  job_code and job_codes:
-            raise ETLiteException( "Job_code and Job_Codes MUST be mutually exclusive." )
+        if  not self._upto_date:
+            self._upto_date = datetime.utcnow()
 
     @property
-    def code( self ) -> str:
-        return  self._job_code
-
-    @property
-    def codes( self ) -> list:
-        return  self._job_codes
+    def dataset_code( self ) -> str:
+        """ Return the code for the current data set.
+        """
+        return  self._dataset_code
 
     @property
     def run_id( self ) -> int:
+        """ Return the unique run id.
+        """
         return  self._run_id
 
     @run_id.setter
-    def run_id( self ,run_id:int ):
-        self._run_id = run_id
+    def run_id( self ,value:int ):
+        self._run_id =value
 
     @property
     def from_date( self ) -> datetime:
+        """ Return the starting from date to be used to filter your incremental data.
+            By convention you should filter it with the greater-and-equal operator.
+        """
         return  self._from_date
 
     @from_date.setter
-    def from_date( self ,from_date:datetime ):
-        self._from_date = from_date
+    def from_date( self ,value:datetime ):
+        self._from_date =value
 
     @property
     def upto_date( self ) -> datetime:
+        """ Return the ending upto date to be used to filter your incremental data.
+            By convention you should filter it with the less-than operator.
+        """
         return  self._upto_date
 
     @upto_date.setter
-    def upto_date( self ,upto_date:datetime ):
-        self._upto_date = upto_date
+    def upto_date( self ,value:datetime ):
+        self._upto_date =value
 
     @property
-    def status( self ) -> int:
-        return  self._status
+    def status_id( self ) -> int:
+        """ Return the current status id of the current run of this dataset.
+        """
+        return  self._status_id
 
-    @status.setter
-    def status( self ,status:int ):
-        self._status = status
+    @status_id.setter
+    def status_id( self ,value:int ):
+        self._status_id =value
+
+    @property
+    @abstractmethod
+    def init_date( self ) -> datetime:
+        """ Return the very first initial date/time to start your incremental extraction from.
+        Generally, to be implemented in the specific Job concrete class.
+        """
+        pass
 
     @property
     @abstractmethod
     def output_data_header( self ) -> str:
-        # Return the file header caption.
-        pass
-
-    @abstractmethod
-    def transform_data( self ,record:str ,delimiter:str=DELIMITER ) -> str:
-        """
-        Transform the raw record into your new formatted record to be output.
-        The input is a text stream and should hold off on marshalling into
-        and un-marshalling out from JSON.
+        """ Return the header caption for the output text file.
+        Generally, to be implemented in the specific Job concrete class.
         """
         pass
 
-    @property
-    @abstractmethod
-    def source_table( self ) -> str:
-        """
-        Framework shall use this table/view to query a default list of columns.
-        """
-        pass
+    # Concrete properties section.
+    #
 
-    @property
-    @abstractmethod
-    def source_columns( self ,columns:list ) -> list:
+    def get_loopback( self ) -> dict:
+        """ Return a default loop back dictionary for sub-objects to fill.
         """
-        Framework is asking you to verify/transform the default source columns.
-        Ideally source columns should nbe the same as target columns.
-        """
-        pass
-
-    @property
-    @abstractmethod
-    def target_columns( self ,columns:list ) -> list:
-        """
-        Framework is asking you to verify/transform the default target columns.
-        Ideally source columns should nbe the same as target columns.
-        """
-        pass
-
-    @property
-    @abstractmethod
-    def stage_query( self ) -> str:
-        """
-        The query you want the ETLite framework to execute on your behalf
-        to stage your data into the staging area/table.
-        Return None is you want to skip this step.
-        """
-        pass
-
-    @property
-    @abstractmethod
-    def insert_query( self ) -> str:
-        """
-        The query you want the ETLite framework to execute on your behalf
-        to insert your data into the target table.
-        Return None is you want to skip this step.
-        """
-        pass
-
-    @property
-    @abstractmethod
-    def update_query( self ) -> str:
-        """
-        The query you want the ETLite framework to execute on your behalf
-        to update your data in the target table.  This is usually for maintaing SCD2 rows.
-        Return None is you want to skip this step.
-        """
-        pass
+        return  BaseEtl.LOOPBACK.copy()
