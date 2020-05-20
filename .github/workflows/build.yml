@@ -77,7 +77,7 @@ jobs:
     - name: Lint with Pylint
       run: |
         pip install pylint
-        pylint --disable=C,R,W,E0401 etlite
+        pylint --disable=C,R,W,E0401,E1121,E1124 etlite
         #pylint --disable=C0103,C0301,C0303,C0326,C0330,C0114,C0115,C0116,C0122,C0305,C0412,C0413,C0414  **/*.py
 
     - name: Test with pytest
