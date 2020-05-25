@@ -56,39 +56,51 @@ class   BaseRestApiEtl( BaseEtl ):
         """ Validate that the URL request tuple conform to the expected types and values.
         """
         if  url_tuple:
-            if  not ( url_tuple[0] and isinstance( url_tuple[0] ,str )):
-                raise TypeError()
+            if  url_tuple[0]:
+                if  isinstance( url_tuple[0] ,str )
+                    if  not url_tuple[0] in { HTTP_GET ,HTTP_POST }:
+                        raise ValueError()
+                else:
+                    raise TypeError()
             else:
-                if  not ( url_tuple[0] in { HTTP_GET ,HTTP_POST } ):
-                    raise ValueError()
+                raise ValueError()
 
-            if  not ( url_tuple[1] and isinstance( url_tuple[1] ,str )):
-                raise TypeError()
+            if  url_tuple[1]:
+                if  isinstance( url_tuple[1] ,str )
+                    if  not str(url_tuple[1]).startswith('http') >= 0:
+                        raise ValueError()
+                else:
+                    raise TypeError()
             else:
-                if  not ( str(url_tuple[1]).startswith('http') >= 0 ):
-                    raise ValueError()
+                raise ValueError()
 
-            if  not ( url_tuple[2] and isinstance( url_tuple[2] ,dict )):
-                raise TypeError()
+            if  url_tuple[2]:
+                if  isinstance( url_tuple[2] ,dict ):
+                    raise TypeError()
 
-            if  not ( url_tuple[3] and isinstance( url_tuple[3] ,str )):
-                raise TypeError()
+            if  url_tuple[3]:
+                if  isinstance( url_tuple[3] ,str ):
+                    raise TypeError()
 
-            if  not ( url_tuple[4] and isinstance( url_tuple[4] ,dict )):
-                raise TypeError()
+            if  url_tuple[4]:
+                if  isinstance( url_tuple[4] ,dict )
+                    if  not('task' in url_tuple[4] or 'ordinal' in url_tuple[4]):
+                        raise ValueError()
+                else:
+                    raise TypeError()
             else:
-                if  not ('task' in url_tuple[4] or 'ordinal' in url_tuple[4]):
-                    raise ValueError()
-
+                raise ValueError()
+            
         return  url_tuple
 
     @staticmethod
-    def check_url_tuples( url_tuples:list ) -> list(str,dict,str,dict):
+    def check_url_tuples( url_tuples:list ) -> list((str,dict,str,dict)):
         """ Validate that the list of URL tuples conform to the expected types.
         """
         url_reqs = []
-        for url_tuple in url_tuples:
-            url_reqs.append( BaseRestApiEtl.check_url_tuple( url_tuple ))
+        if  url_tuples:
+            for url_tuple in url_tuples:
+                url_reqs.append( BaseRestApiEtl.check_url_tuple( url_tuple ))
         return  url_reqs
 
     @staticmethod

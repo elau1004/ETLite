@@ -30,7 +30,7 @@ class   RestApiContext( Context ):
         It holds more REST specific contextual properties to convey back to the Job by the framework.
     """
     def __init__( self ,method:str ,url:str ,header:dict={} ,params:dict={} ,body:str=None ,ordinal:int=0 ,loopback:dict={} ):
-        super().__init__( self ,ordinal=ordinal ,loopback=loopback )
+        super().__init__( ordinal=ordinal ,loopback=loopback )
 
         self._method:str  = method  # HTTP method to use to make the request.
         self._url:str     = url     # The REST endpoint.

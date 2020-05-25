@@ -25,6 +25,34 @@ class   Example1Etl( BaseExampleRestApiEtl ):
     DJT20= ['ALK','AAL','CAR','CHRW','CSX','DAL','EXPD','FDX','JBHT','JBLU','KSU','KEX','LSTR','MATX','NSC','R','LUV','UNP','UAL','UPD']
     DJU15= ['AES','AEP','AWK','CNP','ED','D','DUK','EIX','EXC','FE','NEE','NI','PEG','SRE','SO']
 
+    JSON_TO_DB_MAPPING =         {
+            "symbol":               "symbol",
+            "currency":             "currency",
+            "last_trade_time":      "traded_at", # timestamp
+            "price":                "price",
+            "price_open":           "day_open",
+            "day_high":             "day_high",
+            "day_low":              "day_low",
+            "52_week_high":         "52weeks_high",
+            "52_week_low":          "52weeks_low",
+            "day_change":           "day_price_change",
+            "change_pct":           "day_percent_change",
+            "close_yesterday":      "yesterday_close",
+            "volume":               "day_volume",
+            "volume_avg":           "avg_volume",
+            #
+            "name":                 "name",
+            "pe":                   "pe",
+            "eps":                  "eps",
+            "shares":               "shares",
+            "market_cap":           "market_cap",
+#           "stock_exchange_long":  "stock_exchange_long",
+            "stock_exchange_short": "exchange",
+            "timezone":             "timezone",
+#           "timezone_name":        "timezone_name"
+            "gmt_offset":           "gmt_offset"
+        }
+
     def __init__( self ,run_id:int=None ,from_date:datetime=None ,upto_date:datetime=None ):
         # NOTE: Framework doesn't pass in instantiation parameters.
         super().__init__( dataset_code=Example1Etl.CODE ,run_id=run_id ,from_date=from_date ,upto_date=upto_date )
@@ -43,12 +71,16 @@ class   Example1Etl( BaseExampleRestApiEtl ):
     # Required step 7.
     def get_datapage_urls( self ) -> list((str,str,dict,str,dict)):
         """ SEE: BaseRestApiEtl.get_datapage_urls()
-        This method will be called many times until you return empty list or None value to terminate the loop.
+        
+        This method is primarily manages your data page request and pagination.
+        This method will be called many times until you return empty list or 
+        None value to terminate the framework internal loop.
+        This example uses the self._indices stack to implement an interuptable loop.
         """
         rest_reqs = None
-        if  self._indices:
+        if  self._indices:  # Is the stack empty?
             rest_reqs = []
-            for symbol  in self._indices[1]:
+            for symbol  in self._indices[0][1]:
                 params  =  {'symbol': symbol}
                 loopback=  self.get_loopback()          # NOTE: In BaseEtl.py
                 loopback['task']  = symbol              # NOTE: Fill in something unique that make sense to you.
@@ -71,7 +103,7 @@ class   Example1Etl( BaseExampleRestApiEtl ):
     def output_data_header( self ) -> str:
         """ SEE: BaseEtl.output_data_header()
         """
-        return  BaseEtl.DELIMITER.join( ['Symbol','Open','Close','High','Low','Volume'] )
+        return  BaseEtl.DELIMITER.join( [v for v in Example1Etl.JSON_TO_DB_MAPPING.values() ] )
 
     #
     # End Interface implementation section
