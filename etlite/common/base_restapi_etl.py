@@ -76,13 +76,6 @@ class   BaseRestApiEtl( BaseEtl ):
                 else:
                     if  not str(url_tuple[1]).startswith('http') >= 0:
                         raise ValueError()
-            else:
-                raise ValueError()
-
-            if  url_tuple[2]:
-                if  not isinstance( url_tuple[2] ,dict ):
-                    raise TypeError()
-
             if  url_tuple[3]:
                 if  not isinstance( url_tuple[3] ,str ):
                     raise TypeError()
