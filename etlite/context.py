@@ -29,33 +29,67 @@ class   RestApiContext( Context ):
     """ The REST API workflow response context object.
         It holds more REST specific contextual properties to convey back to the Job by the framework.
     """
-    def __init__( self ,method:str ,url:str ,header:dict={} ,params:dict={} ,body:str=None ,ordinal:int=0 ,loopback:dict={} ):
+    #   method:str
+    #   url:str
+    #   params:dict
+    #   data:dict    for multipart/form-data and application/x-www-form-urlencoded body
+    #   headers:dict
+    #   auth:aiohttp.BasicAuth
+    #   compress:bool
+    #   timeout:int 
+    #   
+    def __init__( self ,method:str ,url:str ,headers:dict={} ,params:dict={} ,body:str=None ,ordinal:int=0 ,loopback:dict={} ):
         super().__init__( ordinal=ordinal ,loopback=loopback )
 
         self._method:str  = method  # HTTP method to use to make the request.
         self._url:str     = url     # The REST endpoint.
-        self._params:dict = params  # Query string parametes to be appended to the URL.
-        self._body:str    = None    # The message to be POSTed in the request body .
+        self._headers:dict= headers # HTTP Headers to send with the request.
+        self._params:dict = params  # Key/Value pairs dictionary to be sent as parameters in the query string of the new request.
+        self._body:str    = None    # The data to send in the body of the request.
         self._status:int  = None    # The returned response HTTP status.
         self._reason:str  = None    # The returned response failure reason/message.
 
     @property
     def url( self ) -> str:
-        """ Return the url for the REST API.
+        """ Return the url for the REST API request.
         """
         return  self._url
 
     @property
+    def headers( self ) -> dict:
+        """ Return the header for the REST API request/response.
+        """
+        return  self._headers
+
+    @headers.setter
+    def headers( self ,value:dict ):
+        """ Set the headers of the REST API response.
+        """
+        self._headers = value
+
+    @property
     def params( self ) -> dict:
-        """ Return the URL parameters used for the REST API.
+        """ Return the URL parameters used for the REST API request.
         """
         return  self._params
 
+    @params.setter
+    def params( self ,value:dict ):
+        """ Set the params of the REST API request.
+        """
+        self._params = value
+
     @property
     def body( self ) -> str:
-        """ Return the HTTP body message used for the REST API.
+        """ Return the HTTP body message used for the REST API response.
         """
         return  self._body
+
+    @body.setter
+    def body( self ,value:str ):
+        """ Set the body data of the REST API request/response.
+        """
+        self._body = value
 
     @property
     def status( self ) -> int:

@@ -11,7 +11,13 @@ from etlite.common.base_etl import BaseEtl
 
 class   BaseSqlApiEtl( BaseEtl ):
 
-    def __init__( self ,dataset_code:str ,dataset_codes:list=None ,run_id:int=None ,from_date:datetime=None ,upto_date:datetime=None ,status_id:int=None ):
-        super().__init__( dataset_code ,dataset_codes ,run_id ,from_date ,upto_date ,status_id )
+    def __init__( self ,dataset_code:str ,run_id:int=None ,from_date:datetime=None ,upto_date:datetime=None ):
+        super().__init__( dataset_code=dataset_code ,run_id=run_id ,from_date=from_date ,upto_date=upto_date )
+        # SQL query workflow.
+        if  self._workflow_seq:
+            self._workflow_seq   += "S"
+        else:
+            self._workflow_seq    = "S"
+        pass
 
 # TODO: Flesh this out.

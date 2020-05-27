@@ -14,6 +14,7 @@ from    etlite.context  import  RestApiContext
 from    etlite.common   import  cfg ,get_logger
 from    etlite.common.base_etl  import  BaseEtl
 from    etlite.common.constants import  HTTP_GET
+
 from    example.base_example_restapi_etl  import  BaseExampleRestApiEtl
 
 class   Example1Etl( BaseExampleRestApiEtl ):
@@ -94,6 +95,7 @@ class   Example1Etl( BaseExampleRestApiEtl ):
     def put_datapage_resp( self ,ctx:RestApiContext ,content ) -> list((str ,int ,str)):
         """ SEE: BaseRestApiEtl.put_datapage_resp()
         """
+        print( f"{ctx.loopback['ordinal']:2} {ctx.loopback['task']:2} length of returned request: {len(content)}" )
         return  None    # TODO: Finish this up.
 
     # Concrete properties section.

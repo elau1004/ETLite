@@ -19,9 +19,12 @@ Example:
 """
 # pylint: disable=line-too-long
 # pylint: disable=C0103,C0326,C0330
+import random
 
 import  gettext     # Ready for future internationalization.
 i18n =  gettext.gettext
+import  aiohttp
+import  asyncio
 
 from    requests.auth import AuthBase
 
@@ -34,11 +37,11 @@ class   RestApiRequestor():
     """
     # SEE: Consider the Flyweight pattern.
     #      https://refactoring.guru/design-patterns/flyweight/python/example
-    def __init__( self ,ctx:RestApiContext ,header:dict ,auth_obj:AuthBase ,callback ):
+    def __init__( self ,ctx:RestApiContext ,headers:dict ,auth_obj:AuthBase ,callback ):
         """
         """
         self._ctx     = ctx
-        self._header  = header     # The HTTP authorization header.
+        self._headers = headers    # The HTTP authorization header.
         self._auth_obj= auth_obj   
         self._callback= callback
         self._outputs = {}
@@ -50,10 +53,10 @@ class   RestApiRequestor():
         return  self._ctx
 
     @property
-    def header( self ) -> dict:
+    def headers( self ) -> dict:
         """ Return the Authorization HTTP header for the REST API.
         """
-        return  self._header
+        return  self._headers
 
     @property
     def auth_obj( self ) -> AuthBase:
@@ -61,13 +64,28 @@ class   RestApiRequestor():
         """
         return  self._auth_obj
 
-    def run( self ) -> bool:
+    async def run( self ) -> bool:
         """
         """
-        # TODO: Make the async request using the info in the context object.
-        #       Fill in the ctx with the response info.
-        #       Extract out the content for the callback method.
-        result = self._callback( ctx=self._ctx ,content=None )
+        # TODO: How do I trap exception in async routine.
+        async with aiohttp.ClientSession() as client:
+            async with client.request(   'GET'
+                                        ,'http://www.google.com'
+                                        ,params=self._ctx._params
+                                        ,data=self._ctx.body        # The data to send in the body of the request.
+                                        ,headers=self._ctx.headers
+                                        #,auth=
+                                        ,compress=True
+                                        #,chunked=
+                                        #,timeout=
+                                    ) as resp:
+                self._ctx.status  = resp.status
+                self._ctx.reason  = resp.reason
+                self._ctx.headers = dict( resp.headers )
+                self._ctx.body    = await resp.text()   # TODO: Convert to streaming to reduce memory pressure.
+                await asyncio.sleep(random.uniform(0.5, 5))
+
+        result = self._callback( ctx=self._ctx ,content=self._ctx.body )
 
         if  isinstance( result ,bool ):
             return  result
@@ -93,7 +111,7 @@ class   RestWorkflowExecutor( BaseExecutor ):
     def run( self ):
         """
         """
-        header  = self._job.request_http_header
+        headers  = self._job.request_http_header
 
         # 1. Authentication step.
         self._auth_url = None
@@ -103,7 +121,7 @@ class   RestWorkflowExecutor( BaseExecutor ):
             self._auth_obj = BaseRestApiEtl.check_authentication_obj( self._job.get_authentication_obj() )
 
             ctx = RestApiContext( method=self._auth_req[0] ,url=self._auth_req[1] ,params=self._auth_req[2] ,body=self._auth_req[3] ,loopback=self._auth_req[4] )
-            req = RestApiRequestor( ctx=ctx ,header=header ,auth_obj=self._auth_obj ,callback=self._job.put_authentication_resp )
+            req = RestApiRequestor( ctx=ctx ,headers=headers ,auth_obj=self._auth_obj ,callback=self._job.put_authentication_resp )
             if  not req.run():
                 raise RuntimeError()
 
@@ -111,7 +129,7 @@ class   RestWorkflowExecutor( BaseExecutor ):
         self._queue_req = BaseRestApiEtl.check_url_tuple( self._job.get_data_request_url() )
         if  self._queue_req:
             ctx = RestApiContext( method=self._queue_req[0] ,url=self._queue_req[1] ,params=self._queue_req[2] ,body=self._queue_req[3] ,loopback=self._queue_req[4] )
-            req = RestApiRequestor( ctx=ctx ,header=header ,auth_obj=self._auth_obj ,callback=self._job.put_data_request_resp )
+            req = RestApiRequestor( ctx=ctx ,headers=headers ,auth_obj=self._auth_obj ,callback=self._job.put_data_request_resp )
             if  not req.run():
                 raise RuntimeError()
 
@@ -119,8 +137,10 @@ class   RestWorkflowExecutor( BaseExecutor ):
         self._status_req = BaseRestApiEtl.check_url_tuple( self._job.get_request_status_url() )
         if  self._status_req:
             ctx = RestApiContext( method=self._status_req[0] ,url=self._status_req[1] ,params=self._status_req[2] ,body=self._status_req[3],loopback=self._status_req[4] )
-            req = RestApiRequestor( ctx=ctx ,header=header ,auth_obj=self._auth_obj ,callback=self._job.put_request_status_resp )
-            if  not req.run():
+            req = RestApiRequestor( ctx=ctx ,headers=headers ,auth_obj=self._auth_obj ,callback=self._job.put_request_status_resp )
+
+            b = asyncio.run( req.run() )
+            if  not b:
                 raise RuntimeError()
 
         # 4. Retrieve data step.
@@ -130,18 +150,24 @@ class   RestWorkflowExecutor( BaseExecutor ):
                 reqs = []
                 for i, rest_req in enumerate( self._rest_reqs ,start=0 ):
                     ctx = RestApiContext( ordinal=i ,method=rest_req[0] ,url=rest_req[1] ,params=rest_req[2] ,body=rest_req[3] ,loopback=rest_req[4] )
-                    reqs.append( RestApiRequestor( ctx=ctx ,header=header ,auth_obj=self._auth_obj ,callback=self._job.put_datapage_resp ))
+                    ctx.loopback['ordinal'] = i
+                    reqs.append( RestApiRequestor( ctx=ctx ,headers=headers ,auth_obj=self._auth_obj ,callback=self._job.put_datapage_resp ))
 
-                # TODO: Parallel request the list.
+                # SEE:  https://xinhuang.github.io/posts/2017-07-31-common-mistakes-using-python3-asyncio.html
+                loop    = asyncio.get_event_loop()
+                tasks   = [ reqs[i].run() for i in range(0 ,len(reqs)) ]
+                group1  = asyncio.gather( *tasks )
+                results = loop.run_until_complete( group1 )
+                print( results )
             else: # None value terminate this loop.
                 break
 
 if  __name__ == "__main__":
     from example.example1_etl  import  Example1Etl
 
-    jb = Example1Etl()
-    wf = RestWorkflowExecutor( jb )
     try:
+        jb = Example1Etl()
+        wf = RestWorkflowExecutor( jb )
         wf.run()
-    except Exception as ex:
+    except  Exception as ex:
         print( ex )
