@@ -9,11 +9,13 @@ from datetime import datetime as datetime
 
 from etlite.context  import RestApiContext
 from etlite.common.base_restapi_etl import BaseRestApiEtl
+from etlite.common.base_sqlapi_etl  import BaseSqlApiEtl
 
 """
 This is an optional class to add some additional methods and properties
 for this Example vendor to be shared by both Example1 and Example2 etl jobs.
 """
+#lass   BaseExampleRestApiEtl( BaseSqlApiEtl ,BaseRestApiEtl ): # NOTE: This order of multiple inheritance produces "RS" order.
 class   BaseExampleRestApiEtl( BaseRestApiEtl ):
     """ The base Example REST ETL Job object.
         It implements most of the common abstract REST methods that define the generic REST workflow.

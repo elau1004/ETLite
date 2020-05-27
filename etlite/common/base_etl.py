@@ -24,6 +24,7 @@ class   BaseEtl( ABC ):
     LOOPBACK  = { 'task': 'Not filled in!' ,'ordinal': 0 }  # Zero based ordinal.
 
     def __init__( self ,dataset_code:str ,run_id:int=None ,from_date:datetime=None ,upto_date:datetime=None ):
+        self._workflow_seq:str  = None          # The sequence of workflow engine to invoke.
         self._dataset_code:str  = dataset_code  # Required unique code for this job in your code base.
         self._run_id:int        = run_id        # Optional unique id for each run.
         self._from_date:datetime= from_date     # Optional inclusive (greater and equal) to filter the source data.
@@ -38,6 +39,18 @@ class   BaseEtl( ABC ):
         """ Return the code for the current data set.
         """
         return  self._dataset_code
+
+    @property
+    def workflow_seq( self ) -> str:
+        """ Return the workflow sequence to invoke.
+        """
+        return  self._workflow_seq
+
+    @workflow_seq.setter
+    def workflow_seq( self ,value:str ):
+        """ Set the workflow sequence to invoke.
+        """
+        self._workflow_seq = value
 
     @property
     def run_id( self ) -> int:

@@ -29,12 +29,12 @@ import  collections
 
 from  abc           import abstractmethod
 from  aiohttp       import ClientResponse
+from  aiohttp.hdrs  import METH_GET ,METH_POST
 from  datetime      import datetime as datetime
 from  requests.auth import AuthBase
 
-from  etlite.common.context     import RestApiContext
+from  etlite.context    import  RestApiContext
 from  etlite.common.base_etl    import BaseEtl
-from  etlite.common.constants   import HTTP_GET ,HTTP_POST
 
 class   BaseRestApiEtl( BaseEtl ):
     """ The base abstract REST ETL Job object.
@@ -48,6 +48,11 @@ class   BaseRestApiEtl( BaseEtl ):
         self._auth_token:str      = None
         self._request_token:str   = None
         self._request_timeout:int = BaseRestApiEtl.CLIENT_TIMEOUT
+        # REST API workflow.
+        if  self._workflow_seq:
+            self._workflow_seq   += "R" 
+        else:
+            self._workflow_seq    = "R"
 
     # Static utility section.
     #
@@ -57,37 +62,30 @@ class   BaseRestApiEtl( BaseEtl ):
         """
         if  url_tuple:
             if  url_tuple[0]:
-                if  isinstance( url_tuple[0] ,str )
-                    if  not url_tuple[0] in { HTTP_GET ,HTTP_POST }:
-                        raise ValueError()
-                else:
+                if  not isinstance( url_tuple[0] ,str ):
                     raise TypeError()
+                else:
+                    if  not url_tuple[0] in { METH_GET ,METH_POST }:
+                        raise ValueError()
             else:
                 raise ValueError()
 
             if  url_tuple[1]:
-                if  isinstance( url_tuple[1] ,str )
+                if  not isinstance( url_tuple[1] ,str ):
+                    raise TypeError()
+                else:
                     if  not str(url_tuple[1]).startswith('http') >= 0:
                         raise ValueError()
-                else:
-                    raise TypeError()
-            else:
-                raise ValueError()
-
-            if  url_tuple[2]:
-                if  isinstance( url_tuple[2] ,dict ):
-                    raise TypeError()
-
             if  url_tuple[3]:
-                if  isinstance( url_tuple[3] ,str ):
+                if  not isinstance( url_tuple[3] ,str ):
                     raise TypeError()
 
             if  url_tuple[4]:
-                if  isinstance( url_tuple[4] ,dict )
+                if  not isinstance( url_tuple[4] ,dict ):
+                    raise TypeError()
+                else:
                     if  not('task' in url_tuple[4] or 'ordinal' in url_tuple[4]):
                         raise ValueError()
-                else:
-                    raise TypeError()
             else:
                 raise ValueError()
             
@@ -272,7 +270,7 @@ class   BaseRestApiEtl( BaseEtl ):
 
     @property
     def request_http_header( self ) -> dict:
-        """ If your request require a different header, you MUST over write this property
+        """ If your request require a different headers, you MUST over write this property
         to provide your implmentation.
         """
         return { "content-type": "application/json; charset=utf-8" }

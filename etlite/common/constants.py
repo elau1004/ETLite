@@ -4,8 +4,10 @@
 # Licensed under the MIT License.
 #
 
-HTTP_GET = 'GET'
-HTTP_POST= 'POST'
+from  aiohttp.hdrs  import METH_GET ,METH_POST
+
+HTTP_GET = METH_GET
+HTTP_POST= METH_POST
 
 from enum import Enum, unique
 

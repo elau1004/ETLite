@@ -9,12 +9,11 @@ from    abc      import ABC, abstractmethod
 from    datetime import timedelta ,datetime as  datetime
 from    logging  import Logger
 
-from    etlite.context          import  RestApiContext
-from    etlite.common           import  get_logger
-from    etlite.common.base_etl          import  BaseEtl
-from    etlite.common.base_restapi_etl  import  BaseRestApiEtl
+from    etlite.context  import  RestApiContext
+from    etlite.common   import  get_logger
+from    etlite.common.base_etl  import  BaseEtl
 
-from    netsuite.base_netsuite_etl      import  BaseNetsuiteEtl
+from    netsuite.base_netsuite_etl  import  BaseNetsuiteEtl
 
 class   MasterKeyJob( BaseNetsuiteEtl ):
     """ The specific Netsuite REST ETL Job (MASTERKEY).
