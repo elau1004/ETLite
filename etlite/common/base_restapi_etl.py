@@ -45,14 +45,15 @@ class   BaseRestApiEtl( BaseEtl ):
     def __init__( self ,dataset_code:str ,run_id:int=None ,from_date:datetime=None ,upto_date:datetime=None ):
         super().__init__( dataset_code=dataset_code ,run_id=run_id ,from_date=from_date ,upto_date=upto_date )
 
-        self._auth_token:str      = None
-        self._request_token:str   = None
-        self._request_timeout:int = BaseRestApiEtl.CLIENT_TIMEOUT
+        self._max_request:int   = 8
+        self._auth_token:str    = None
+        self._request_token:str = None
+        self._timeout:int       = BaseRestApiEtl.CLIENT_TIMEOUT
         # REST API workflow.
         if  self._workflow_seq:
-            self._workflow_seq   += "R" 
+            self._workflow_seq += "R" 
         else:
-            self._workflow_seq    = "R"
+            self._workflow_seq  = "R"
 
     # Static utility section.
     #
@@ -116,7 +117,6 @@ class   BaseRestApiEtl( BaseEtl ):
     #
 
     # Optional step 1a.
-    @abstractmethod
     def get_authentication_url( self ) -> (str,dict,str,dict):
         """ If there is a different URL to authenthicate at then return a tuple of URL pertinent data,
         else return None to skip.
@@ -128,10 +128,9 @@ class   BaseRestApiEtl( BaseEtl ):
                 str - Message body.  The text to be accompanied in the HTTP request  body.
                 dict- Loopback freeform dictionary.  This dictionary will be returned back in the response context.
         """
-        pass
+        return  None
 
     # Optional step 1b.
-    @abstractmethod
     def get_authentication_obj( self ) -> AuthBase:
         """ If the authentication requires an Auth object then return the AuthBase,
         else return None to skip.
@@ -141,10 +140,9 @@ class   BaseRestApiEtl( BaseEtl ):
         Return:
             AuthBase - The base Auth class where other authentication subclass from.
         """
-        pass
+        return  None
 
     # Optional step 2.
-    @abstractmethod
     def put_authentication_resp( self ,ctx:RestApiContext ,content ) -> bool:
         """ The response for the previous get_authentication_url() call is put to you.
         Query the content to determine if you are authenticated.
@@ -157,10 +155,9 @@ class   BaseRestApiEtl( BaseEtl ):
         Return:
             bool- True if successfully processed else False.
         """
-        pass
+        return  True
 
     # Optional step 3.
-    @abstractmethod
     def get_data_request_url( self ) -> (str,dict,str,dict):
         """ If there is a different URL to request a set of data then return the URL,
         else return None to skip.
@@ -172,10 +169,9 @@ class   BaseRestApiEtl( BaseEtl ):
                 str - Message body.  The text to be accompanied in the HTTP request  body.
                 dict- Loopback freeform dictionary.  This dictionary will be returned back in the response context.
         """
-        pass
+        return  None
 
     # Optional step 4.
-    @abstractmethod
     def put_data_request_resp( self ,ctx:RestApiContext ,content ) -> bool:
         """ The response for the previous get_data_request_url() call is put to you.
         Query the content to determine if a request token/id is returned
@@ -188,10 +184,9 @@ class   BaseRestApiEtl( BaseEtl ):
         Return:
             bool- True if successfully processed else False.
         """
-        pass
+        return  True
 
     # Optional step 5.
-    @abstractmethod
     def get_request_status_url( self ) -> (str,dict,str,dict):
         """ If there is a different URL to check on a request for set of data then return the URL,
         else return None to skip to the next step.
@@ -203,10 +198,10 @@ class   BaseRestApiEtl( BaseEtl ):
                 str - Message body.  The text to be accompanied in the HTTP request  body.
                 dict- Loopback freeform dictionary.  This dictionary will be returned back in the response context.
         """
-        pass
+        return  None
 
     # Optional step 6.
-    @abstractmethod
+#   @abstractmethod
     def put_request_status_resp( self ,ctx:RestApiContext ,content ) -> bool:
         """ The response for the previous get_request_status_url() call is put to you.
         Query the content to determine if a request data set is ready to download.
@@ -218,10 +213,9 @@ class   BaseRestApiEtl( BaseEtl ):
         Return:
             bool- True if successfully processed else False.
         """
-        pass
+        return  True
 
-    # Required step 7.
-    @abstractmethod
+    # Required step 7a.
     def get_datapage_urls( self ) -> list((str,str,dict,str,dict)):
         """ If you determine that more data pages are needed then return the list of tuples.
         else return None to skip/terminate.
@@ -236,10 +230,21 @@ class   BaseRestApiEtl( BaseEtl ):
                 str - Message body.  The text to be accompanied in the HTTP request  body.
                 dict- Loopback freeform dictionary.  This dictionary will be returned back in the response context.
         """
-        pass
+        return  None
+
+    # Required step 7b.
+    def get_datapage_reqs( self ) -> list():
+        """ This is an alternate api to the above get_datapage_urls() method.
+        To be used in situation where the request need customization like having a special authentication.
+        The user should extend the RestApiRequestor object to implement the desired behaviour.
+        This method is secondaryu to the get_datapage_urls() method.
+
+        Return:
+            A list of RestApiRequestor:
+        """
+        return  None
 
     # Required step 8.
-    @abstractmethod
     def put_datapage_resp( self ,ctx:RestApiContext ,content ) -> list((str ,int ,str)):
         """ The response for the previous get_datapage_urls() call is put to you.
         Query the content to determine if there are more pages to download.
@@ -259,9 +264,15 @@ class   BaseRestApiEtl( BaseEtl ):
                         0 - successful
                         1 - encountered issue with the data. Retry again.
                 str - The name of a output stream to direct this record into.
-                      This is usually the name of a file URI.
+                      This must be in the conforming URI format as "scheme://hostname/path"
+                        SEE: https://en.wikipedia.org/wiki/Uniform_Resource_Identifier
+
+                        Example:    ram:///
+                                    file:///path/to/file.txt
+                                    s3://bucket/path/to/object.txt
+                                    sftp://[<user>[;fingerprint=<host-key fingerprint>]@]<host>[:<port>]/<path>/<file>
         """
-        pass
+        return  None
 
     # TODO: Flesh out the remaining abstract methods.
 
@@ -273,19 +284,22 @@ class   BaseRestApiEtl( BaseEtl ):
         """ If your request require a different headers, you MUST over write this property
         to provide your implmentation.
         """
-        return { "content-type": "application/json; charset=utf-8" }
+        return { "content-type": "application/json; charset=utf-8;" ,"Accept-Encoding": "br,gzip" }
 
-#   @property
-#   def request_body_mesage( self ) -> str:
-#       """ If your request require a message body data, you MUST over write this method
-#       to provide your implmentation.
-#       """
-#       return  None
+    @property
+    def max_request( self ) -> int:
+        """ A maximum parallel connection to request from the API to prevent saturating the endpoint.
+        """
+        return  self._max_request
+
+    @max_request.setter
+    def max_request( self ,value:int ):
+        self._max_request =value
 
     @property
     def auth_token( self ) -> str:
         """ An original authentication token that was provided by the vendor.
-        This is to be used to prove taht you have been authenticate.
+        This is to be used to prove that you have been authenticate.
         """
         return  self._auth_token
 
@@ -305,11 +319,11 @@ class   BaseRestApiEtl( BaseEtl ):
         self._request_token =value
 
     @property
-    def request_timeout( self ) -> int:
+    def timeout( self ) -> int:
         """ A default timeout for a client request.
         """
-        return  self._request_timeout
+        return  self._timeout
 
-    @request_timeout.setter
-    def request_timeout( self ,value:int ):
-        self._request_timeout =value
+    @timeout.setter
+    def timeout( self ,value:int ):
+        self._timeout =value

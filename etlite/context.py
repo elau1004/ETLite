@@ -50,6 +50,12 @@ class   RestApiContext( Context ):
         self._reason:str  = None    # The returned response failure reason/message.
 
     @property
+    def method( self ) -> str:
+        """ Return the method to make the REST request.
+        """
+        return  self._method
+
+    @property
     def url( self ) -> str:
         """ Return the url for the REST API request.
         """

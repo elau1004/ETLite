@@ -7,9 +7,11 @@
 import  datetime
 import  os
 import  sys
-sys.path = [os.getcwd()] + sys.path # VS Code debugger needs it because it default cwd to {workspace}/example.
+#sys.path = [os.getcwd()] + sys.path # VS Code debugger needs it because it default cwd to {workspace}/example.
+import  ujson   as  json
 
 from    aiohttp import  ClientResponse
+
 from    etlite.context  import  RestApiContext
 from    etlite.common   import  cfg ,get_logger
 from    etlite.common.base_etl  import  BaseEtl
@@ -95,8 +97,19 @@ class   Example1Etl( BaseExampleRestApiEtl ):
     def put_datapage_resp( self ,ctx:RestApiContext ,content ) -> list((str ,int ,str)):
         """ SEE: BaseRestApiEtl.put_datapage_resp()
         """
-        print( f"{ctx.loopback['ordinal']:2} {ctx.loopback['task']:2} length of returned request: {len(content)}" )
-        return  None    # TODO: Finish this up.
+        # SEE: https://docs.python.org/3/library/io.html#io.TextIOBase
+        # {"message":"You have reached your request limit for the day. Upgrade to get more daily requests."}
+        print( f"{ctx.loopback['ordinal']:2} {ctx.loopback['task']:4} length of returned request: {len(content)}" )
+        
+        cooked = None
+        if  isinstance( content ,str ):
+            d = json.loads( content )
+            if 'message'  not in d:
+                tokens  = [d['data'][0][k] if d['data'][0][k] else '' for k in Example1Etl.JSON_TO_DB_MAPPING ]
+                cooked  = [ ( BaseEtl.DELIMITER.join( tokens ) ,0 ,'ram:///' ) ]
+                cooked  = None # DEBUG
+
+        return  cooked
 
     # Concrete properties section.
     #
