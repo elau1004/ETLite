@@ -147,7 +147,6 @@ class   RestWorkflowExecutor( BaseExecutor ):
             if  not req.run():
                 raise RuntimeError()
 
-        # 3. Offline batch data status check step.
         self._status_req = BaseRestApiEtl.check_url_tuple( self._job.get_request_status_url() )
         if  self._status_req:
             ctx = RestApiContext( method=self._status_req[0] ,url=self._status_req[1] ,params=self._status_req[2] ,body=self._status_req[3],loopback=self._status_req[4] )
@@ -195,3 +194,4 @@ if  __name__ == "__main__":
         wf.run()
     except  Exception as ex:
         print( ex )
+        
