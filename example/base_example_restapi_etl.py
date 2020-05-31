@@ -28,59 +28,6 @@ class   BaseExampleRestApiEtl( BaseRestApiEtl ):
         super().__init__( dataset_code=dataset_code  ,run_id=run_id ,from_date=from_date ,upto_date=upto_date )
 
 
-    # Begin Interface implementation section
-    #
-
-    def get_authentication_url( self ) -> (str,dict,str,dict):
-        """ SEE: BaseRestApiEtl.get_authentication_url()
-        Not supported by Exmple.
-        """
-        return  None
-
-    def get_authentication_obj( self ) -> object:
-        """ SEE: BaseRestApiEtl.get_authenticator()
-        Not supported by Example.
-        """
-        return  None
-
-    # Optional step 2.
-    def put_authentication_resp( self ,ctx:RestApiContext ,content ) -> bool:
-        """ SEE: BaseRestApiEtl.put_authentication_resp()
-        Not supported by Example.
-        """
-        return  True
-
-    # Optional step 3.
-    def get_data_request_url( self ) -> (str,dict,str,dict):
-        """ SEE: BaseRestApiEtl.get_data_request_url()
-        Not supported by Example.
-        """
-        return  None
-
-    # Optional step 4.
-    def put_data_request_resp( self ,ctx:RestApiContext ,content ) -> bool:
-        """ SEE: BaseRestApiEtl.put_data_request_resp()
-        Not supported by Example.
-        """
-        return  True
-
-    # Optional step 5.
-    def get_request_status_url( self ) -> (str,dict,str,dict):
-        """ SEE: BaseRestApiEtl.get_request_status_url()
-        Not supported by Example.
-        """
-        return  None
-
-    # Optional step 6.
-    def put_request_status_resp( self ,ctx:RestApiContext ,content ) -> bool:
-        """ SEE: BaseRestApiEtl.put_request_status_resp()
-        Not supported by Example.
-        """
-        return  True
-
-    # Required Step 7 and 8 is to be implemented by the specific example jobs.
-    #
-
     # Concrete properties section.
     #
 
