@@ -34,7 +34,8 @@ from    etlite.common.exceptions    import  ETLiteException
 from    etlite.common.base_restapi_etl  import  BaseRestApiEtl
 
 class   RestApiRequestor():
-    """ Single REST API requestor.
+    """ Single stand alone REST API requestor.
+    All the information it need to make a successful request is set.
     """
     # SEE: Consider the Flyweight pattern.
     #      https://refactoring.guru/design-patterns/flyweight/python/example
@@ -49,23 +50,29 @@ class   RestApiRequestor():
         self._client  = client      # TODO: Finish the utilization of this object.
         self._outputs = {}
 
-    @property
-    def context( self ) -> RestApiContext:
-        """ The request context.
-        """
-        return  self._ctx
+#   @property
+#   def context( self ) -> RestApiContext:
+#       """ The request context.
+#       """
+#       return  self._ctx
+#
+#   @property
+#   def headers( self ) -> dict:
+#       """ Return the Authorization HTTP header for the REST API.
+#       """
+#       return  self._headers
+#
+#   @property
+#   def auth_obj( self ) -> AuthBase:
+#       """ The authetication object.
+#       """
+#       return  self._auth_obj
 
     @property
-    def headers( self ) -> dict:
-        """ Return the Authorization HTTP header for the REST API.
+    def outputs( self ) -> dict:
+        """ Return the processed data.
         """
-        return  self._headers
-
-    @property
-    def auth_obj( self ) -> AuthBase:
-        """ The authetication object.
-        """
-        return  self._auth_obj
+        return  self._outputs
 
     async def run( self ) -> bool:
         """
@@ -100,12 +107,16 @@ class   RestApiRequestor():
                                         transformed = outinfo[0]
                                         destination = outinfo[2]
                                         if  destination not in self._outputs:
-                                            self._outputs[ destination] = []
-                                        self._outputs[ destination ].append( transformed )
+                                            self._outputs[ destination ] = {}
+                                        if  self._ctx.ordinal not in self._outputs[ destination ]:
+                                            self._outputs[ destination ][ self._ctx.ordinal ] = []
+
+                                        self._outputs[ destination ][ self._ctx.ordinal ].append( transformed )
                     break
-                except  Exception:
+                except  Exception as ex:
                     if  sec ==  retries[-1]:
-                        raise
+                        #raise
+                        return  False
                     else:
                         await asyncio.sleep( delay=sec )
 
@@ -121,6 +132,13 @@ class   RestWorkflowExecutor( BaseExecutor ):
         """
         """
         self._job = job
+        self._outputs = {}
+
+    @property
+    def outputs( self ) -> dict:
+        """ The processed data.
+        """
+        return  self._outputs
 
     def run( self ):
         """
@@ -136,7 +154,9 @@ class   RestWorkflowExecutor( BaseExecutor ):
 
             ctx = RestApiContext( method=self._auth_req[0] ,url=self._auth_req[1] ,params=self._auth_req[2] ,body=self._auth_req[3] ,loopback=self._auth_req[4] )
             req = RestApiRequestor( ctx=ctx ,headers=headers ,auth_obj=self._auth_obj ,timeout=self._job.timeout ,callback=self._job.put_authentication_resp )
-            if  not req.run():
+
+            b = asyncio.run( req.run() )
+            if  not b:
                 raise RuntimeError()
 
         # 2. Offline batch data request step.
@@ -144,9 +164,12 @@ class   RestWorkflowExecutor( BaseExecutor ):
         if  self._queue_req:
             ctx = RestApiContext( method=self._queue_req[0] ,url=self._queue_req[1] ,params=self._queue_req[2] ,body=self._queue_req[3] ,loopback=self._queue_req[4] )
             req = RestApiRequestor( ctx=ctx ,headers=headers ,auth_obj=self._auth_obj ,timeout=self._job.timeout ,callback=self._job.put_data_request_resp )
-            if  not req.run():
+
+            b = asyncio.run( req.run() )
+            if  not b:
                 raise RuntimeError()
 
+        # 3. Check for completion status.
         self._status_req = BaseRestApiEtl.check_url_tuple( self._job.get_request_status_url() )
         if  self._status_req:
             ctx = RestApiContext( method=self._status_req[0] ,url=self._status_req[1] ,params=self._status_req[2] ,body=self._status_req[3],loopback=self._status_req[4] )
@@ -182,6 +205,18 @@ class   RestWorkflowExecutor( BaseExecutor ):
 
                     if  not all( results ): # AND all the booleans.
                         raise RuntimeError()
+
+                # NOTE: Collect the outputs from the parallel requests into thier destination slots.
+                for req in  reqs:
+                    for destination in  req.outputs.keys():
+                        for ordinal in  req.outputs[ destination ].keys():
+                            if  destination not in  req.outputs:
+                                self._outputs[ destination ]= {}
+                            if  ordinal not in req.outputs [  destination ]:
+                                self._outputs[ destination ][ ordinal ]= []
+
+                            transformed =  req.outputs[ destination ][ ordinal ]
+                            self._outputs[ destination ][ ordinal ].extend( transformed )
             else:   # None value terminate this loop.
                 break
 
