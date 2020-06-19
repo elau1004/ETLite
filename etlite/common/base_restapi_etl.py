@@ -32,6 +32,7 @@ from  aiohttp       import ClientResponse
 from  aiohttp.hdrs  import METH_GET ,METH_POST
 from  datetime      import datetime as datetime
 from  requests.auth import AuthBase
+from  urllib.parse  import urlparse
 
 from  etlite.context    import  RestApiContext
 from  etlite.common.base_etl    import BaseEtl
@@ -75,7 +76,8 @@ class   BaseRestApiEtl( BaseEtl ):
                 if  not isinstance( url_tuple[1] ,str ):
                     raise TypeError()
                 else:
-                    if  not str(url_tuple[1]).startswith('http') >= 0:
+                    components = urlparse( url_tuple[1] )
+                    if  not components.scheme in {'http' ,'https'}:
                         raise ValueError()
             if  url_tuple[3]:
                 if  not isinstance( url_tuple[3] ,str ):

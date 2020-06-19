@@ -15,7 +15,7 @@ from etlite.common.base_sqlapi_etl  import BaseSqlApiEtl
 This is an optional class to add some additional methods and properties
 for this Example vendor to be shared by both Example1 and Example2 etl jobs.
 """
-#lass   BaseExampleRestApiEtl( BaseSqlApiEtl ,BaseRestApiEtl ): # NOTE: This order of multiple inheritance produces "RS" order.
+#lass   BaseExampleRestApiEtl( BaseSqlEtlApi , BaseFileApiEtl ,BaseRestApiEtl ): # NOTE: This order of multiple inheritance produces "RS" order.
 class   BaseExampleRestApiEtl( BaseRestApiEtl ):
     """ The base Example REST ETL Job object.
         It implements most of the common abstract REST methods that define the generic REST workflow.
@@ -23,6 +23,7 @@ class   BaseExampleRestApiEtl( BaseRestApiEtl ):
     """
     API_KEY = "OSxE5kQ2OgqGdUTlofGR1Aa07rrPjffca1hZPPGuxQyjVgel3FCrPKdhL0NY"    # Fake secret.
     STOCK_URL = f"https://api.worldtradingdata.com/api/v1/stock?api_token={API_KEY}"
+#   STOCK_URL =  'https://finnhub.io/api/v1/quote'
 
     def __init__( self ,dataset_code:str=None ,run_id:int=None ,from_date:datetime=None ,upto_date:datetime=None ):
         super().__init__( dataset_code=dataset_code  ,run_id=run_id ,from_date=from_date ,upto_date=upto_date )

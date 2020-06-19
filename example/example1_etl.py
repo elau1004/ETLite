@@ -28,7 +28,7 @@ class   Example1Etl( BaseExampleRestApiEtl ):
     DJT20= ['ALK','AAL','CAR','CHRW','CSX','DAL','EXPD','FDX','JBHT','JBLU','KSU','KEX','LSTR','MATX','NSC','R','LUV','UNP','UAL','UPD']
     DJU15= ['AES','AEP','AWK','CNP','ED','D','DUK','EIX','EXC','FE','NEE','NI','PEG','SRE','SO']
 
-    JSON_TO_DB_MAPPING =         {
+    JSON_TO_DB_MAPPING = {
             "symbol":               "symbol",
             "currency":             "currency",
             "last_trade_time":      "traded_at", # timestamp
@@ -55,15 +55,24 @@ class   Example1Etl( BaseExampleRestApiEtl ):
 #           "timezone_name":        "timezone_name"
             "gmt_offset":           "gmt_offset"
         }
+    JSON_TO_DB_MAPPING = {
+            "o":    "open",
+            "c":    "closed",
+            "h":    "high",
+            "l":    "low",
+            "pc":   "previous_close",
+            "t":    "traded_at"
+    }
 
     def __init__( self ,run_id:int=None ,from_date:datetime=None ,upto_date:datetime=None ):
         # NOTE: Framework doesn't pass in instantiation parameters.
         super().__init__( dataset_code=Example1Etl.CODE ,run_id=run_id ,from_date=from_date ,upto_date=upto_date )
-        self._indices = [ 
-            ( 'dji30' ,Example1Etl.DJI30 ), # Dow Jones Industrial
-            ( 'djt20' ,Example1Etl.DJT20 ), # Dow Jones Transportation
-            ( 'dju15' ,Example1Etl.DJU15 )  # Dow Jones Utilities
-        ]
+#       self._indices = [ 
+#           ( 'dji30' ,Example1Etl.DJI30 ), # Dow Jones Industrial
+#           ( 'djt20' ,Example1Etl.DJT20 ), # Dow Jones Transportation
+#           ( 'dju15' ,Example1Etl.DJU15 )  # Dow Jones Utilities
+#       ]
+        self._cities = [ 'London,uk' ,'Chicago,us' ,'Oakland,us' ,'Beijing,cn' ]
 
     # Private method section
     #
@@ -74,23 +83,32 @@ class   Example1Etl( BaseExampleRestApiEtl ):
     # Required step 7.
     def get_datapage_urls( self ) -> list((str,str,dict,str,dict)):
         """ SEE: BaseRestApiEtl.get_datapage_urls()
-        
+
         This method is primarily manages your data page request and pagination.
         This method will be called many times until you return empty list or 
         None value to terminate the framework internal loop.
-        This example uses the self._indices stack to implement an interuptable loop.
+        This exametlite.engineple uses the self._indices stack to implement an interuptable loop.
         """
-        rest_reqs = None
-        if  self._indices:  # Is the stack empty?
-            rest_reqs = []
-            for symbol  in self._indices[0][1]:
-                params  =  {'symbol': symbol}
-                loopback=  self.get_loopback()          # NOTE: In BaseEtl.py
-                loopback['task']  = symbol              # NOTE: Fill in something unique that make sense to you.
-                loopback['index'] = self._indices[0]    # NOTE: This is the stock exchange index. i.e. DOW30 ,NIFTY50 ,NASDAQ100, S&P500
-                rest_reqs.append( (HTTP_GET ,BaseExampleRestApiEtl.STOCK_URL ,params ,None ,loopback) )
+#       rest_reqs = None
+#       if  self._indices:  # Is the stack empty?
+#           rest_reqs = []
+#           for symbol  in self._indices[0][1]:
+#               params  =  {'symbol': symbol}
+#               loopback=  self.get_loopback()          # NOTE: In BaseEtl.py
+#               loopback['task']  = symbol              # NOTE: Fill in something unique that make sense to you.
+#               loopback['index'] = self._indices[0]    # NOTE: This is the stock exchange index. i.e. DOW30 ,NIFTY50 ,NASDAQ100, S&P500
+#               rest_reqs.append( (HTTP_GET ,BaseExampleRestApiEtl.STOCK_URL ,params ,None ,loopback) )
+#           del self._indices[0]    # NOTE: Pop the stock exchange index stack.
 
-            del self._indices[0]    # NOTE: Pop the stock exchange index stack.
+        rest_reqs = None
+        if  self._cities:
+            rest_reqs = []
+            for city in self._cities:
+                params = {'q':city ,'appid': 'c67e4ca4fa5ce556a24984a982ba6ed2'}            
+                loopback=  self.get_loopback()
+                rest_reqs.append( (HTTP_GET ,'https://api.openweathermap.org/data/2.5/weather' ,params ,None ,loopback ))
+            self._cities = []
+
         return  rest_reqs
 
     # Required step 8.
@@ -99,17 +117,18 @@ class   Example1Etl( BaseExampleRestApiEtl ):
         """
         # SEE: https://docs.python.org/3/library/io.html#io.TextIOBase
         # {"message":"You have reached your request limit for the day. Upgrade to get more daily requests."}
-        print( f"{ctx.loopback['ordinal']:2} {ctx.loopback['task']:4} length of returned request: {len(content)}" )
-        
-        cooked = None
-        if  isinstance( content ,str ):
-            d = json.loads( content )
-            if 'message'  not in d:
-                tokens  = [d['data'][0][k] if d['data'][0][k] else '' for k in Example1Etl.JSON_TO_DB_MAPPING ]
-                cooked  = [ ( BaseEtl.DELIMITER.join( tokens ) ,0 ,'ram:///' ) ]
-                cooked  = None # DEBUG
+        print( f"{ctx.loopback['ordinal']:2} length of returned request: {len(content)}" )
+#       print( f"{ctx.loopback['ordinal']:2} {ctx.loopback['task']:4} length of returned request: {len(content)}" )
+#       
+#       cooked = None
+#       if  isinstance( content ,str ):
+#           d = json.loads( content )
+#           if 'Message'  not in d:
+#               tokens  = [d['data'][0][k] if d['data'][0][k] else '' for k in Example1Etl.JSON_TO_DB_MAPPING ]
+#               cooked  = [ ( BaseEtl.DELIMITER.join( tokens ) ,0 ,'ram:///' ) ]
+#               cooked  = None # DEBUG
 
-        return  cooked
+        return  None    # TODO: Not right
 
     # Concrete properties section.
     #
