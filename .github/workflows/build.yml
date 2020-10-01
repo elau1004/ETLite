@@ -1,0 +1,86 @@
+name: BuildAndTest
+# this workflow is triggered on Push to 
+# 'bill-actiontest' branch or PR on the 'master' branch
+# on: [push]
+on:
+  push:
+    branches:
+      - bill-actiontest
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        os: [windows-latest, macos-latest, ubuntu-latest]
+        # os: [ubuntu-latest]
+        # version 3.7 for now. python-version: [3.7, 3.8, pypy2, pypy3]
+        python-version: [ 3.7 ]
+
+    runs-on: ${{ matrix.os }}
+    steps:
+    - name: Set environment variable
+      run: |
+        echo "::set-env name=ETLITE_ENV::dev"
+        echo "ETLITE_ENV = " $ETLITE_ENV
+      
+    - uses: actions/checkout@v2
+    - name: Set up Python
+      uses: actions/setup-python@v1
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Display some information
+      run: |
+        python -c "import sys; print(sys.version)"
+        python -c "import os; print(os.getcwd())"
+        python -c "import os; print(os.listdir('/'))"
+        
+    - name: Create pipenv executable
+      run: |
+        python -m pip install --upgrade pip
+        pip install pipenv
+    - name: Install dependencies
+      run: |
+        pipenv install
+        pipenv graph
+
+    # So far we have the following warnings: 
+    # C0103:invalid name
+    # C0114: Missing module docstring (missing-module-docstring)
+    # C0115: Missing class docstring (missing-class-docstring)
+    # C0116: Missing function or method docstring (missing-function-docstring)
+    # C0122: Comparison should be __name__ == '__main__' (misplaced-comparison-constant)
+    # C0301: Line too long (110/100) (line-too-long)
+    # C0303: Trailing whitespace (trailing-whitespace)
+    # C0305: Trailing newlines (trailing-newlines)
+    # C0326: No space allowed before comma
+    # C0330: bad-continuation
+    # C0412: Imports from package etlite are not grouped (ungrouped-imports)
+    # C0413: Import "from aiohttp import ClientResponse" should be placed at the top of the module (wrong-import-position)
+    # C0414: Import alias does not rename original package (useless-import-alias)
+
+    # E0401: Unable to import 'click' (import-error)
+    # E1121: Too many positional arguments for method call
+    # E1124: Argument 'ordinal' passed by position and keyword in method call
+    
+    # R0201: Method could be a function (no-self-use)
+    # R0801: Similar lines in 2 files
+
+    # W0404: Reimport 'os' (imported line 7) (reimported)
+    # W0107: Unnecessary pass statement (unnecessary-pass)
+    # W0236: Method 'raw_filepath' was expected to be 'property', found it instead as 'method' (invalid-overridden-method)
+    # W0611: Unused ABC imported from abc (unused-import)
+    # line 80, disabling all Conventions, Refactoring, Warning
+    - name: Lint with Pylint
+      run: |
+        pip install pylint
+        pylint --disable=C,R,W,E0401,E1121,E1124 etlite
+        #pylint --disable=C0103,C0301,C0303,C0326,C0330,C0114,C0115,C0116,C0122,C0305,C0412,C0413,C0414  **/*.py
+
+    - name: Test with pytest
+      run: |
+        pipenv install pytest
+        pipenv run pytest
