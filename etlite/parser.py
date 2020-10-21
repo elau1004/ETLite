@@ -30,10 +30,6 @@ class   DAG_Parser():
     """The DAG Parser.
     """
     # pylint: disable=W0621
-#   DELIMITER   = ","
-#   LF_BRACKETS = "[{(<"
-#   RT_BRACKETS = "]})>"
-#   PUNCTUATION =r"'`~!@#$%^&*+=:;|\/\""
 
     # TODO: Maybe move this into its own module if it becomes un-managaeble.
     MSG_TOO_FEW_BRACKET   = "Mis-match brackets!  Too few closing bracket.  Unclosed '{bracket}'."

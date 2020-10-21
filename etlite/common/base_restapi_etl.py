@@ -42,14 +42,15 @@ class   BaseRestApiEtl( BaseEtl ):
         It holds more REST specific contextual properties and define the generic REST workflow.
     """
     CLIENT_TIMEOUT = 300    # Default to 5 minutes before timing out.
+    CONCURRENT_REQ = 8      # Max of 8 concurrent requests.
 
     def __init__( self ,dataset_code:str ,run_id:int=None ,from_date:datetime=None ,upto_date:datetime=None ):
         super().__init__( dataset_code=dataset_code ,run_id=run_id ,from_date=from_date ,upto_date=upto_date )
 
-        self._max_request:int   = 8
         self._auth_token:str    = None
         self._request_token:str = None
         self._timeout:int       = BaseRestApiEtl.CLIENT_TIMEOUT
+        self._max_request:int   = BaseRestApiEtl.CONCURRENT_REQ
         # REST API workflow.
         if  self._workflow_seq:
             self._workflow_seq += "R" 
@@ -118,6 +119,8 @@ class   BaseRestApiEtl( BaseEtl ):
     # Abstract interface section.
     #
 
+    # TODO: Consider the request object is defaulted in this basre class.
+
     # Optional step 1a.
     def get_authentication_url( self ) -> (str,dict,str,dict):
         """ If there is a different URL to authenthicate at then return a tuple of URL pertinent data,
@@ -128,7 +131,7 @@ class   BaseRestApiEtl( BaseEtl ):
                 str - URL.  The authentication end point.
                 dict- Parameters.  The URL parameters to be converted into a query string.
                 str - Message body.  The text to be accompanied in the HTTP request  body.
-                dict- Loopback freeform dictionary.  This dictionary will be returned back in the response context.
+                dict- Loopback context freeform dictionary.  This dictionary will be returned back in the response context.
         """
         return  None
 
@@ -169,7 +172,7 @@ class   BaseRestApiEtl( BaseEtl ):
                 str - URL.  The authentication end point.
                 dict- Parameters.  The URL parameters to be converted into a query string.
                 str - Message body.  The text to be accompanied in the HTTP request  body.
-                dict- Loopback freeform dictionary.  This dictionary will be returned back in the response context.
+                dict- Loopback context freeform dictionary.  This dictionary will be returned back in the response context.
         """
         return  None
 
@@ -198,7 +201,7 @@ class   BaseRestApiEtl( BaseEtl ):
                 str - URL.  The authentication end point.
                 dict- Parameters.  The URL parameters to be converted into a query string.
                 str - Message body.  The text to be accompanied in the HTTP request  body.
-                dict- Loopback freeform dictionary.  This dictionary will be returned back in the response context.
+                dict- Loopback context freeform dictionary.  This dictionary will be returned back in the response context.
         """
         return  None
 
@@ -230,7 +233,7 @@ class   BaseRestApiEtl( BaseEtl ):
                 str - URL.  The authentication end point.
                 dict- Parameters.  The URL parameters to be converted into a query string.
                 str - Message body.  The text to be accompanied in the HTTP request  body.
-                dict- Loopback freeform dictionary.  This dictionary will be returned back in the response context.
+                dict- Loopback context freeform dictionary.  This dictionary will be returned back in the response context.
         """
         return  None
 
@@ -247,12 +250,11 @@ class   BaseRestApiEtl( BaseEtl ):
         return  None
 
     # Required step 8.
-    def put_datapage_resp( self ,ctx:RestApiContext ,content ) -> list((str ,int ,str)):
-        """ The response for the previous get_datapage_urls() call is put to you.
-        Query the content to determine if there are more pages to download.
+    async def put_datapage_resp( self ,ctx:RestApiContext ,content ) -> list((str ,list(str) ,int)):
+        """ The response for the previous get_datapage_urls() call is put to this method in an async manner.
+        Query the content to determine if there are more pages to download and manage the pagination.
         You should do the mininum to figure out if the request is good.
         This is may be the main method where you process the requested data.
-
         This method shall be called multiple times depending on the number of the entries
         in the list returned from get_datapage_urls().
 
@@ -261,18 +263,19 @@ class   BaseRestApiEtl( BaseEtl ):
             str/dict       - The content either as JSON dictionary or a CSV string.
         Return:
             A list of tuple of:
-                str - The cleansed and processed output record.
-                int - The return code to communicate the status of the processing.
-                        0 - successful
-                        1 - encountered issue with the data. Retry again.
-                str - The name of a output stream to direct this record into.
-                      This must be in the conforming URI format as "scheme://hostname/path"
+                str -   The cleansed and processed output record.
+                list-   List of outputs uri strings to direct the processed data into.
+                        This must be in the conforming URI format as "scheme://hostname/path"
                         SEE: https://en.wikipedia.org/wiki/Uniform_Resource_Identifier
 
                         Example:    ram:///
                                     file:///path/to/file.txt
                                     s3://bucket/path/to/object.txt
                                     sftp://[<user>[;fingerprint=<host-key fingerprint>]@]<host>[:<port>]/<path>/<file>
+
+                int -   The return code to communicate the status of the processing.
+                        0 - successful
+                        1 - encountered issue with the data. Retry again.
         """
         return  None
 

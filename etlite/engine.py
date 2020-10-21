@@ -77,7 +77,8 @@ class   RestApiRequestor():
     async def run( self ) -> bool:
         """
         """
-        retries = [1.0 ,1.0 ,2.0 ,3.0 ,5.0 ,8.0 ,13.0 ,21.0]    # Fibonacci backoff.
+        rc = False
+        retries = [1 ,1 ,2 ,3 ,5 ,8 ,13 ,21]    # Fibonacci backoff.
 
         # TODO: How do I trap exception in async routine.
         async with aiohttp.ClientSession() as client:
@@ -97,30 +98,33 @@ class   RestApiRequestor():
                         self._ctx.headers=  dict( resp.headers )
                         self._ctx.body   =  await resp.text()   # TODO: Convert to streaming to reduce memory pressure.
 
-                        result = self._callback( ctx=self._ctx ,content=self._ctx.body )    # [(str ,int ,str)]
+                        result = await self._callback( ctx=self._ctx ,content=self._ctx.body )
                         if  isinstance( result ,bool ):
                             return  result
                         else:
                             if  isinstance( result ,list ):
+                                # TODO: Validate result format.
                                 for outinfo in  result:                                    
                                     if  isinstance( outinfo ,tuple ):
-                                        transformed = outinfo[0]
-                                        destination = outinfo[2]
-                                        if  destination not in self._outputs:
-                                            self._outputs[ destination ] = {}
-                                        if  self._ctx.ordinal not in self._outputs[ destination ]:
-                                            self._outputs[ destination ][ self._ctx.ordinal ] = []
+                                        for filename in outinfo[1]:
+                                            if  filename not in self._outputs:
+                                                self._outputs[ filename ] = {}
+                                            if  self._ctx.ordinal not in self._outputs[ filename ]:
+                                                self._outputs[ filename ][ self._ctx.ordinal ] = []
 
-                                        self._outputs[ destination ][ self._ctx.ordinal ].append( transformed )
+                                            self._outputs[ filename ][ self._ctx.ordinal ].append( outinfo[0] )
+                                rc  =   True
                     break
                 except  Exception as ex:
                     if  sec ==  retries[-1]:
                         #raise
+                        print( ex )
                         return  False
                     else:
+                        print(f"Sleep {sec} seconds.")
                         await asyncio.sleep( delay=sec )
 
-        return  True    # maybe not like this
+        return  rc
 
 class   BaseExecutor():
     pass

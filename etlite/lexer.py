@@ -4,7 +4,6 @@
 # Licensed under the MIT License.
 #
 """
-The engine to orchestrate job executions.
 The orchestration is define as DAG of collections notated using the following brackets:
     [] - A list of jobs to be executed in sequence.
     {} - A set  of jobs to be executed in parallel threads on a single CPU core.

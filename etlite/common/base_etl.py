@@ -20,19 +20,23 @@ class   BaseEtl( ABC ):
     """ The base abstract ETL Job object.
         It holds some basic metadata properties to track the life-cycle of a job.
     """
+    SUCCESSFUL= 0
     DELIMITER = '\t'
-    LOOPBACK  = { 'task': 'Not filled in!' ,'ordinal': 0 }  # Zero based ordinal.
+    CONTEXT   = { 'task': 'Not filled in!' ,'ordinal': 0 }  # Zero based ordinal.
 
     def __init__( self ,dataset_code:str ,run_id:int=None ,from_date:datetime=None ,upto_date:datetime=None ):
-        self._workflow_seq:str  = None          # The sequence of workflow engine to invoke.
+        self._workflow_seq:str  = None          # The sequence of workflow engine to invoke from the inheritance order.
         self._dataset_code:str  = dataset_code  # Required unique code for this job in your code base.
         self._run_id:int        = run_id        # Optional unique id for each run.
         self._from_date:datetime= from_date     # Optional inclusive (greater and equal) to filter the source data.
         self._upto_date:datetime= upto_date     # Optional not inclusive (less than) to filter the source data.
         self._status_id:int     = None          # The current status/lifecycle this job is in.
+        self._run_env:str       = ''            # The environment this object is running in. 'dev_' ,'test_' ,'' <- Production.
 
         if  not self._upto_date:
             self._upto_date = datetime.utcnow()
+
+        # TOOD: Figure out what environment I am in.
 
     @property
     def dataset_code( self ) -> str:
@@ -113,7 +117,7 @@ class   BaseEtl( ABC ):
     # Concrete properties section.
     #
 
-    def get_loopback( self ) -> dict:
-        """ Return a default loop back dictionary for sub-objects to fill.
+    def new_context( self ) -> dict:
+        """ Return a default loopback context dictionary for sub-objects to fill.
         """
-        return  BaseEtl.LOOPBACK.copy()
+        return  BaseEtl.CONTEXT.copy()
