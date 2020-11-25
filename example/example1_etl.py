@@ -27,7 +27,8 @@ class   Example1Etl( BaseExampleRestApiEtl ):
     DJI30= ['AAPL','AXP','BA','CAT','CSCO','CVX','DIS','DOW','GS','HD','IBM','INTC','JNJ','JPM','KO','MCD','MMM','MRK','MSFT','NKE','PFE','PG','RTX','TRV','UNH','V','VZ','WBA','WMT','XOM' ]
     DJT20= ['ALK','AAL','CAR','CHRW','CSX','DAL','EXPD','FDX','JBHT','JBLU','KSU','KEX','LSTR','MATX','NSC','R','LUV','UNP','UAL','UPD']
     DJU15= ['AES','AEP','AWK','CNP','ED','D','DUK','EIX','EXC','FE','NEE','NI','PEG','SRE','SO']
-
+    
+    #{'pagination': {'limit': 100, 'offset': 0, 'count': 1, 'total': 0}, 'data': [{'open': 113.91, 'high': 115.85, 'low': 112.59, 'close': 115.17, 'volume': 113226248.0, 'adj_high': 115.85, 'adj_low': 112.59, 'adj_close': 115.17, 'adj_open': 113.91, 'adj_volume': 113226248.0, 'symbol': 'AAPL', 'exchange': 'XNAS', 'date': '2020-11-24T00:00:00+0000'}]}
     JSON_TO_DB_MAPPING = {
             "symbol":               "symbol",
             "currency":             "currency",
@@ -67,12 +68,12 @@ class   Example1Etl( BaseExampleRestApiEtl ):
     def __init__( self ,run_id:int=None ,from_date:datetime=None ,upto_date:datetime=None ):
         # NOTE: Framework doesn't pass in instantiation parameters.
         super().__init__( dataset_code=Example1Etl.CODE ,run_id=run_id ,from_date=from_date ,upto_date=upto_date )
-#       self._indices = [ 
-#           ( 'dji30' ,Example1Etl.DJI30 ), # Dow Jones Industrial
-#           ( 'djt20' ,Example1Etl.DJT20 ), # Dow Jones Transportation
-#           ( 'dju15' ,Example1Etl.DJU15 )  # Dow Jones Utilities
-#       ]
-        self._cities = [ 'London,uk' ,'Chicago,us' ,'Oakland,us' ,'Beijing,cn' ]
+        self._indices = [ 
+            ( 'dji30' ,Example1Etl.DJI30 ), # Dow Jones Industrial
+            ( 'djt20' ,Example1Etl.DJT20 ), # Dow Jones Transportation
+            ( 'dju15' ,Example1Etl.DJU15 )  # Dow Jones Utilities
+        ]
+#        self._cities = [ 'London,uk' ,'Chicago,us' ,'Oakland,us' ,'Beijing,cn' ]
 
     # Private method section
     #
@@ -89,25 +90,25 @@ class   Example1Etl( BaseExampleRestApiEtl ):
         None value to terminate the framework internal loop.
         This exametlite.engineple uses the self._indices stack to implement an interuptable loop.
         """
-#       rest_reqs = None
-#       if  self._indices:  # Is the stack empty?
-#           rest_reqs = []
-#           for symbol  in self._indices[0][1]:
-#               params  =  {'symbol': symbol}
-#               loopback=  self.get_loopback()          # NOTE: In BaseEtl.py
-#               loopback['task']  = symbol              # NOTE: Fill in something unique that make sense to you.
-#               loopback['index'] = self._indices[0]    # NOTE: This is the stock exchange index. i.e. DOW30 ,NIFTY50 ,NASDAQ100, S&P500
-#               rest_reqs.append( (HTTP_GET ,BaseExampleRestApiEtl.STOCK_URL ,params ,None ,loopback) )
-#           del self._indices[0]    # NOTE: Pop the stock exchange index stack.
-
         rest_reqs = None
-        if  self._cities:
+        if  self._indices:  # Is the stack empty?
             rest_reqs = []
-            for city in self._cities:
-                params = {'q':city ,'appid': 'c67e4ca4fa5ce556a24984a982ba6ed2'}            
-                loopback=  self.get_loopback()
-                rest_reqs.append( (HTTP_GET ,'https://api.openweathermap.org/data/2.5/weather' ,params ,None ,loopback ))
-            self._cities = []
+            for symbol  in self._indices[0][1]:
+                params  =  {'symbols': symbol}
+                loopback=  self.get_loopback()          # NOTE: In BaseEtl.py
+                loopback['task']  = symbol              # NOTE: Fill in something unique that make sense to you.
+                loopback['index'] = self._indices[0][0] # NOTE: This is the stock exchange index. i.e. DOW30 ,NIFTY50 ,NASDAQ100, S&P500
+                rest_reqs.append( (HTTP_GET ,BaseExampleRestApiEtl.STOCK_URL ,params ,None ,loopback) )
+            del self._indices[0]    # NOTE: Pop the stock exchange index stack.
+
+#        rest_reqs = None
+#        if  self._cities:
+#            rest_reqs = []
+#            for city in self._cities:
+#                params = {'q':city ,'appid': 'c67e4ca4fa5ce556a24984a982ba6ed2'}            
+#                loopback=  self.get_loopback()
+#                rest_reqs.append( (HTTP_GET ,'https://api.openweathermap.org/data/2.5/weather' ,params ,None ,loopback ))
+#            self._cities = []
 
         return  rest_reqs
 
@@ -117,16 +118,17 @@ class   Example1Etl( BaseExampleRestApiEtl ):
         """
         # SEE: https://docs.python.org/3/library/io.html#io.TextIOBase
         # {"message":"You have reached your request limit for the day. Upgrade to get more daily requests."}
-        print( f"{ctx.loopback['ordinal']:2} length of returned request: {len(content)}" )
-#       print( f"{ctx.loopback['ordinal']:2} {ctx.loopback['task']:4} length of returned request: {len(content)}" )
-#       
-#       cooked = None
-#       if  isinstance( content ,str ):
-#           d = json.loads( content )
-#           if 'Message'  not in d:
-#               tokens  = [d['data'][0][k] if d['data'][0][k] else '' for k in Example1Etl.JSON_TO_DB_MAPPING ]
-#               cooked  = [ ( BaseEtl.DELIMITER.join( tokens ) ,0 ,'ram:///' ) ]
-#               cooked  = None # DEBUG
+#       print( f"{ctx.loopback['ordinal']:2} length of returned request: {len(content)}" )
+        print( f"{ctx.loopback['ordinal']:2} {ctx.loopback['task']:4} length of returned request: {len(content)}" )
+        
+        cooked = None
+        if  isinstance( content ,str ):
+            d = json.loads( content )
+            # {'error': {'code': 'rate_limit_reached', 'message': 'You have exceeded th... details. '}}
+            if 'Message'  not in d:
+                tokens  = [d['data'][0][k] if d['data'][0][k] else '' for k in Example1Etl.JSON_TO_DB_MAPPING ]
+                cooked  = [ ( BaseEtl.DELIMITER.join( tokens ) ,0 ,'ram:///' ) ]
+                cooked  = None # DEBUG
 
         return  None    # TODO: Not right
 
