@@ -207,12 +207,13 @@ class   RestWorkflowExecutor( BaseExecutor ):
                         raise RuntimeError()
 
                 # NOTE: Collect the outputs from the parallel requests into thier destination slots.
+                # TODO: Rethibk this block.
                 for req in  reqs:
                     for destination in  req.outputs.keys():
                         for ordinal in  req.outputs[ destination ].keys():
-                            if  destination not in  req.outputs:
+                            if  destination not in self._outputs:
                                 self._outputs[ destination ]= {}
-                            if  ordinal not in req.outputs [  destination ]:
+                            if  ordinal not in self._outputs[  destination ]:
                                 self._outputs[ destination ][ ordinal ]= []
 
                             transformed =  req.outputs[ destination ][ ordinal ]
