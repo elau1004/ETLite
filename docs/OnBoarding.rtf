@@ -1,83 +1,134 @@
-{\rtf1\ansi\ansicpg1252\deff0\deflang1033{\fonttbl{\f0\fnil\fcharset0 Calibri;}{\f1\fnil\fcharset0 Consolas;}{\f2\fnil\fcharset2 Symbol;}}
+{\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang1033{\fonttbl{\f0\fnil\fcharset0 Calibri;}{\f1\fnil\fcharset0 Consolas;}{\f2\fnil\fcharset0 Courier New;}{\f3\fnil\fcharset2 Symbol;}}
 {\colortbl ;\red0\green0\blue255;}
-{\*\generator Msftedit 5.41.21.2512;}\viewkind4\uc1\pard\sa200\sl276\slmult1\lang9\ul\b\f0\fs40 On-boarding tech stack for Python development.\par
+{\*\generator Riched20 10.0.18362}\viewkind4\uc1 
+\pard\sa200\sl276\slmult1\ul\b\f0\fs40\lang9 On-boarding tech stack for Python development.\par
 \ulnone\b0\fs28 The following is a highly suggested tools you need to install before the start of our workshop.  The intent of this list is to keep a consistent development environment that we can grown with.\par
 If you are using a Mac, most of the tools are pre-installed.  The following steps are to help Windows users to reach feature parity with the Mac environment on a clean computer.\par
-\pard{\pntext\f2\'B7\tab}{\*\pn\pnlvlblt\pnf2\pnindent0{\pntxtb\'B7}}\fi-360\li720\sl240\slmult1 Git (Windows)\par
-\pard{\pntext\f2\'B7\tab}{\*\pn\pnlvlblt\pnf2\pnindent0{\pntxtb\'B7}}\fi-360\li1080\sl240\slmult1{\field{\*\fldinst{HYPERLINK "https://git-scm.com/download/win"}}{\fldrslt{\ul\cf1 https://git-scm.com/download/win}}}\f0\fs28\par
-\pard{\pntext\f2\'B7\tab}{\*\pn\pnlvlblt\pnf2\pnindent0{\pntxtb\'B7}}\fi-360\li1440\sl240\slmult1 If your OS is 64-bit then download the 64-bit version of the setup.\par
-\pard{\pntext\f2\'B7\tab}{\*\pn\pnlvlblt\pnf2\pnindent0{\pntxtb\'B7}}\fi-360\li1080\sl240\slmult1 Remember to select "Use Git and optional Unix tools from the Command Prompt", under the "Adjusting your PATH environment" dialog.\par
-\pard{\pntext\f2\'B7\tab}{\*\pn\pnlvlblt\pnf2\pnindent0{\pntxtb\'B7}}\fi-360\li1440\sl240\slmult1 You will have access to most of the Unix utilities in your Command Prompt.\par
+
+\pard{\pntext\f3\'B7\tab}{\*\pn\pnlvlblt\pnf3\pnindent0{\pntxtb\'B7}}\fi-360\li720\sl240\slmult1 Git (Windows)\par
+
+\pard{\pntext\f3\'B7\tab}{\*\pn\pnlvlblt\pnf3\pnindent0{\pntxtb\'B7}}\fi-360\li1080\sl240\slmult1 {{\field{\*\fldinst{HYPERLINK https://git-scm.com/download/win }}{\fldrslt{https://git-scm.com/download/win\ul0\cf0}}}}\f0\fs28\par
+
+\pard{\pntext\f3\'B7\tab}{\*\pn\pnlvlblt\pnf3\pnindent0{\pntxtb\'B7}}\fi-360\li1440\sl240\slmult1 If your OS is 64-bit then download the 64-bit version of the setup.\par
+
+\pard{\pntext\f3\'B7\tab}{\*\pn\pnlvlblt\pnf3\pnindent0{\pntxtb\'B7}}\fi-360\li1080\sl240\slmult1 Remember to select "Use Git and optional Unix tools from the Command Prompt", under the "Adjusting your PATH environment" dialog.\par
+
+\pard{\pntext\f3\'B7\tab}{\*\pn\pnlvlblt\pnf3\pnindent0{\pntxtb\'B7}}\fi-360\li1440\sl240\slmult1 You will have access to most of the Unix utilities in your Command Prompt.\par
+
 \pard\li720\sl240\slmult1\par
-\pard{\pntext\f2\'B7\tab}{\*\pn\pnlvlblt\pnf2\pnindent0{\pntxtb\'B7}}\fi-360\li720\sl240\slmult1 Install Python (Mac or Windows)\par
-\pard{\pntext\f2\'B7\tab}{\*\pn\pnlvlblt\pnf2\pnindent0{\pntxtb\'B7}}\fi-360\li1080\sl240\slmult1{\field{\*\fldinst{HYPERLINK "https://www.python.org/downloads/"}}{\fldrslt{\ul\cf1 https://www.python.org/downloads/}}}\f0\fs28\par
-{\pntext\f2\'B7\tab}Minimum version to use is 3.7.6\par
-{\pntext\f2\'B7\tab}If you have a previous Python installed from a different distribution, you may encounter issue.  Check with other team members to resolve this.\par
+
+\pard{\pntext\f3\'B7\tab}{\*\pn\pnlvlblt\pnf3\pnindent0{\pntxtb\'B7}}\fi-360\li720\sl240\slmult1 Install Python (Mac or Windows)\par
+
+\pard{\pntext\f3\'B7\tab}{\*\pn\pnlvlblt\pnf3\pnindent0{\pntxtb\'B7}}\fi-360\li1080\sl240\slmult1 {{\field{\*\fldinst{HYPERLINK https://www.python.org/downloads/ }}{\fldrslt{https://www.python.org/downloads/\ul0\cf0}}}}\f0\fs28\par
+{\pntext\f3\'B7\tab}Minimum version to use is \b 3.9\b0\par
+{\pntext\f3\'B7\tab}If you have a previous Python installed from a different distribution, you may encounter issue.  Check with other team members to resolve this.\par
+
 \pard\li720\sl240\slmult1\par
-\pard{\pntext\f2\'B7\tab}{\*\pn\pnlvlblt\pnf2\pnindent0{\pntxtb\'B7}}\fi-360\li720\sl240\slmult1 Install Python the virtual environment, \f1 pipenv \f0 (Mac or Windows).\par
-\pard{\pntext\f2\'B7\tab}{\*\pn\pnlvlblt\pnf2\pnindent0{\pntxtb\'B7}}\fi-360\li1080\sl240\slmult1 From your command prompt type the following:\par
+
+\pard{\pntext\f3\'B7\tab}{\*\pn\pnlvlblt\pnf3\pnindent0{\pntxtb\'B7}}\fi-360\li720\sl240\slmult1 Install Python the virtual environment, \f1 pipenv \f0 (Mac or Windows).\par
+
+\pard{\pntext\f3\'B7\tab}{\*\pn\pnlvlblt\pnf3\pnindent0{\pntxtb\'B7}}\fi-360\li1080\sl240\slmult1 From your command prompt type the following:\par
+
 \pard\li1440\sl240\slmult1\b\f1 pip install pipenv\b0\f0\par
-\pard{\pntext\f2\'B7\tab}{\*\pn\pnlvlblt\pnf2\pnindent0{\pntxtb\'B7}}\fi-360\li1080\sl240\slmult1 If you are prompted to upgrade your pip version, go ahead and do it.\par
+
+\pard{\pntext\f3\'B7\tab}{\*\pn\pnlvlblt\pnf3\pnindent0{\pntxtb\'B7}}\fi-360\li1080\sl240\slmult1 If you are prompted to upgrade your pip version, go ahead and do it.\par
+
 \pard\li720\sl240\slmult1\par
-\pard{\pntext\f2\'B7\tab}{\*\pn\pnlvlblt\pnf2\pnindent0{\pntxtb\'B7}}\fi-360\li720\sl240\slmult1 Install VS Code (Mac or Windows)\par
-\pard{\pntext\f2\'B7\tab}{\*\pn\pnlvlblt\pnf2\pnindent0{\pntxtb\'B7}}\fi-360\li1080\sl240\slmult1{\field{\*\fldinst{HYPERLINK "https://code.visualstudio.com/download"}}{\fldrslt{\ul\cf1 https://code.visualstudio.com/download}}}\f0\fs28\par
-{\pntext\f2\'B7\tab}Once installed, launch VS Code and \b click\b0  on the extensions icon (4 little squares) on the the left to \b search\b0  and \b install\b0  the extensions.  Type in just first few character of the below extensions to search and click install.\par
-\pard{\pntext\f2\'B7\tab}{\*\pn\pnlvlblt\pnf2\pnindent0{\pntxtb\'B7}}\fi-360\li1440\sl240\slmult1\b Python\b0  by Microsoft\par
-\b{\pntext\f2\'B7\tab}Python Test Explorer\b0  by Little Fox team\par
-\b{\pntext\f2\'B7\tab}Live Share\b0  by Microsoft\par
-\b{\pntext\f2\'B7\tab}Live Share Audio \b0 by Microsoft\par
-\b{\pntext\f2\'B7\tab}Live Share Extension Pack \b0 by Microsoft\par
-\b{\pntext\f2\'B7\tab}Live Share Whiteboard \b0 by Jonathan Carter\par
-\b{\pntext\f2\'B7\tab}SQL Server\b0  by Microsoft\par
-\b{\pntext\f2\'B7\tab}SQLite Explorer\b0   by AlexCvzz\par
-\b{\pntext\f2\'B7\tab}Bracket Pair Colorizer\b0  by Coenraads\par
-\b{\pntext\f2\'B7\tab}Excel Viewer\b0  by GrapeCity\par
-\b{\pntext\f2\'B7\tab}Json Editor\b0  by Nick DeMayo\par
-\b{\pntext\f2\'B7\tab}REST Client\b0  by Huachao Mao\par
-\b{\pntext\f2\'B7\tab}Git Graph\b0  by Michael Hutchie\par
-\b{\pntext\f2\'B7\tab}GitLens\b0  by Eric Amodio\par
+
+\pard{\pntext\f3\'B7\tab}{\*\pn\pnlvlblt\pnf3\pnindent0{\pntxtb\'B7}}\fi-360\li720\sl240\slmult1 Install VS Code (Mac or Windows)\par
+
+\pard{\pntext\f3\'B7\tab}{\*\pn\pnlvlblt\pnf3\pnindent0{\pntxtb\'B7}}\fi-360\li1080\sl240\slmult1 {{\field{\*\fldinst{HYPERLINK https://code.visualstudio.com/download }}{\fldrslt{https://code.visualstudio.com/download\ul0\cf0}}}}\f0\fs28\par
+{\pntext\f3\'B7\tab}Once installed, launch VS Code and \b click\b0  on the extensions icon (4 little squares) on the the left to \b search\b0  and \b install\b0  the extensions.  Type in just first few character of the below extensions to search and click install.\par
+
+\pard{\pntext\f3\'B7\tab}{\*\pn\pnlvlblt\pnf3\pnindent0{\pntxtb\'B7}}\fi-360\li1440\sl240\slmult1\b Python\b0  by Microsoft\par
+{\pntext\f3\'B7\tab}\b Python Docstring Generator\b0  by Nils Werner\par
+{\pntext\f3\'B7\tab}\b Python Test Explorer\b0  by Little Fox team\par
+{\pntext\f3\'B7\tab}\b Live Share\b0  by Microsoft\par
+{\pntext\f3\'B7\tab}\b Live Share Audio \b0 by Microsoft\par
+{\pntext\f3\'B7\tab}\b Live Share Extension Pack \b0 by Microsoft\par
+{\pntext\f3\'B7\tab}\b Live Share Whiteboard \b0 by Jonathan Carter\par
+{\pntext\f3\'B7\tab}\b SQL Server\b0  by Microsoft\par
+{\pntext\f3\'B7\tab}\b SQLite Explorer\b0   by AlexCvzz\par
+{\pntext\f3\'B7\tab}\b Bracket Pair Colorizer\b0  by Coenraads\par
+{\pntext\f3\'B7\tab}\b Excel Viewer\b0  by GrapeCity\par
+{\pntext\f3\'B7\tab}\b Json Editor\b0  by Nick DeMayo\par
+{\pntext\f3\'B7\tab}\b REST Client\b0  by Huachao Mao\par
+{\pntext\f3\'B7\tab}\b Git Graph\b0  by Michael Hutchie\par
+{\pntext\f3\'B7\tab}\b GitLens\b0  by Eric Amodio\par
+
 \pard\li1080\sl240\slmult1\par
-\pard{\pntext\f2\'B7\tab}{\*\pn\pnlvlblt\pnf2\pnindent0{\pntxtb\'B7}}\fi-360\li720\sl240\slmult1 Slack (Mac or Windows)\par
-\pard{\pntext\f2\'B7\tab}{\*\pn\pnlvlblt\pnf2\pnindent0{\pntxtb\'B7}}\fi-360\li1080\sl240\slmult1{\field{\*\fldinst{HYPERLINK "https://slack.com/downloads/windows"}}{\fldrslt{\ul\cf1 https://slack.com/downloads/windows}}}\f0\fs28  (My browser keeps pointing me to the windows download)\par
-{\pntext\f2\'B7\tab}The workspace is:  \b cstuworkspace\b0  .slack  Get your login invite from Glen Qin.\par
-{\pntext\f2\'B7\tab}This shall be the centralized communication platform.  I suggets install it on your phone.\par
+
+\pard{\pntext\f3\'B7\tab}{\*\pn\pnlvlblt\pnf3\pnindent0{\pntxtb\'B7}}\fi-360\li720\sl240\slmult1 Slack (Mac or Windows)\par
+
+\pard{\pntext\f3\'B7\tab}{\*\pn\pnlvlblt\pnf3\pnindent0{\pntxtb\'B7}}\fi-360\li1080\sl240\slmult1 {{\field{\*\fldinst{HYPERLINK https://slack.com/downloads/windows }}{\fldrslt{https://slack.com/downloads/windows\ul0\cf0}}}}\f0\fs28  (My browser keeps pointing me to the windows download)\par
+{\pntext\f3\'B7\tab}The workspace is:  \b cstuworkspace\b0  .slack  Get your login invite from Glen Qin.\par
+{\pntext\f3\'B7\tab}This shall be the centralized communication platform.  I suggets install it on your phone.\par
+
 \pard\li720\sl240\slmult1\par
-\pard{\pntext\f2\'B7\tab}{\*\pn\pnlvlblt\pnf2\pnindent0{\pntxtb\'B7}}\fi-360\li720\sl240\slmult1 Install C/C++ compiler (Windows)\par
-\pard{\pntext\f2\'B7\tab}{\*\pn\pnlvlblt\pnf2\pnindent0{\pntxtb\'B7}}\fi-360\li1080\sl240\slmult1{\field{\*\fldinst{HYPERLINK "https://visualstudio.microsoft.com/thank-you-downloading-visual-studio/?sku=BuildTools&rel=16"}}{\fldrslt{\ul\cf1 https://visualstudio.microsoft.com/thank-you-downloading-visual-studio/?sku=BuildTools&rel=16}}}\f0\fs28  (should auto download)\par
-\pard{\pntext\f2\'B7\tab}{\*\pn\pnlvlblt\pnf2\pnindent0{\pntxtb\'B7}}\fi-360\li1440\sl240\slmult1 Need it to compile the \b\f1 ujson\b0\f0  package.\par
-{\pntext\f2\'B7\tab}Select the C++ checkbox.\par
-\pard{\pntext\f2\'B7\tab}{\*\pn\pnlvlblt\pnf2\pnindent0{\pntxtb\'B7}}\fi-360\li1080\sl240\slmult1{\field{\*\fldinst{HYPERLINK "https://www.itechtics.com/microsoft-visual-c-redistributable-versions-direct-download-links/#Microsoft_Visual_C_Redistributable_2019"}}{\fldrslt{\ul\cf1 https://www.itechtics.com/microsoft-visual-c-redistributable-versions-direct-download-links/#Microsoft_Visual_C_Redistributable_2019}}}\f0\fs28\par
+
+\pard{\pntext\f3\'B7\tab}{\*\pn\pnlvlblt\pnf3\pnindent0{\pntxtb\'B7}}\fi-360\li720\sl240\slmult1 Install C/C++ compiler (Windows)\par
+
+\pard{\pntext\f3\'B7\tab}{\*\pn\pnlvlblt\pnf3\pnindent0{\pntxtb\'B7}}\fi-360\li1080\sl240\slmult1 {{\field{\*\fldinst{HYPERLINK https://visualstudio.microsoft.com/thank-you-downloading-visual-studio/?sku=BuildTools&rel=16 }}{\fldrslt{https://visualstudio.microsoft.com/thank-you-downloading-visual-studio/?sku=BuildTools&rel=16\ul0\cf0}}}}\f0\fs28  (should auto download)\par
+
+\pard{\pntext\f3\'B7\tab}{\*\pn\pnlvlblt\pnf3\pnindent0{\pntxtb\'B7}}\fi-360\li1440\sl240\slmult1 Need it to compile the \b\f1 ujson\b0\f0  package.\par
+{\pntext\f3\'B7\tab}Select the C++ checkbox.\par
+
+\pard{\pntext\f3\'B7\tab}{\*\pn\pnlvlblt\pnf3\pnindent0{\pntxtb\'B7}}\fi-360\li1080\sl240\slmult1 {{\field{\*\fldinst{HYPERLINK https://www.itechtics.com/microsoft-visual-c-redistributable-versions-direct-download-links/#Microsoft_Visual_C_Redistributable_2019 }}{\fldrslt{https://www.itechtics.com/microsoft-visual-c-redistributable-versions-direct-download-links/#Microsoft_Visual_C_Redistributable_2019\ul0\cf0}}}}\f0\fs28\par
+
 \pard\li720\sl240\slmult1\par
-\pard{\pntext\f2\'B7\tab}{\*\pn\pnlvlblt\pnf2\pnindent0{\pntxtb\'B7}}\fi-360\li720\sl240\slmult1 Install a universal GUI SQL client (Mac or Windows)\par
-\pard{\pntext\f2\'B7\tab}{\*\pn\pnlvlblt\pnf2\pnindent0{\pntxtb\'B7}}\fi-360\li1080\sl240\slmult1{\field{\*\fldinst{HYPERLINK "https://dbeaver.io/download/"}}{\fldrslt{\ul\cf1 https://dbeaver.io/download/}}}\f0\fs28\par
-{\pntext\f2\'B7\tab}We shall initially use it to explore our SQLite schema on our local computer.\par
-\pard\li720\sl240\slmult1\par
-\pard\sl240\slmult1 If you want to get deeper understanding beyond this document, you can always get from here:\par
-{\field{\*\fldinst{HYPERLINK "http://letmegooglethat.com/?q=Google+is+your+friend+..+do+abuse+it+with+your+questions"}}{\fldrslt{\ul\cf1 http://letmegooglethat.com/?q=Google+is+your+friend+..+do+abuse+it+with+your+questions}}}\f0\fs28\par
+
+\pard{\pntext\f3\'B7\tab}{\*\pn\pnlvlblt\pnf3\pnindent0{\pntxtb\'B7}}\fi-360\li720\sl240\slmult1 Install a universal GUI SQL client (Mac or Windows)\par
+
+\pard{\pntext\f3\'B7\tab}{\*\pn\pnlvlblt\pnf3\pnindent0{\pntxtb\'B7}}\fi-360\li1080\sl240\slmult1 {{\field{\*\fldinst{HYPERLINK https://dbeaver.io/download/ }}{\fldrslt{https://dbeaver.io/download/\ul0\cf0}}}}\f0\fs28\par
+{\pntext\f3\'B7\tab}We shall initially use it to explore our SQLite schema on our local computer.\par
+
+\pard\sl240\slmult1\par
+\ul\b\fs40 A note about installing onto Windows 10\par
+\ulnone\b0\fs28 I encountered some issues installing the Microsoft C compiler under W10.  Your milage may varies.\par
+\par
+\ul\b\fs40 Additional help\par
+\ulnone\b0\fs28 If you want to get deeper understanding beyond this document, you can always get from here:\par
+{{\field{\*\fldinst{HYPERLINK http://letmegooglethat.com/?q=Google+is+your+friend+..+do+abuse+it+with+your+questions }}{\fldrslt{http://letmegooglethat.com/?q=Google+is+your+friend+..+do+abuse+it+with+your+questions\ul0\cf0}}}}\f0\fs28\par
+\par
+\par
+\par
+\par
+\par
 \par
 \ul\b\fs48 Version control with Git\ulnone\b0\fs28\par
 Once you have installed the above tools, you are ready to work with the code in my personal repository.  All the following shall be performed from the command line terminal.  The following are done once.\par
 \par
+
 \pard\li720\sl240\slmult1 Create a sub-directory on your computer that will be easy for you to find your work area.   On my computer, I have create my master folder as follows:\par
+
 \pard\li1440\sl240\slmult1\b\f1 mkdir \\DataRoot\\Projects\\GitHub\b0\f0\par
 \b\f1 cd    \\DataRoot\\Projects\\GitHub\b0\f0\par
+
 \pard\sl240\slmult1\par
+
 \pard\li720\sl240\slmult1 Configure your commit profile.\f1\par
 \b\tab git  config\b0   --global user.name  "First Last"\par
 \b\tab git  config\b0   --global user.email "email@example.com"\par
 \f0\par
 Clone my repo down to you computer.\par
-\b\f1\tab git  clone\b0   {\field{\*\fldinst{HYPERLINK "https://github.com/elau1004/ETLite.git"}}{\fldrslt{\ul\cf1 https://github.com/elau1004/ETLite.git}}}\f1\fs28\par
+\b\f1\tab git  clone\b0   {{\field{\*\fldinst{HYPERLINK https://github.com/elau1004/ETLite.git }}{\fldrslt{https://github.com/elau1004/ETLite.git\ul0\cf0}}}}\f1\fs28\par
+
 \pard\sl240\slmult1\f0\par
+
 \pard\li720\sl240\slmult1 Change into the newly cloned sub-directory and install all the dependent libraries for the cloned project.\par
+
 \pard\li1440\sl240\slmult1\b\f1 cd    \\DataRoot\\Projects\\GitHub\\ETLite\par
 pipenv sync\par
+
 \pard\li720\sl240\slmult1\par
 \b0\f0 Install the development tool.\b\f1\par
+
 \pard\li1440\sl240\slmult1 pipenv install pylint --dev\par
 \b0\f0\par
+
 \pard\sl240\slmult1 The following are the basic commands that you will use on a regular basis.\par
 \par
+
 \pard\li720\sl240\slmult1 Create your working branch.  Never work on the \b master\b0  branch!\par
 \tab\b\f1 git  checkout -b "branch name" #\b0 FirstName-Task as branch name.\f0\par
 \par
@@ -92,12 +143,18 @@ Switch between working branches.\par
 \b\f1\tab git  status\par
 \b0\f0\par
 Pull the latest code down from the remote repository.  \b Do this as often as you can!\b0\par
+
 \pard\sl240\slmult1\b\f1\tab\b0\f0\tab\b\f1 git  checkout  master\par
+
 \pard\li1440\sl240\slmult1 git  pull\b0\f0\par
+
 \pard\li720\sl240\slmult1\par
 Merge the code from a different branch onto your current branch.  Do this beginning of day, especially after you have done "git pull".\par
+
 \pard\sl240\slmult1\b\f1\tab\tab git  checkout "branch name"\par
+
 \pard\li1440\sl240\slmult1 git  merge     master\b0\f0\par
+
 \pard\li720\sl240\slmult1\par
 Review differences between current and original file.\par
 \b\f1\tab git  diff "path to your file"\b0\f0\par
@@ -115,38 +172,54 @@ Delete your local branch.\par
 \b\f1\tab git  branch -d "branch name"\b0\f0\par
 Delete your branch up on the remote repo.\par
 \b\f1\tab git  push origin --delete "branch name"\b0\f0\par
+
 \pard\sl240\slmult1\par
 When things are working and you want to contribute to the project, request a pull of your contribution branch back into the master branch.  You perform this at the Git website:\par
-\tab{\field{\*\fldinst{HYPERLINK "https://github.com/elau1004/ETLite/pulls"}}{\fldrslt{\ul\cf1 https://github.com/elau1004/ETLite/pulls}}}\f0\fs28\par
+\tab {{\field{\*\fldinst{HYPERLINK https://github.com/elau1004/ETLite/pulls }}{\fldrslt{https://github.com/elau1004/ETLite/pulls\ul0\cf0}}}}\f0\fs28\par
 \par
 Your submission shall be reviewed.  Do NOT be offended if your pull request is rejected.\par
+\par
+\ul\b\fs40 Project Setup\par
+\ulnone\b0\fs28 Launch VS Code and open the ETLite root folder.  The root folder is where you have clone the ETLite repo onto  your local storage drive.\par
+Open the file called "\b\f2\fs20 .env.example\b0\f0\fs28 ", save it back into the same folder as "\b\f2\fs20 .env\b0\f0\fs28 " without the "\b\f2\fs20 .example\b0\f0\fs28 " extension.\par
+\par
+\par
+\par
+\par
 \par
 \par
 \ul\b\fs48 Review Process\par
 \ulnone\fs28 Dos\b0 :\par
-\pard{\pntext\f0 1.\tab}{\*\pn\pnlvlbody\pnf0\pnindent0\pnstart1\pndec{\pntxta.}}
-\fi-360\li1080\sl240\slmult1 Look for Pythonic improvement.\par
-{\pntext\f0 2.\tab}Look for design flaws.\par
-\pard{\pntext\f0 3.\tab}{\*\pn\pnlvlbody\pnf0\pnindent0\pnstart1\pndec{\pntxta.}}
-\fi-360\li1440\sl240\slmult1 Security\par
-{\pntext\f0 4.\tab}Maintainability\par
-{\pntext\f0 5.\tab}Performance\par
-{\pntext\f0 6.\tab}Functionality\par
-\pard{\pntext\f0 7.\tab}{\*\pn\pnlvlbody\pnf0\pnindent0\pnstart1\pndec{\pntxta.}}
-\fi-360\li1080\sl240\slmult1 Review within 24 hours of submission.\par
-{\pntext\f0 8.\tab}Slack the person(s) who you want your PR to be reviewed by.\par
-{\pntext\f0 9.\tab}Initial discussions shall be private and direct between reviewer and submitter.\par
-{\pntext\f0 10.\tab}Comment in the PR, if only your want to escalate the issue up a level for the community to discuss.\par
-{\pntext\f0 11.\tab}Understand the context of the review and \b not\b0  just the code differences between revisions.\par
+
+\pard{\pntext\f3\'B7\tab}{\*\pn\pnlvlblt\pnf3\pnindent0{\pntxtb\'B7}}\fi-360\li1080\sl240\slmult1 Look for Pythonic improvement.\par
+{\pntext\f3\'B7\tab}Look for design flaws.\par
+
+\pard{\pntext\f3\'B7\tab}{\*\pn\pnlvlblt\pnf3\pnindent0{\pntxtb\'B7}}\fi-360\li1440\sl240\slmult1 Security\par
+{\pntext\f3\'B7\tab}Maintainability\par
+
+\pard{\pntext\f3\'B7\tab}{\*\pn\pnlvlblt\pnf3\pnindent0{\pntxtb\'B7}}\fi-360\li1440\sl240\slmult1 Functionality\par
+
+\pard{\pntext\f3\'B7\tab}{\*\pn\pnlvlblt\pnf3\pnindent0{\pntxtb\'B7}}\fi-360\li1440\sl240\slmult1 Performance\par
+
+\pard{\pntext\f3\'B7\tab}{\*\pn\pnlvlblt\pnf3\pnindent0{\pntxtb\'B7}}\fi-360\li1080\sl240\slmult1 Review within 24 hours of submission.\par
+{\pntext\f3\'B7\tab}Slack the person(s) who you want your PR to be reviewed by.\par
+{\pntext\f3\'B7\tab}Initial discussions shall be private and direct between reviewer and submitter.\par
+{\pntext\f3\'B7\tab}Comment in the PR, if only your want to escalate the issue up a level for the community to discuss.\par
+{\pntext\f3\'B7\tab}Understand the context of the review and \b not\b0  just the code differences between revisions.\par
+
 \pard\sl240\slmult1\par
 \b Donts\b0 :\par
-\pard{\pntext\f2\'B7\tab}{\*\pn\pnlvlblt\pnf2\pnindent0{\pntxtb\'B7}}\fi-360\li1080\sl240\slmult1 Nitpick the style and spelling.  PEP-8 is only a starting point.  I have loosen pep-8 with the following over-writes:\par
-\pard{\pntext\f2\'B7\tab}{\*\pn\pnlvlblt\pnf2\pnindent0{\pntxtb\'B7}}\fi-360\li1440\sl240\slmult1 Max line length is around 160 but discouraged.\par
-{\pntext\f2\'B7\tab}Spaces are encouraged if they improve readability.\par
-\pard{\pntext\f2\'B7\tab}{\*\pn\pnlvlblt\pnf2\pnindent0{\pntxtb\'B7}}\fi-360\li1800\sl240\slmult1 Don't munge/butt your characters too tightly.\par
-{\pntext\f2\'B7\tab}Vertical alignment is allowed.\par
-{\pntext\f2\'B7\tab}Space before comma is allowed.\par
-\pard{\pntext\f2\'B7\tab}{\*\pn\pnlvlblt\pnf2\pnindent0{\pntxtb\'B7}}\fi-360\li1080\sl240\slmult1 Let a review hang for more than 48 hours.  Do follow up with reviewer.\par
-{\pntext\f2\'B7\tab}Hack together a solution.  There need to be balance between quality and delivering and err on the side of quality.\par
+
+\pard{\pntext\f3\'B7\tab}{\*\pn\pnlvlblt\pnf3\pnindent0{\pntxtb\'B7}}\fi-360\li1080\sl240\slmult1 Nitpick the style and spelling.  PEP-8 is only a starting point.  I have loosen pep-8 with the following over-writes:\par
+
+\pard{\pntext\f3\'B7\tab}{\*\pn\pnlvlblt\pnf3\pnindent0{\pntxtb\'B7}}\fi-360\li1440\sl240\slmult1 Max line length is around 160 but discouraged.\par
+{\pntext\f3\'B7\tab}Spaces are encouraged if they improve readability.\par
+
+\pard{\pntext\f3\'B7\tab}{\*\pn\pnlvlblt\pnf3\pnindent0{\pntxtb\'B7}}\fi-360\li1800\sl240\slmult1 Don't munge/butt your characters too tightly.\par
+{\pntext\f3\'B7\tab}Vertical alignment is allowed.\par
+{\pntext\f3\'B7\tab}Space before comma is allowed.\par
+
+\pard{\pntext\f3\'B7\tab}{\*\pn\pnlvlblt\pnf3\pnindent0{\pntxtb\'B7}}\fi-360\li1080\sl240\slmult1 Let a review hang for more than 48 hours.  Do follow up with reviewer.\par
+{\pntext\f3\'B7\tab}Hack together a solution.  There need to be balance between quality and delivering and err on the side of quality.\par
 }
  
