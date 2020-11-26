@@ -21,8 +21,8 @@ class   BaseExampleRestApiEtl( BaseRestApiEtl ):
         It implements most of the common abstract REST methods that define the generic REST workflow.
         All common sharable Example stuff should be placed in here.
     """
-    API_KEY = "OSxE5kQ2OgqGdUTlofGR1Aa07rrPjffca1hZPPGuxQyjVgel3FCrPKdhL0NY"    # Fake secret.
-    STOCK_URL = f"https://api.worldtradingdata.com/api/v1/stock?api_token={API_KEY}"
+    API_KEY = "6dd4778d309dc5018782adbf17dea9ce"    # Fake secret.
+    STOCK_URL = f"http://api.marketstack.com/v1/eod/latest?access_key={API_KEY}"
 #   STOCK_URL =  'https://finnhub.io/api/v1/quote'
 
     def __init__( self ,dataset_code:str=None ,run_id:int=None ,from_date:datetime=None ,upto_date:datetime=None ):
