@@ -13,7 +13,7 @@ click = "*"
 pyodbc = "*"
 pyyaml = "*"
 python-dotenv = "*"
-smart-open = "*"
+requests = "*"
 ujson = "*"
 
 [requires]
