@@ -28,42 +28,22 @@ class   Example1Etl( BaseExampleRestApiEtl ):
     DJT20= ['ALK','AAL','CAR','CHRW','CSX','DAL','EXPD','FDX','JBHT','JBLU','KSU','KEX','LSTR','MATX','NSC','R','LUV','UNP','UAL','UPD']
     DJU15= ['AES','AEP','AWK','CNP','ED','D','DUK','EIX','EXC','FE','NEE','NI','PEG','SRE','SO']
     
-    #{'pagination': {'limit': 100, 'offset': 0, 'count': 1, 'total': 0}, 'data': [{'open': 113.91, 'high': 115.85, 'low': 112.59, 'close': 115.17, 'volume': 113226248.0, 'adj_high': 115.85, 'adj_low': 112.59, 'adj_close': 115.17, 'adj_open': 113.91, 'adj_volume': 113226248.0, 'symbol': 'AAPL', 'exchange': 'XNAS', 'date': '2020-11-24T00:00:00+0000'}]}
+#   {'pagination': {'limit': 100, 'offset': 0, 'count': 1, 'total': 0}
     JSON_TO_DB_MAPPING = {
-            "symbol":               "symbol",
-            "currency":             "currency",
-            "last_trade_time":      "traded_at", # timestamp
-            "price":                "price",
-            "price_open":           "day_open",
-            "day_high":             "day_high",
-            "day_low":              "day_low",
-            "52_week_high":         "52weeks_high",
-            "52_week_low":          "52weeks_low",
-            "day_change":           "day_price_change",
-            "change_pct":           "day_percent_change",
-            "close_yesterday":      "yesterday_close",
-            "volume":               "day_volume",
-            "volume_avg":           "avg_volume",
-            #
-            "name":                 "name",
-            "pe":                   "pe",
-            "eps":                  "eps",
-            "shares":               "shares",
-            "market_cap":           "market_cap",
-#           "stock_exchange_long":  "stock_exchange_long",
-            "stock_exchange_short": "exchange",
-            "timezone":             "timezone",
-#           "timezone_name":        "timezone_name"
-            "gmt_offset":           "gmt_offset"
+            "symbol":     "symbol",
+            "exchange":   "exchange",
+            "date":       "traded_at",  # 2020-11-24T00:00:00+0000
+            "open":       "open",
+            "close":      "close",
+            "high":       "high",
+            "low":        "low",
+            "volume":     "volume",
+            "adj_open":   "adj_open",
+            "adj_close":  "adj_close",
+            "adj_high":   "adj_high",
+            "adj_low":    "adj_low",
+            "adj_volume": "adj_volume"
         }
-    JSON_TO_DB_MAPPING = {
-            "o":    "open",
-            "c":    "closed",
-            "h":    "high",
-            "l":    "low",
-            "pc":   "previous_close",
-            "t":    "traded_at"
-    }
 
     def __init__( self ,run_id:int=None ,from_date:datetime=None ,upto_date:datetime=None ):
         # NOTE: Framework doesn't pass in instantiation parameters.
@@ -117,20 +97,21 @@ class   Example1Etl( BaseExampleRestApiEtl ):
         """ SEE: BaseRestApiEtl.put_datapage_resp()
         """
         # SEE: https://docs.python.org/3/library/io.html#io.TextIOBase
-        # {"message":"You have reached your request limit for the day. Upgrade to get more daily requests."}
-#       print( f"{ctx.loopback['ordinal']:2} length of returned request: {len(content)}" )
-        print( f"{ctx.loopback['ordinal']:2} {ctx.loopback['task']:4} length of returned request: {len(content)}" )
         
+        ordinl = ctx.loopback['ordinal']
+        stkidx = ctx.loopback['index']
+        symbol = ctx.loopback['task']
         cooked = None
         if  isinstance( content ,str ):
             d = json.loads( content )
-            # {'error': {'code': 'rate_limit_reached', 'message': 'You have exceeded th... details. '}}
-            if 'Message'  not in d:
-                tokens  = [d['data'][0][k] if d['data'][0][k] else '' for k in Example1Etl.JSON_TO_DB_MAPPING ]
-                cooked  = [ ( BaseEtl.DELIMITER.join( tokens ) ,0 ,'ram:///' ) ]
-                cooked  = None # DEBUG
+            if 'error'  in d:
+                print( f"{ordinl:2} {stkidx}: {symbol:4} encountered error {d['error']['code']}" )
+            else:
+                print( f"{ordinl:2} {stkidx}: {symbol:4} length of returned request: {len(content)}" )
+                tokens  = [str(d['data'][0][k]) if d['data'][0][k] else '' for k in Example1Etl.JSON_TO_DB_MAPPING ]
+                cooked  = [ ( BaseEtl.DELIMITER.join( tokens ) ,0 ,f"ram://{stkidx}/" ) ]
 
-        return  None    # TODO: Not right
+        return  cooked
 
     # Concrete properties section.
     #
