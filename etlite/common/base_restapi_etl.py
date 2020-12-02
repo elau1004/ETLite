@@ -247,7 +247,7 @@ class   BaseRestApiEtl( BaseEtl ):
         return  None
 
     # Required step 8.
-    def put_datapage_resp( self ,ctx:RestApiContext ,content ) -> list((str ,int ,str)):
+    async def put_datapage_resp( self ,ctx:RestApiContext ,content ) -> list((str ,list ,int)):
         """ The response for the previous get_datapage_urls() call is put to you.
         Query the content to determine if there are more pages to download.
         You should do the mininum to figure out if the request is good.
@@ -262,10 +262,7 @@ class   BaseRestApiEtl( BaseEtl ):
         Return:
             A list of tuple of:
                 str - The cleansed and processed output record.
-                int - The return code to communicate the status of the processing.
-                        0 - successful
-                        1 - encountered issue with the data. Retry again.
-                str - The name of a output stream to direct this record into.
+                list- List of names of a output stream to direct this record into.
                       This must be in the conforming URI format as "scheme://hostname/path"
                         SEE: https://en.wikipedia.org/wiki/Uniform_Resource_Identifier
 
@@ -273,6 +270,9 @@ class   BaseRestApiEtl( BaseEtl ):
                                     file:///path/to/file.txt
                                     s3://bucket/path/to/object.txt
                                     sftp://[<user>[;fingerprint=<host-key fingerprint>]@]<host>[:<port>]/<path>/<file>
+                int - The return code to communicate the status of the processing.
+                        0 - successful
+                        1 - encountered issue with the data. Retry again.
         """
         return  None
 
