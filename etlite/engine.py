@@ -222,10 +222,14 @@ class   RestWorkflowExecutor( BaseExecutor ):
                 break
 
 if  __name__ == "__main__":
-    from example.example1_etl  import  Example1Etl
+#   from example.example1_etl  import  Example1Etl
+#   from example.example3_etl  import  Example3Etl
+    from example.example4_etl  import  Example4Etl
 
     try:
-        jb = Example1Etl()
+#       jb = Example1Etl()
+#       jb = Example3Etl()
+        jb = Example4Etl()
         wf = RestWorkflowExecutor( jb )
         wf.run()
     except  Exception as ex:

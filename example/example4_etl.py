@@ -22,13 +22,13 @@ class   Example4Etl( BaseExampleRestApiEtl ):
     Our example here is to download stocks data for Dow Jones indices.
     """
     CODE = "Example4"
-    FX_Base = ['USD','EUR','JPY','GBP']
+    FX_BASE = ['USD','EUR','JPY','GBP']
     
     def __init__( self ,run_id:int=None ,from_date:datetime=None ,upto_date:datetime=None ):
         # NOTE: Framework doesn't pass in instantiation parameters.
         super().__init__( dataset_code=Example4Etl.CODE ,run_id=run_id ,from_date=from_date ,upto_date=upto_date )
         self._FX = [ 
-            ( 'FX_Base' ,Example4Etl.FX_Base)       # FX base code
+            ( 'FX_Base' ,Example4Etl.FX_BASE)       # FX base code
         ]
 
     # Private method section
@@ -56,11 +56,13 @@ class   Example4Etl( BaseExampleRestApiEtl ):
         if  self._FX:
             rest_reqs = []
             for fx in self._FX[0][1]:
-                params = {'base_code':fx'}            
+    #           params = {'base_code':fx}            
                 loopback=  self.get_loopback()
                 loopback['fx'] = fx
     #           rest_reqs.append((HTTP_GET ,'https://v6.exchangerate-api.com/v6' ,params ,None ,loopback ))
-                rest_reqs.append((HTTP_GET ,'https://v6.exchangerate-api.com/v6/9e50d469929454161aef2f74/latest' ,params ,None ,loopback ))
+    #           rest_reqs.append((HTTP_GET ,'https://v6.exchangerate-api.com/v6/9e50d469929454161aef2f74/latest/USD' ,params ,None ,loopback ))
+                req_url = f'https://v6.exchangerate-api.com/v6/9e50d469929454161aef2f74/latest/{fx}'
+                rest_reqs.append((HTTP_GET , req_url ,None ,None ,loopback ))
     #       del self._cities[0]    # NOTE: Pop the continent from the list.
             self._FX = []          # clear the list
 
@@ -77,19 +79,18 @@ class   Example4Etl( BaseExampleRestApiEtl ):
         if  isinstance( content ,str ):
             d = json.loads( content )
             if 'error'  in d:
-                print( f"{ordinl:2} {continent:8} {city:16} encountered error : {str(d['cod'])} {d['message']}" )
+                print( f"{ordinl:2} {fx:3} encountered error : {str(d['result'])} {d['error-type']}" )
             else:
-                print( f"{ordinl:2} {continent:8} {city:16} length of returned request: {len(content)}" )
+                print( f"{ordinl:2} {fx:3}  length of returned request: {len(content)}" )
                 tokens  = []
-                tokens.append(str(self.find('id',d)))
-                tokens.append(continent)
-                tokens.append(self.find('name',d))
-                tokens.append(self.find('sys.country',d))
-                tokens.append(d['weather'][0]['description'])
-                tokens.append(str(self.find('main.temp',d)))
-                tokens.append(str(self.find('main.humidity',d)))
+                tokens.append(self.find('base_code',d))
+                tokens.append(self.find('time_last_update_utc',d))
+                tokens.append(str(self.find('conversion_rates.USD',d)))
+                tokens.append(str(self.find('conversion_rates.EUR',d)))
+                tokens.append(str(self.find('conversion_rates.JPY',d)))
+                tokens.append(str(self.find('conversion_rates.GBP',d)))
                 print(tokens)
-                cooked  = [ ( BaseEtl.DELIMITER.join( tokens ) ,0 ,f"ram://{continent}/" ) ]
+                cooked  = [ ( BaseEtl.DELIMITER.join( tokens ) ,0 ,f"ram://{fx}/" ) ]
 
         return  cooked
 
@@ -100,11 +101,11 @@ class   Example4Etl( BaseExampleRestApiEtl ):
     def output_data_header( self ) -> str:
         """ SEE: BaseEtl.output_data_header()
         """
-        return  BaseEtl.DELIMITER.join( [v for v in Example3Etl.JSON_TO_DB_MAPPING.values() ] )
+        return  BaseEtl.DELIMITER.join( [v for v in Example4Etl.JSON_TO_DB_MAPPING.values() ] )
 
     #
     # End Interface implementation section
 
 
 if  __name__ == "__main__":
-    e = Example3Etl()
+    e = Example4Etl()

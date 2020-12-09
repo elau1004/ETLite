@@ -24,7 +24,7 @@ class   Example3Etl( BaseExampleRestApiEtl ):
     Our example here is to download stocks data for Dow Jones indices.
     """
     CODE = "Example3"
-    ASIA= ['Beijing,cn','Tokyo, jp']
+    ASIA= ['Beijing,cn','Tokyo, jp','James, xx']
     EUROPE= ['London,uk','Paris, fr','Rome, it' ]
     NAMERICA= ['San Francisco, us','New York, us', 'Chicago, us', 'Dallas, us']
     SAMERICA= ['Lima, pe','Bogota, co']
@@ -85,11 +85,12 @@ class   Example3Etl( BaseExampleRestApiEtl ):
         if  isinstance( content ,str ):
             d = json.loads( content )
             if 'cod'  in d:
-                print( f"{ordinl:2} {continent:8} {city:16} encountered error {d['cod']['message']}" )
+                print( f"{ordinl:2} {continent:8} {city:16} encountered error : {str(d['cod'])} {d['message']}" )
             else:
                 print( f"{ordinl:2} {continent:8} {city:16} length of returned request: {len(content)}" )
                 tokens  = []
                 tokens.append(str(self.find('id',d)))
+                tokens.append(continent)
                 tokens.append(self.find('name',d))
                 tokens.append(self.find('sys.country',d))
                 tokens.append(d['weather'][0]['description'])
