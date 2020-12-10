@@ -77,9 +77,9 @@ class   RestApiRequestor():
     async def run( self ) -> bool:
         """
         """
-        retries = [1.0 ,1.0 ,2.0 ,3.0 ,5.0 ,8.0 ,13.0 ,21.0]    # Fibonacci backoff.
+        retries = [1 ,1 ,2 ,3 ,5 ,8 ,13 ,21]    # Fibonacci backoff.
 
-        # TODO: How do I trap exception in async routine.
+        # TODO: How do I trap exception in async routine?
         async with aiohttp.ClientSession() as client:
             for sec in  retries:
                 try:
@@ -97,21 +97,28 @@ class   RestApiRequestor():
                         self._ctx.headers=  dict( resp.headers )
                         self._ctx.body   =  await resp.text()   # TODO: Convert to streaming to reduce memory pressure.
 
-                        result = self._callback( ctx=self._ctx ,content=self._ctx.body )    # [(str ,int ,str)]
+                        result = await self._callback( ctx=self._ctx ,content=self._ctx.body )
                         if  isinstance( result ,bool ):
                             return  result
                         else:
+                            # Sample data:
+                            # [("data1" ,["s3://bk1" ,"file://tmp1"] ,0)
+                            # ,("data2" ,["s3://bk2" ,"file://tmp2"] ,0)
+                            # ]
                             if  isinstance( result ,list ):
                                 for outinfo in  result:                                    
                                     if  isinstance( outinfo ,tuple ):
-                                        transformed = outinfo[0]
-                                        destination = outinfo[2]
-                                        if  destination not in self._outputs:
-                                            self._outputs[ destination ] = {}
-                                        if  self._ctx.ordinal not in self._outputs[ destination ]:
-                                            self._outputs[ destination ][ self._ctx.ordinal ] = []
+                                        transformed = outinfo[0]    # The transformed data.
+                                        if  isinstance( outinfo[1] ,list ):
+                                            destinations = outinfo[1]
+                                        else:
+                                            destinations = [ str(outinfo[1]) ]
 
-                                        self._outputs[ destination ][ self._ctx.ordinal ].append( transformed )
+                                        for destination in destinations:  # The list of destinations.
+                                            if  destination not in self._outputs:
+                                                self._outputs[ destination ] = []
+
+                                            self._outputs[ destination ].append( transformed )
                     break
                 except  Exception as ex:
                     if  sec ==  retries[-1]:
@@ -207,17 +214,13 @@ class   RestWorkflowExecutor( BaseExecutor ):
                         raise RuntimeError()
 
                 # NOTE: Collect the outputs from the parallel requests into thier destination slots.
-                # TODO: Rethibk this block.
                 for req in  reqs:
-                    for destination in  req.outputs.keys():
-                        for ordinal in  req.outputs[ destination ].keys():
-                            if  destination not in self._outputs:
-                                self._outputs[ destination ]= {}
-                            if  ordinal not in self._outputs[  destination ]:
-                                self._outputs[ destination ][ ordinal ]= []
+                    for destination in  req.outputs:
+                        transformed =   req.outputs[ destination ]
+                        if  destination not in self._outputs:
+                            self._outputs[ destination ] = []
 
-                            transformed =  req.outputs[ destination ][ ordinal ]
-                            self._outputs[ destination ][ ordinal ].extend( transformed )
+                        self._outputs[ destination ].append( transformed )
             else:   # None value terminate this loop.
                 break
 
