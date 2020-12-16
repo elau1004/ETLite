@@ -13,8 +13,8 @@ click = "*"
 pyodbc = "*"
 pyyaml = "*"
 python-dotenv = "*"
-smart-open = "*"
+requests = "*"
 ujson = "*"
 
 [requires]
-python_version = "3.7"
+python_version = "3.9"

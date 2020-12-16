@@ -59,7 +59,7 @@ class   Example2Etl( BaseExampleRestApiEtl ):
         return  BaseExampleRestApiEtl.STOCK_URL + "IBM"
 
     # Required step 8.
-    def put_next_datapage_resp( self ,resp:ClientResponse ):
+    async def put_next_datapage_resp( self ,resp:ClientResponse ):
         pass
 
     # Properties section

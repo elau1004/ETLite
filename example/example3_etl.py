@@ -23,9 +23,9 @@ class   Example3Etl( BaseExampleRestApiEtl ):
     """ An example implementation of an ETL job.
     Our example here is to download stocks data for Dow Jones indices.
     """
-    CODE = "Example3"
-    ASIA= ['Beijing,cn','Tokyo, jp']
-    EUROPE= ['London,uk','Paris, fr','Rome, it' ]
+    CODE    = "Example3"
+    ASIA    = ['Beijing,cn','Tokyo, jp']
+    EUROPE  = ['London,uk','Paris, fr','Rome, it' ]
     NAMERICA= ['San Francisco, us','New York, us', 'Chicago, us', 'Dallas, us']
     SAMERICA= ['Lima, pe','Bogota, co']
 
@@ -74,14 +74,14 @@ class   Example3Etl( BaseExampleRestApiEtl ):
         return  rest_reqs
 
     # Required step 8.
-    def put_datapage_resp( self ,ctx:RestApiContext ,content ) -> list((str ,int ,str)):
+    async def put_datapage_resp( self ,ctx:RestApiContext ,content ) -> list((str ,int ,str)):
         """ SEE: BaseRestApiEtl.put_datapage_resp()
         """
         # SEE: https://docs.python.org/3/library/io.html#io.TextIOBase
-        ordinl = ctx.loopback['ordinal']
-        city = ctx.loopback['city']
+        cooked    = None
+        ordinl    = ctx.loopback['ordinal']
+        city      = ctx.loopback['city']
         continent = ctx.loopback['continent']
-        cooked = None
         if  isinstance( content ,str ):
             d = json.loads( content )
             if 'cod'  in d:
@@ -96,7 +96,7 @@ class   Example3Etl( BaseExampleRestApiEtl ):
                 tokens.append(str(self.find('main.temp',d)))
                 tokens.append(str(self.find('main.humidity',d)))
                 print(tokens)
-                cooked  = [ ( BaseEtl.DELIMITER.join( tokens ) ,0 ,f"ram://{continent}/" ) ]
+                cooked  = [( BaseEtl.DELIMITER.join( tokens ) ,f"ram://{continent}/" ,0 )]
 
         return  cooked
 
@@ -107,7 +107,7 @@ class   Example3Etl( BaseExampleRestApiEtl ):
     def output_data_header( self ) -> str:
         """ SEE: BaseEtl.output_data_header()
         """
-        return  BaseEtl.DELIMITER.join( [v for v in Example3Etl.JSON_TO_DB_MAPPING.values() ] )
+        return  None
 
     #
     # End Interface implementation section
