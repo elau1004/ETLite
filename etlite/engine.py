@@ -38,8 +38,9 @@ from    etlite.context  import  RestApiContext
 from    etlite.common.exceptions    import  ETLiteException
 from    etlite.common.base_restapi_etl  import  BaseRestApiEtl
 
-from    etlite.adapters.rest_to_db import DBAdapter
-from    etlite.adapters.rest_to_db import RestToDB
+from    etlite.dbs.postgres import Postgres
+from    etlite.dbs.cassandra_db import Cassandra
+
 
 class   RestApiRequestor():
     """ Single stand alone REST API requestor.
@@ -231,18 +232,30 @@ class   RestWorkflowExecutor( BaseExecutor ):
                         self._outputs[ destination ].append( transformed )
             else:   # None value terminate this loop.
 
-                # start DB part: collect all data from self.outputs for bulk insert
-                dataLists, table = [], ""
+                # start DB part: 
+                # 1)get dialect, table name from self.outputs object
+                # 2)create db instances accordingly
+                # 2)collect all data from self.outputs for bulk insert
+                dialect, table = "", ""
                 for dest in self._outputs:
+                    # a better name than 'db' ?
                     if dest.startswith("db"):
-                        table = (dest.split("://")[1][:-1])
-                        dataLists.extend(list(self._outputs[dest].values()))
-                mappings = DBAdapter.build_mapping(dataLists)
-                
-                if mappings:
-                    print(f"*** inserting into table '{table}' with mappings")
-                    r2d = RestToDB(mappings, table)
-                    r2d.core_insert()
+                        db_info = dest.split("://")[1].split("/")
+                        dialect, table = db_info[0], db_info[1][:-1]
+                        
+                        data_list = list(self._outputs[dest].values())
+                        # bulk insert per destination
+                        if data_list:
+                            if dialect == 'cassandra':
+                                cassandra = Cassandra(table, data_list)
+                                cassandra.insert()
+                            if dialect == 'postgres':
+                                postgres = Postgres(table, data_list)
+                                postgres.insert()
+                        else:
+                            pass # raise error here 
+                    else:
+                        pass # raise error here
                 # end DB part
 
                 break

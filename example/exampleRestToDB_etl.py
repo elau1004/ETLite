@@ -21,14 +21,18 @@ from    example.base_example_restapi_etl  import  BaseExampleRestApiEtl
 
 class   ExampleRestToDB( BaseExampleRestApiEtl ):
     """ An example implementation of an ETL job.
-    Our example here is to download stocks data for Dow Jones indices.
+    Our example here is to download data from weather site and pump them into the database
     """
     CODE = "ExampleRestToDB"
+
+    DB_NAME = "cassandra"
+
     ASIA= ['Beijing,cn','Tokyo, jp']
     EUROPE= ['London,uk','Paris, fr','Rome, it' ]
     NAMERICA= ['San Francisco, us','New York, us', 'Chicago, us', 'Dallas, us']
     SAMERICA= ['Lima, pe','Bogota, co']
 
+    # may be used in the future
     JSON_TO_DB_MAPPING = {
             "name":         "city",
             "country":      "country",
@@ -39,13 +43,7 @@ class   ExampleRestToDB( BaseExampleRestApiEtl ):
     def __init__( self ,run_id:int=None ,from_date:datetime=None ,upto_date:datetime=None ):
         # NOTE: Framework doesn't pass in instantiation parameters.
         super().__init__( dataset_code=ExampleRestToDB.CODE ,run_id=run_id ,from_date=from_date ,upto_date=upto_date )
-        """
-        self._cities = [ 
-            ( 'ASIA' ,ExampleRestToDB.ASIA ),           # Asian cities
-            ( 'EUROPE' ,ExampleRestToDB.EUROPE ),       # Europian cities
-            ( 'NAMERICA' ,ExampleRestToDB.NAMERICA ),   # North America cities
-            ( 'SAMERICA' ,ExampleRestToDB.SAMERICA )    # South America cities
-        """
+        
         self._cities = [ 
             ( 'weather1' ,ExampleRestToDB.ASIA ),           # Asian cities
             ( 'weather2' ,ExampleRestToDB.EUROPE ),       # Europian cities
@@ -53,14 +51,27 @@ class   ExampleRestToDB( BaseExampleRestApiEtl ):
             ( 'weather4' ,ExampleRestToDB.SAMERICA )    # South America cities
         ]
 
-    # Private method section
-    #
-    def find( self, element, json):
-        keys = element.split('.')
-        rv = json
-        for key in keys:
-            rv = rv[key]
-        return rv
+    # extract value based on key from a nested dictionary
+    @staticmethod
+    def extract(d, token):
+        def find(d, token, result):
+            for key, value in d.items():
+                if key == token:
+                    result.append(value)
+                if isinstance(value, dict):
+                    find(value, token, result)
+                elif isinstance(value, list):
+                    for element in value:
+                        if isinstance(element, dict):
+                            find(element, token, result)
+
+        answer = []
+        find(d, token, answer)  
+        if not answer:
+            return "Not Found !"
+        else:
+            return str(answer[0])
+
 
     # Begin Interface implementation section
     #
@@ -94,26 +105,23 @@ class   ExampleRestToDB( BaseExampleRestApiEtl ):
         # SEE: https://docs.python.org/3/library/io.html#io.TextIOBase
         ordinl = ctx.loopback['ordinal']
         city = ctx.loopback['city']
-        print(city)
+        print("\n", city)
         table = ctx.loopback['table']
         cooked = None
         if  isinstance( content ,str ):
-            d = json.loads( content )
-            print('cod:', d['cod'])
-            #print(d)
+            d = json.loads( content ) 
+        
             if 'error' in d:
                 print( f"{ordinl:2} {table:8} {city:16} encountered error {d['cod']['message']}" )
             else:
                 print( f"{ordinl:2} {table:8} {city:16} length of returned request: {len(content)}" )
                 tokens  = []
-                #tokens.append(str(self.find('id',d)))
-                tokens.append(self.find('name',d))
-                tokens.append(self.find('sys.country',d))
-                tokens.append(d['weather'][0]['description'])
-                tokens.append(str(self.find('main.temp',d)))
-                #tokens.append(str(self.find('main.humidity',d)))
-                print(tokens)
-                cooked  = [ ( BaseEtl.DELIMITER.join( tokens ) ,0 ,f"db://{table}" ) ]
+                tokens.append( ExampleRestToDB.extract(d, 'name'))
+                tokens.append( ExampleRestToDB.extract(d, 'country'))
+                tokens.append( ExampleRestToDB.extract(d, 'description'))
+                tokens.append( ExampleRestToDB.extract(d, 'temp'))
+            
+                cooked  = [ ( BaseEtl.DELIMITER.join( tokens ) ,0 ,f"db://{ExampleRestToDB.DB_NAME}/{table}" ) ]
                 print(cooked)
         return  cooked
 
@@ -128,7 +136,5 @@ class   ExampleRestToDB( BaseExampleRestApiEtl ):
 
     #
     # End Interface implementation section
-
-
 if  __name__ == "__main__":
     pass

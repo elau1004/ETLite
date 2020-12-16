@@ -25,6 +25,26 @@ dev:
       user: dev_user
       pass: /dev/database/yourdwh/password
       role: ~
+    postgres:
+      uri:        'postgresql://test:test@localhos/test'
+      host:       localhost
+      user:       test
+      pass:       test
+      db:         test
+      role: ~
+    cassandra:
+      uri:
+      hosts:      ['ec2-3-134-252-166.us-east-2.compute.amazonaws.com']
+      user:       gjen
+      pass:       sekret
+      keyspace:   bill_keyspace
+      role: ~
+    cassandra1:
+      uri:
+      hosts:      ['127.0.0.1']
+      user:       test
+      pass:       test
+      keyspace:   test_keyspace
   storage:
     awss3:
       accesskey: your-access_key
