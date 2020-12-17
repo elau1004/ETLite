@@ -38,8 +38,7 @@ from    etlite.context  import  RestApiContext
 from    etlite.common.exceptions    import  ETLiteException
 from    etlite.common.base_restapi_etl  import  BaseRestApiEtl
 
-from    etlite.dbs.postgres import Postgres
-from    etlite.dbs.cassandra_db import Cassandra
+from    etlite.operators.sql_operator import SqlOperator
 
 
 class   RestApiRequestor():
@@ -234,30 +233,24 @@ class   RestWorkflowExecutor( BaseExecutor ):
 
                 # start DB part: 
                 # 1)get dialect, table name from self.outputs object
-                # 2)create db instances accordingly
                 # 2)collect all data from self.outputs for bulk insert
-                dialect, table = "", ""
+                # 3)create db instance to execute the query(s)
                 for dest in self._outputs:
-                    # a better name than 'db' ?
-                    if dest.startswith("db"):
+                    if dest.startswith("sql"):
                         db_info = dest.split("://")[1].split("/")
-                        dialect, table = db_info[0], db_info[1][:-1]
-                        
-                        data_list = list(self._outputs[dest].values())
-                        # bulk insert per destination
-                        if data_list:
-                            if dialect == 'cassandra':
-                                cassandra = Cassandra(table, data_list)
-                                cassandra.insert()
-                            if dialect == 'postgres':
-                                postgres = Postgres(table, data_list)
-                                postgres.insert()
+                        db_name, tb_name = db_info[0], db_info[1][:-1]
+                        data_list = self._outputs[dest]
+                
+                        if db_name and tb_name and data_list:
+                            # SqlOperator takes a positional parameter 'action'
+                            # in case it is needed.  The default is 'insert'
+                            operator = SqlOperator(db_name, tb_name, data_list)
+                            operator.execute()
                         else:
                             pass # raise error here 
                     else:
-                        pass # raise error here
+                        pass # check other options such file or rest
                 # end DB part
-
                 break
 
 if  __name__ == "__main__":

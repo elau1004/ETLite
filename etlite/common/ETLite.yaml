@@ -26,7 +26,7 @@ dev:
       pass: /dev/database/yourdwh/password
       role: ~
     postgres:
-      uri:        'postgresql://test:test@localhos/test'
+      uri:        'postgresql://test:test@localhost/test'
       host:       localhost
       user:       test
       pass:       test

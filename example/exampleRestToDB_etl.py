@@ -25,7 +25,7 @@ class   ExampleRestToDB( BaseExampleRestApiEtl ):
     """
     CODE = "ExampleRestToDB"
 
-    DB_NAME = "cassandra"
+    DB_NAME = "postgres"
 
     ASIA= ['Beijing,cn','Tokyo, jp']
     EUROPE= ['London,uk','Paris, fr','Rome, it' ]
@@ -99,7 +99,7 @@ class   ExampleRestToDB( BaseExampleRestApiEtl ):
         return  rest_reqs
 
     # Required step 8.
-    def put_datapage_resp( self ,ctx:RestApiContext ,content ) -> list((str ,int ,str)):
+    async def put_datapage_resp( self ,ctx:RestApiContext ,content ) -> list((str ,int ,str)):
         """ SEE: BaseRestApiEtl.put_datapage_resp()
         """
         # SEE: https://docs.python.org/3/library/io.html#io.TextIOBase
@@ -121,7 +121,7 @@ class   ExampleRestToDB( BaseExampleRestApiEtl ):
                 tokens.append( ExampleRestToDB.extract(d, 'description'))
                 tokens.append( ExampleRestToDB.extract(d, 'temp'))
             
-                cooked  = [ ( BaseEtl.DELIMITER.join( tokens ) ,0 ,f"db://{ExampleRestToDB.DB_NAME}/{table}" ) ]
+                cooked  = [ ( BaseEtl.DELIMITER.join( tokens ) ,f"sql://{ExampleRestToDB.DB_NAME}/{table}",0 )]
                 print(cooked)
         return  cooked
 
