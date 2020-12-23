@@ -9,14 +9,16 @@ pylint = "*"
 [packages]
 aiohttp = "*"
 alembic = "*"
+cassandra-driver = "*"
 click = "*"
+psycopg2 = "*"
 pyodbc = "*"
 pyyaml = "*"
+pymssql = "*"
+PyMySQL = "*"
 python-dotenv = "*"
 requests = "*"
 ujson = "*"
-psycopg2 = "*"
-cassandra-driver = "*"
 
 [requires]
 python_version = "3.7"
