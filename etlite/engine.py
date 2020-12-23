@@ -19,6 +19,11 @@ Example:
 """
 # pylint: disable=line-too-long
 # pylint: disable=C0103,C0326,C0330
+
+import  os
+import  sys
+sys.path = [os.getcwd()] + sys.path
+
 import  random
 
 import  gettext     # Ready for future internationalization.
@@ -32,6 +37,9 @@ from    requests.auth   import  AuthBase
 from    etlite.context  import  RestApiContext
 from    etlite.common.exceptions    import  ETLiteException
 from    etlite.common.base_restapi_etl  import  BaseRestApiEtl
+
+from    etlite.adapters.rest_to_db import DBAdapter
+from    etlite.adapters.rest_to_db import RestToDB
 
 class   RestApiRequestor():
     """ Single stand alone REST API requestor.
@@ -98,6 +106,7 @@ class   RestApiRequestor():
                         self._ctx.body   =  await resp.text()   # TODO: Convert to streaming to reduce memory pressure.
 
                         result = self._callback( ctx=self._ctx ,content=self._ctx.body )    # [(str ,int ,str)]
+                
                         if  isinstance( result ,bool ):
                             return  result
                         else:
@@ -218,18 +227,37 @@ class   RestWorkflowExecutor( BaseExecutor ):
 
                             transformed =  req.outputs[ destination ][ ordinal ]
                             self._outputs[ destination ][ ordinal ].extend( transformed )
+
             else:   # None value terminate this loop.
+
+                # start DB part: collect all data from self.outputs for bulk insert
+                dataLists, table = [], ""
+                for dest in self._outputs:
+                    if dest.startswith("db"):
+                        table = (dest.split("://")[1][:-1])
+                        dataLists.extend(list(self._outputs[dest].values()))
+                mappings = DBAdapter.build_mapping(dataLists)
+                
+                if mappings:
+                    print(f"*** inserting into table '{table}' with mappings")
+                    r2d = RestToDB(mappings, table)
+                    r2d.core_insert()
+                # end DB part
+
                 break
 
 if  __name__ == "__main__":
 #   from example.example1_etl  import  Example1Etl
 #   from example.example3_etl  import  Example3Etl
-    from example.example4_etl  import  Example4Etl
+#   from example.example4_etl  import  Example4Etl
+    from example.exampleRestToDB_etl  import  ExampleRestToDB
 
     try:
 #       jb = Example1Etl()
 #       jb = Example3Etl()
-        jb = Example4Etl()
+#       jb = Example4Etl()
+
+        jb = ExampleRestToDB()
         wf = RestWorkflowExecutor( jb )
         wf.run()
     except  Exception as ex:
