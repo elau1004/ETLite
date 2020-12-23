@@ -28,7 +28,6 @@ class   Example1Etl( BaseExampleRestApiEtl ):
     DJT20= ['ALK','AAL','CAR','CHRW','CSX','DAL','EXPD','FDX','JBHT','JBLU','KSU','KEX','LSTR','MATX','NSC','R','LUV','UNP','UAL','UPD']
     DJU15= ['AES','AEP','AWK','CNP','ED','D','DUK','EIX','EXC','FE','NEE','NI','PEG','SRE','SO']
     
-#   {'pagination': {'limit': 100, 'offset': 0, 'count': 1, 'total': 0}
     JSON_TO_DB_MAPPING = {
             "symbol":     "symbol",
             "exchange":   "exchange",
@@ -53,7 +52,6 @@ class   Example1Etl( BaseExampleRestApiEtl ):
             ( 'djt20' ,Example1Etl.DJT20 ), # Dow Jones Transportation
             ( 'dju15' ,Example1Etl.DJU15 )  # Dow Jones Utilities
         ]
-#        self._cities = [ 'London,uk' ,'Chicago,us' ,'Oakland,us' ,'Beijing,cn' ]
 
     # Private method section
     #
@@ -81,19 +79,10 @@ class   Example1Etl( BaseExampleRestApiEtl ):
                 rest_reqs.append( (HTTP_GET ,BaseExampleRestApiEtl.STOCK_URL ,params ,None ,loopback) )
             del self._indices[0]    # NOTE: Pop the stock exchange index stack.
 
-#        rest_reqs = None
-#        if  self._cities:
-#            rest_reqs = []
-#            for city in self._cities:
-#                params = {'q':city ,'appid': 'c67e4ca4fa5ce556a24984a982ba6ed2'}            
-#                loopback=  self.get_loopback()
-#                rest_reqs.append( (HTTP_GET ,'https://api.openweathermap.org/data/2.5/weather' ,params ,None ,loopback ))
-#            self._cities = []
-
         return  rest_reqs
 
     # Required step 8.
-    def put_datapage_resp( self ,ctx:RestApiContext ,content ) -> list((str ,int ,str)):
+    async def put_datapage_resp( self ,ctx:RestApiContext ,content ) -> list((str ,list ,int)):
         """ SEE: BaseRestApiEtl.put_datapage_resp()
         """
         # SEE: https://docs.python.org/3/library/io.html#io.TextIOBase
@@ -109,7 +98,7 @@ class   Example1Etl( BaseExampleRestApiEtl ):
             else:
                 print( f"{ordinl:2} {stkidx}: {symbol:4} length of returned request: {len(content)}" )
                 tokens  = [str(d['data'][0][k]) if d['data'][0][k] else '' for k in Example1Etl.JSON_TO_DB_MAPPING ]
-                cooked  = [ ( BaseEtl.DELIMITER.join( tokens ) ,0 ,f"ram://{stkidx}/" ) ]
+                cooked  = [( BaseEtl.DELIMITER.join( tokens ) ,f"ram://{stkidx}/" ,0 )]
 
         return  cooked
 

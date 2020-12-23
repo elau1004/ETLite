@@ -13,8 +13,10 @@ click = "*"
 pyodbc = "*"
 pyyaml = "*"
 python-dotenv = "*"
-smart-open = "*"
+requests = "*"
 ujson = "*"
+psycopg2 = "*"
+cassandra-driver = "*"
 
 [requires]
 python_version = "3.7"
